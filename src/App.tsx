@@ -5,9 +5,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 // import { AuthProvider } from "./Database/Auth";
 //  Pages:
 // import { Landing } from "./Pages/Landing";
-import { Home } from "./Pages/Main";
-import Classes from "./Pages/Classes";
-import Homework from "./Pages/Homework";
+import { Main } from "./Pages/Main";
 
 function App() {
   return (
@@ -18,7 +16,7 @@ function App() {
         <Switch>
           {/* <Route exact path="/" component={Landing} /> */}
           {/* <Route exact path="/register" component={Registration} /> */}
-          <Route exact path="/" component={Home} />
+          <Route exact path="/" component={Main} />
         </Switch>
       </Router>
       {/* </AuthProvider> */}
