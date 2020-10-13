@@ -1,10 +1,28 @@
-import React from "react";
-import { Container, Row, Card } from "react-bootstrap";
+import React, { useState } from "react";
+import { Container, Row, Card, Button, ButtonGroup } from "react-bootstrap";
 import { create } from "ts-style";
 import { PRIMARY_COLOR } from "../Styles/global";
-import { LoginForm } from "../Components/Login";
+import { LoginForm } from "../Components/user-registration/Login";
+import { SignUpForm } from "../Components/user-registration/SignUp";
 
 export const Landing: React.FC = () => {
+  const [form, toggleForms] = useState(true);
+
+  function toggleSignUp() {
+    console.log("SignUp");
+    if (form) {
+      toggleForms(false);
+      console.log(form);
+    }
+  }
+
+  function toggleLogin() {
+    console.log("Login");
+    if (!form) {
+      toggleForms(true);
+      console.log(form);
+    }
+  }
   return (
     <>
       <Container fluid style={{ backgroundColor: "" }}>
@@ -21,9 +39,22 @@ export const Landing: React.FC = () => {
         <Row style={styles.loginRow}>
           <Card style={styles.userLogin}>
             <Card.Title style={styles.cardTitle}>SAM</Card.Title>
-            <Card.Body>
-              <LoginForm />
-            </Card.Body>
+            <ButtonGroup
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <Button style={styles.buttons} onClick={() => toggleLogin()}>
+                <p style={styles.buttonText}>Login</p>
+              </Button>
+              <div style={{ width: "2em" }}></div>
+              <Button style={styles.buttons} onClick={() => toggleSignUp()}>
+                <p style={styles.buttonText}>Register</p>
+              </Button>
+            </ButtonGroup>
+            <Card.Body>{form ? <LoginForm /> : <SignUpForm />}</Card.Body>
           </Card>
         </Row>
       </Container>
@@ -37,16 +68,21 @@ const styles = create({
     display: "flex",
     height: "100px",
   },
+  buttons: {
+    height: "3em",
+    width: "8em",
+  },
+  buttonText: {
+    fontSize: "20px",
+  },
   userLogin: {
     backgroundColor: "white",
     border: "2px solid",
     borderColor: PRIMARY_COLOR,
     maxWidth: "25em",
     width: "100%",
-    borderRadius: "3px",
+    borderRadius: "10%",
     margin: "auto",
-    height: "22em",
-    display: "block",
   },
   loginRow: {
     display: "block" as "block",

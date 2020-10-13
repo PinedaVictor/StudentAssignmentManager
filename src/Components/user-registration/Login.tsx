@@ -1,6 +1,6 @@
 import React from "react";
 import { create } from "ts-style";
-import { PRIMARY_COLOR } from "../Styles/global";
+import { PRIMARY_COLOR } from "../../Styles/global";
 import { Form, Button } from "react-bootstrap";
 // TODO:
 // import { Redirect } from "react-router";
@@ -48,8 +48,11 @@ export const LoginForm: React.FC = () => {
           label="remember me"
         />
       </Form.Group>
-      <Button size="lg" style={styles.loginButton} type="submit">
-        Log In
+      <Button
+        type="submit"
+        style={{ backgroundColor: PRIMARY_COLOR, marginBottom: "10px" }}
+      >
+        Login
       </Button>
     </Form>
   );
