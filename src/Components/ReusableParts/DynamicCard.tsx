@@ -13,6 +13,7 @@ Required props:
     -maxWidth:      Determines the maximum width of the entire card.  Takes in a string with values of:
                         -"auto":  Let the card be scaled by the size of the browser winder
                         -"<number>":  Give a numeric value in quotes (either as px or percent) and it will scale to that value.
+    -hasButtons:    Whether or not the card will have the edit and delete buttons at the bottom.  Accepts either true or false.
 */
 const DynamicCard = (props: any) => {
 
@@ -97,7 +98,7 @@ const DynamicCard = (props: any) => {
       <div
       style={{
         display: 'grid',
-        gridTemplateRows: "30px auto 40px",
+        gridTemplateRows: (props.hasButtons) ? "30px auto 40px" : "30px auto",
         minWidth: getScaledCardWidth(),
         maxWidth: getScaledCardWidth(),
         margin: 10,
@@ -116,6 +117,7 @@ const DynamicCard = (props: any) => {
             {renderBody()}
         </div>
 
+        {props.hasButtons &&
         <div style = {{display: 'flex', height:35, justifyContent: 'center', width: "auto"}}>
             <Button style = {renderButton("delete")}>
                 Delete
@@ -125,7 +127,7 @@ const DynamicCard = (props: any) => {
                 Edit
             </Button>
         </div>
-
+        }
       </div>
     );
   };

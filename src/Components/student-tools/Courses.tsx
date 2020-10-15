@@ -98,8 +98,9 @@ export const Courses: React.FC = () => {
         header={cardTitles[i]}
         hasDividers={false}
         bodyTitles={sectionTitles}
-        bodyTexts={cardBodyData[i]}
+        bodyTexts={item}
         maxWidth={"auto"}
+        hasButtons={true}
         /> 
       ))}
       

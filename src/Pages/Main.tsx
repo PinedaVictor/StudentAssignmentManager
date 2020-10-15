@@ -21,14 +21,7 @@ export const Main: React.FC = () => {
     style = {styles.pageLayout} 
     fluid>
 
-      <div style = {{
-        display: 'grid',
-        gridTemplateColumns: '35px auto 35px',
-        height: 35,
-        backgroundColor: PRIMARY_COLOR,
-        fontSize: 18,
-        alignItems: 'center',
-      }}
+      <div style = {styles.navbarLayout}
       >
         <div style = {styles.iconStyle}>
           Icon
@@ -92,6 +85,15 @@ const styles = create({
     width: "100%", 
     height: "100%", 
     padding: 0
+  },
+
+  navbarLayout: {
+    display: 'grid',
+    gridTemplateColumns: '35px auto 35px',
+    height: 35,
+    backgroundColor: PRIMARY_COLOR,
+    fontSize: 18,
+    alignItems: 'center',
   },
 
   linkStyle: {
