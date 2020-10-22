@@ -36,3 +36,18 @@
     transform: rotate(360deg);
   }
 }
+
+.MuiButton-root {
+  display: 'flex';
+  align-items: 'center';
+  justify-content: 'center';
+  height: 30;
+  width: 70;
+  padding: 0;
+  border: 'solid black';
+  border-width: 2;
+  border-radius: 3;
+  color: 'white';
+  font-weight: 'bold' as 'bold';
+  font-size: 16
+}

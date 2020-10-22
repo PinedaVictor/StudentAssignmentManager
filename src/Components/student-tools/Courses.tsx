@@ -1,5 +1,5 @@
 import React from "react";
-import DynamicCard  from "../ReusableParts/DynamicCard";
+import {DynamicCard}  from "../ReusableParts/DynamicCard";
 import { create } from "ts-style";
 
 export const Courses: React.FC = () => {
@@ -11,7 +11,7 @@ export const Courses: React.FC = () => {
   const cardBodyData = [
     [
       "someguy@gmail.com", 
-      "T/Th 3:00pm - 4:30pm", 
+      "T/Th 3:00pm - 4:30pm dfghdfhdhhrthdrhdr dfghdfbsghd dgbdfesg", 
       "-20% off each day", 
       "A- = 85%, B- = 70%, C- = 60%, D- = 50%", 
       "20% (10 total)", 
@@ -96,11 +96,10 @@ export const Courses: React.FC = () => {
       {cardBodyData.map((item, i) => (
         <DynamicCard
         header={cardTitles[i]}
-        hasDividers={false}
         bodyTitles={sectionTitles}
-        bodyTexts={item}
-        maxWidth={"auto"}
-        hasButtons={true}
+        bodyContents={item}
+        width={"auto"}
+        type="standard"
         /> 
       ))}
       

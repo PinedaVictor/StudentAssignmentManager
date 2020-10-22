@@ -4,103 +4,83 @@ import { create } from "ts-style";
 import { SECONDARY_COLOR , BORDER_COLOR , DELETE_BACKGROUND_COLOR , EDIT_BACKGROUND_COLOR } from "../../Styles/global";
 
 
+interface Props {
+    header: string;
+    bodyTitles: Array<any>;
+    bodyContents: Array<any>;
+    width: string;
+    type: "standard" | "divided" | "tiny";
+}
+
 /*
 Required props:
     -header:        The title at the top of the card
-    -hasDividers:   Whether the card format will have horizontal dividers between fields.  Either true or false
     -bodyTitles:    The titles for each body field.  Must be an array of strings
-    -bodyTexts:     The content of the fields.  Must be an array of strings
+    -bodyContents:     The content of the fields.  Must be an array of strings
     -maxWidth:      Determines the maximum width of the entire card.  Takes in a string with values of:
                         -"auto":  Let the card be scaled by the size of the browser winder
                         -"<number>":  Give a numeric value in quotes (either as px or percent) and it will scale to that value.
-    -hasButtons:    Whether or not the card will have the edit and delete buttons at the bottom.  Accepts either true or false.
+    -type:          The general style of the card.  Takes a string with the values of either:
+                        -"standard": Has 3 rows, with buttons at the bottom.  No dividers between the body sections.  Text is on the same line as the headers.
+                        -"divided": Has 3 rows, with buttons at the bottom.  Has dividers between the body sections.  Text starts on a line below the headers.  Headers are centered.
 */
-const DynamicCard = (props: any) => {
+export const DynamicCard: React.FC<Props> = ({header, bodyTitles, bodyContents, width, type}) => {
 
     const renderBody = () => (
-    props.bodyTitles.map((title: string, index: number) => (
+    bodyTitles.map((title: string, index: number) => (
 
-    (props.hasDividers) ?
+    (type === "divided") ?
 
     <div style = {styles.bodyDividerStyle}>
         <div style = {styles.bodyTitle}>
             {title}
         </div>  
 
-        <div style = {styles.bodyText}>
-            {props.bodyTexts[index]}
+        <div style = {styles.bodyContent}>
+            {bodyContents[index]}
         </div>
     </div>
 
      :
     
+     (type === "standard") ?
     <div style = {styles.bodyStandardStyle}>
-        <text style = {styles.bodyTitle}>
-            {title}:
-        </text>  
 
-        <text style = {styles.bodyText}>
-            {"  " + props.bodyTexts[index]}
-        </text>
+        <div style = {{display: 'flex', flexDirection: "row" as "row"}}>
+            <text>
+                <text style = {styles.bodyTitle}>
+                {title}:    
+                </text>  
+                <text style = {{fontSize: 16}}>
+                        {bodyContents[index]}
+                </text>
+            </text>
+        </div>
+    </div>
+
+    :
+
+    <div style = {styles.bodyStandardStyle}>
+        <div style = {{display: 'flex', flexDirection: "row" as "row", justifyContent: 'left', alignItems: 'center'}}>
+            <div style = {styles.bodyTitle}>
+                {title}:    
+            </div>  
+            <div style = {{fontSize: 16}}>
+                {bodyContents[index]}
+            </div>
+        </div>
     </div>
 
     ))
     )
 
-    const renderButton = (type: string) => {
-        var backColor;
-        
-        if(type === "delete")
-            backColor = DELETE_BACKGROUND_COLOR;
-
-        else if (type === "edit")
-         backColor = EDIT_BACKGROUND_COLOR;
-
-        else backColor = "#000000"
-
-        return {
-            display: 'flex',
-            alignitems: 'center',
-            justifyContent: 'center',
-            height: 30,
-            width: 70,
-            padding: 0,
-            marginRight: 20,
-            marginLeft: 20,
-            backgroundColor: backColor,
-            border: 'solid black',
-            borderWidth: 2,
-            borderRadius: 3,
-            color: 'white',
-            fontWeight: 'bold' as 'bold',
-            fontSize: 16
-        }
-    }
-
-    const getScaledCardWidth = () => {
-
-        if(props.maxWidth !== "auto")
-            return props.maxWidth;
-
-        if (window.innerWidth < 350)
-            return 300;
-
-        else if (window.innerWidth >= 350 && window.innerWidth < 550)
-            return window.innerWidth / 2;
-
-        else if (window.innerWidth >= 550 && window.innerWidth < 750)
-            return window.innerWidth / 2.5;
-
-        else return window.innerWidth / 6;
-    }
-
     return (
       <div
       style={{
         display: 'grid',
-        gridTemplateRows: (props.hasButtons) ? "30px auto 40px" : "30px auto",
-        minWidth: getScaledCardWidth(),
-        maxWidth: getScaledCardWidth(),
+        gridTemplateRows: (type === "standard" || type === "divided") ? "30px auto 40px" : "30px auto",
+        minWidth: (width !== "auto") ? width : window.innerWidth / 5,
+        maxWidth: (width !== "auto") ? width : window.innerWidth / 5,
         margin: 10,
         border: 'solid',
         borderWidth: 2,
@@ -110,20 +90,20 @@ const DynamicCard = (props: any) => {
       }}
       >
         <div style = {styles.cardTitle}>
-            {props.header}
+            {header}
         </div>
 
         <div>
             {renderBody()}
         </div>
 
-        {props.hasButtons &&
+        {(type === "standard" || type === "divided") &&
         <div style = {{display: 'flex', height:35, justifyContent: 'center', width: "auto"}}>
-            <Button style = {renderButton("delete")}>
+            <Button style = {{...styles.button, ...styles.buttonDelete}}>
                 Delete
             </Button>
 
-            <Button style = {renderButton("edit")}>
+            <Button style = {{...styles.button, ...styles.buttonEdit}}>
                 Edit
             </Button>
         </div>
@@ -155,8 +135,11 @@ const styles = create({
     },
 
     bodyStandardStyle: {
+        display: 'grid',
+        verticalAlign: 'center',
         minWidth: 150,
         maxWidth: "auto",
+        maxHeight: "auto",
         marginLeft: 20,
         marginRight: 20,
         marginBottom: 10,
@@ -165,12 +148,36 @@ const styles = create({
     bodyTitle: {
         fontWeight: 'bold' as 'bold',
         textDecorationLine: 'underline',
-        fontSize: 18
+        fontSize: 18,
+        marginRight: 10
     },
 
-    bodyText: {
+    bodyContent: {
+        fontSize: 16,
+    },
+
+    button: {
+        display: 'flex',
+        alignitems: 'center',
+        justifyContent: 'center',
+        height: 30,
+        width: 70,
+        padding: 0,
+        marginRight: 20,
+        marginLeft: 20,
+        border: 'solid black',
+        borderWidth: 2,
+        borderRadius: 3,
+        color: 'white',
+        fontWeight: 'bold' as 'bold',
         fontSize: 16
     },
-})
 
-export default DynamicCard
+    buttonEdit: {
+        backgroundColor: EDIT_BACKGROUND_COLOR
+    },
+
+    buttonDelete: {
+        backgroundColor: DELETE_BACKGROUND_COLOR
+    }
+})
