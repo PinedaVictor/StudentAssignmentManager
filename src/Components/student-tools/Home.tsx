@@ -1,16 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import { create } from "ts-style";
-import { Card , Button } from "react-bootstrap";
+import { Card } from "react-bootstrap";
 import {DynamicCard}  from "../ReusableParts/DynamicCard";
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
+import {CustomModal}  from "../ReusableParts/CustomModal";
+import {CustomTable}  from "../ReusableParts/CustomTable";
 import Paper from '@material-ui/core/Paper';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import { PRIMARY_COLOR , SECONDARY_COLOR , BORDER_COLOR } from "../../Styles/global";
+import { PRIMARY_COLOR , SECONDARY_COLOR } from "../../Styles/global";
 import { Box } from "@material-ui/core";
 
 const classData = [
@@ -249,79 +246,18 @@ export const Home: React.FC = () => {
           );
     }
 
-    const tableHeaderCellFormat = () => {
-
-        return{
-            height: "auto",
-            paddingTop: 5,
-            paddingBottom: 5,
-            paddingLeft: 10,
-            paddingRight: 10,
-            fontWeight: "bold" as "bold",
-            fontSize: 18,
-            border: "1px solid",
-            borderColor: "rgba(0, 0, 0, .25)"
-        }
-    }
-
-    const tableBodyCellFormat = (index: number) => {
-        
-        return {
-            backgroundColor: ((index + 2) % 2 !== 1) ? "#C0E1FF" : "#DEEFFF",
-            height: "auto",
-            paddingTop: 5,
-            paddingBottom: 5,
-            paddingLeft: 10,
-            paddingRight: 10,
-            fontSize: 14,
-            border: "1px solid",
-            borderColor: "rgba(0, 0, 0, .25)"
-        }
-    }
-
-    const renderTableHeader = () => (
-        <TableHead>
-            <TableRow style = {{backgroundColor: "#67B6FF"}}>
-                {tableColumns.map((col) => (
-                    <TableCell style = {tableHeaderCellFormat()}>{col}</TableCell>
-                ))}
-            </TableRow>
-        </TableHead>
-    )
-
-    const renderTableBody = () => (
-        <TableBody style = {styles.tableBody}>
-            {assignmentsData.map((assignment, index) => (
-                <TableRow>
-                    <TableCell style = {tableBodyCellFormat(index)}>{assignment.class}</TableCell>
-                    <TableCell style = {tableBodyCellFormat(index)}>{assignment.name}</TableCell>
-                    <TableCell style = {tableBodyCellFormat(index)}>{assignment.dueBy}</TableCell>
-                    <TableCell style = {tableBodyCellFormat(index)}>{assignment.duration}</TableCell>
-                    <TableCell style = {tableBodyCellFormat(index)}>{assignment.priority}</TableCell>
-                    <TableCell style = {tableBodyCellFormat(index)}>{assignment.sectionWeight}</TableCell>
-                    <TableCell style = {tableBodyCellFormat(index)}>{assignment.overallWeight}</TableCell>
-                </TableRow>
-            ))}
-        </TableBody>
-    )
-
-    const gradeOptionsClick = () => {
-
-    }
-
-    const assignmentsOptionsClick = () => {
-
-    }
-
     return(
         <div style = {styles.pageLayout}>
             <Card style = {styles.cardParent}>
                 <div style = {styles.cardHeader}>
-                    <Button 
-                    style = {styles.buttonStyle}
-                    onClick = {gradeOptionsClick}>
-                        Settings
-                    </Button>
+                    
+                    <div style = {styles.buttonContainer}>
+                    <CustomModal
+                    layout = {<div>Grade Settings</div>}
+                    buttonStyle={styles.buttonStyle}
+                    />
+                    </div>
+                    
                     <text style={styles.headerTitle}>
                         Grades
                     </text>
@@ -333,7 +269,11 @@ export const Home: React.FC = () => {
                         <DynamicCard
                         header={item.Name}
                         bodyTitles={["Total", "Homework", "Exams", "Projects"]}
-                        bodyContents={[LinearProgressWithLabel(item.Total), LinearProgressWithLabel(item.Homework), LinearProgressWithLabel(item.Exams), LinearProgressWithLabel(item.Projects)]}
+                        bodyContents={[
+                            LinearProgressWithLabel(item.Total), 
+                            LinearProgressWithLabel(item.Homework), 
+                            LinearProgressWithLabel(item.Exams), 
+                            LinearProgressWithLabel(item.Projects)]}
                         width={"200px"}
                         type="tiny"
                         /> 
@@ -343,11 +283,13 @@ export const Home: React.FC = () => {
 
             <Card style = {styles.cardParent}>
                 <div style = {styles.cardHeader}>
-                    <Button 
-                    style = {styles.buttonStyle}
-                    onClick = {assignmentsOptionsClick}>
-                        Settings
-                    </Button>
+                    <div style = {styles.buttonContainer}>
+                    <CustomModal
+                    layout = {<div>Assignment Settings</div>}
+                    buttonStyle={styles.buttonStyle}
+                    />
+                    </div>
+                    
                     <text style={styles.headerTitle}>
                         Assignments
                     </text>
@@ -359,10 +301,10 @@ export const Home: React.FC = () => {
                         maxHeight: 300,
                         width: "100%",
                     }}>
-                        <Table stickyHeader>
-                            {renderTableHeader()}
-                            {renderTableBody()}
-                        </Table>
+                        <CustomTable
+                        headerText={tableColumns}
+                        data={assignmentsData}
+                        />
                     </Paper>
                     
                 </Card.Body>
@@ -385,16 +327,13 @@ const styles = create({
         minWidth: 400,
         maxWidth: 1200,
         height: "auto",
-        border: 'solid',
-        borderWidth: 2,
-        borderColor: BORDER_COLOR,
         marginBottom: 50
     },
 
     cardHeader: {
         display: 'grid',
-        gridTemplateColumns: "auto 1fr",
-        justifyContent: 'left',
+        gridTemplateColumns: "auto 1fr 85px",
+        justifyContent: 'center',
         alignItems: 'center',
         height: 35,
         backgroundColor: PRIMARY_COLOR,
@@ -415,23 +354,22 @@ const styles = create({
         overflowX: "scroll" as "scroll"
     },
 
-    tableBody: {
-        maxHeight: 20,
-    },
-
-    buttonStyle: {
+    buttonContainer: {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        width: 85,
+        height: 35,
+        paddingLeft: 10
+    },
+
+    buttonStyle: {
         backgroundColor: SECONDARY_COLOR,
         color: 'black',
         fontWeight: "bold" as "bold",
         fontSize: 16,
         height: 25,
-        marginBottom: 0,
-        marginLeft: 25,
-        marginRight: 25,
-        marginTop: 0,
-        padding: 2
+        margin: 10,
+        padding: '0px 5px'
     }
 })
