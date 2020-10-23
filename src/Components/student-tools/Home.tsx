@@ -254,7 +254,12 @@ export const Home: React.FC = () => {
                     <div style = {styles.buttonContainer}>
                     <CustomModal
                     layout = {<div>Grade Settings</div>}
-                    buttonStyle={styles.buttonStyle}
+                    buttonTitle = "Settings"
+                    buttonDimensions={{
+                        width: 70,
+                        height: 25
+                    }}
+                    buttonTheme = "default"
                     />
                     </div>
                     
@@ -286,7 +291,12 @@ export const Home: React.FC = () => {
                     <div style = {styles.buttonContainer}>
                     <CustomModal
                     layout = {<div>Assignment Settings</div>}
-                    buttonStyle={styles.buttonStyle}
+                    buttonTitle = "Settings"
+                    buttonDimensions={{
+                        width: 70,
+                        height: 25
+                    }}
+                    buttonTheme = "default"
                     />
                     </div>
                     
@@ -325,7 +335,7 @@ const styles = create({
         display: 'grid',
         gridTemplateRows: "40px auto",
         minWidth: 400,
-        maxWidth: 1200,
+        maxWidth: 1080,
         height: "auto",
         marginBottom: 50
     },
@@ -335,7 +345,8 @@ const styles = create({
         gridTemplateColumns: "auto 1fr 85px",
         justifyContent: 'center',
         alignItems: 'center',
-        height: 35,
+        height: 40,
+        paddingBottom: 15,
         backgroundColor: PRIMARY_COLOR,
         fontWeight: "bold" as "bold",
         fontSize: 24,
@@ -351,7 +362,9 @@ const styles = create({
     cardBody: {
         display: 'flex',
         flexDirection: "row" as "row",
-        overflowX: "scroll" as "scroll"
+        overflowX: "scroll" as "scroll",
+        marginTop: 25,
+        paddingBottom: 10
     },
 
     buttonContainer: {
@@ -362,14 +375,4 @@ const styles = create({
         height: 35,
         paddingLeft: 10
     },
-
-    buttonStyle: {
-        backgroundColor: SECONDARY_COLOR,
-        color: 'black',
-        fontWeight: "bold" as "bold",
-        fontSize: 16,
-        height: 25,
-        margin: 10,
-        padding: '0px 5px'
-    }
 })

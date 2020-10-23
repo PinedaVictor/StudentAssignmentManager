@@ -1,8 +1,9 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 import { create } from "ts-style";
-import { SECONDARY_COLOR , BORDER_COLOR , DELETE_BACKGROUND_COLOR , EDIT_BACKGROUND_COLOR } from "../../Styles/global";
+import { SECONDARY_COLOR , BORDER_COLOR , BUTTON_DELETE_BACKGROUND_COLOR , BUTTON_EDIT_BACKGROUND_COLOR } from "../../Styles/global";
 
+import { CustomButton } from "./CustomButton"
 
 interface Props {
     header: string;
@@ -25,6 +26,14 @@ Required props:
                         -"divided": Has 3 rows, with buttons at the bottom.  Has dividers between the body sections.  Text starts on a line below the headers.  Headers are centered.
 */
 export const DynamicCard: React.FC<Props> = ({header, bodyTitles, bodyContents, width, type}) => {
+
+    const onEditClick = () => {
+
+    }
+
+    const onDeleteClick = () => {
+
+    }
 
     const renderBody = () => (
     bodyTitles.map((title: string, index: number) => (
@@ -99,13 +108,28 @@ export const DynamicCard: React.FC<Props> = ({header, bodyTitles, bodyContents, 
 
         {(type === "standard" || type === "divided") &&
         <div style = {{display: 'flex', height:35, justifyContent: 'center', width: "auto"}}>
-            <Button style = {{...styles.button, ...styles.buttonDelete}}>
-                Delete
-            </Button>
 
-            <Button style = {{...styles.button, ...styles.buttonEdit}}>
-                Edit
-            </Button>
+            <CustomButton
+            dimensions = {{
+                width: 70,
+                height: 30,
+                marginRight: 25
+            }}
+            onClick = {onEditClick}
+            theme = "edit"
+            title = "Edit"
+            />
+
+            <CustomButton
+            dimensions = {{
+                width: 70,
+                height: 30
+            }}
+            onClick = {onDeleteClick}
+            theme = "delete"
+            title = "Delete"
+            />
+
         </div>
         }
       </div>
@@ -174,10 +198,10 @@ const styles = create({
     },
 
     buttonEdit: {
-        backgroundColor: EDIT_BACKGROUND_COLOR
+        backgroundColor: BUTTON_EDIT_BACKGROUND_COLOR
     },
 
     buttonDelete: {
-        backgroundColor: DELETE_BACKGROUND_COLOR
+        backgroundColor: BUTTON_DELETE_BACKGROUND_COLOR
     }
 })

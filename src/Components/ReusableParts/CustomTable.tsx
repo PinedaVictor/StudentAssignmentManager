@@ -25,10 +25,6 @@ const StyledTableRow = withStyles((theme: Theme) =>
 
 const StyledTableCell = withStyles((theme: Theme) =>
   createStyles({
-    head: {
-      backgroundColor: theme.palette.common.black,
-      color: theme.palette.common.white,
-    },
     body: {
         height: "auto",
         paddingTop: 5,
@@ -48,6 +44,7 @@ interface Props {
 }
 
 interface DataType {
+    id: number,
     [key: string]: any
 }
 
@@ -78,7 +75,7 @@ export const CustomTable: React.FC<Props> = ({headerText, data}) => {
     const renderTableBody = () => (
         <TableBody>
             {data.map((row: DataType, index) => (
-                <StyledTableRow>
+                <StyledTableRow key = {row.id}>
                     {
                         renderCellContents(row)
                     }
@@ -89,7 +86,7 @@ export const CustomTable: React.FC<Props> = ({headerText, data}) => {
 
     return(
 
-        <Table stickyHeader>
+        <Table stickyHeader >
             {renderTableHeader()}
             {renderTableBody()}
         </Table>
