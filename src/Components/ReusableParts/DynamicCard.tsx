@@ -1,17 +1,20 @@
 import React from "react";
-import { Button } from "react-bootstrap";
 import { create } from "ts-style";
 import { SECONDARY_COLOR , BORDER_COLOR , BUTTON_DELETE_BACKGROUND_COLOR , BUTTON_EDIT_BACKGROUND_COLOR } from "../../Styles/global";
 
 import { CustomButton } from "./CustomButton"
+import { CustomModal } from "./CustomModal";
 
 interface Props {
-    header: string;
-    bodyTitles: Array<any>;
-    bodyContents: Array<any>;
-    width: string;
-    type: "standard" | "divided" | "tiny";
+    header: string,
+    bodyTitles: Array<any>,
+    bodyContents: Array<any>,
+    width: string,
+    type: "standard" | "divided" | "tiny"
+    editClick?: ((event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void),
+    deleteClick?: ((event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void)
 }
+
 
 /*
 Required props:
@@ -25,11 +28,7 @@ Required props:
                         -"standard": Has 3 rows, with buttons at the bottom.  No dividers between the body sections.  Text is on the same line as the headers.
                         -"divided": Has 3 rows, with buttons at the bottom.  Has dividers between the body sections.  Text starts on a line below the headers.  Headers are centered.
 */
-export const DynamicCard: React.FC<Props> = ({header, bodyTitles, bodyContents, width, type}) => {
-
-    const onEditClick = () => {
-
-    }
+export const DynamicCard: React.FC<Props> = ({header, bodyTitles, bodyContents, width, type, editClick, deleteClick}) => {
 
     const onDeleteClick = () => {
 
@@ -108,14 +107,13 @@ export const DynamicCard: React.FC<Props> = ({header, bodyTitles, bodyContents, 
 
         {(type === "standard" || type === "divided") &&
         <div style = {{display: 'flex', height:35, justifyContent: 'center', width: "auto"}}>
-
             <CustomButton
             dimensions = {{
                 width: 70,
                 height: 30,
                 marginRight: 25
             }}
-            onClick = {onEditClick}
+            onClick = {(editClick !== undefined && editClick !== null) ? editClick : () => {}}
             theme = "edit"
             title = "Edit"
             />
@@ -125,7 +123,7 @@ export const DynamicCard: React.FC<Props> = ({header, bodyTitles, bodyContents, 
                 width: 70,
                 height: 30
             }}
-            onClick = {onDeleteClick}
+            onClick = {(deleteClick !== undefined && deleteClick !== null) ? deleteClick : () => {}}
             theme = "delete"
             title = "Delete"
             />

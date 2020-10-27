@@ -12,16 +12,16 @@ interface Dimension {
 
 interface Props {
     onClick: ((event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void),
-    dimensions: Dimension,
+    dimensions?: Dimension,
     title: string,
-    theme: "default" | "edit" | "delete"
+    theme?: "default" | "edit" | "delete"
 }
 
 export const CustomButton: React.FC<Props> = ({onClick, dimensions, title, theme}) => {
     
     const getBackground = () => {
 
-        if (theme === "default")
+        if (theme === "default" || theme === undefined || theme === null)
             return BUTTON_DEFAULT_BACKGROUND_COLOR
 
         else if (theme === "edit")
@@ -32,7 +32,7 @@ export const CustomButton: React.FC<Props> = ({onClick, dimensions, title, theme
     }
 
     const getBackgroundHover = () => {
-        if (theme === "default")
+        if (theme === "default" || theme === undefined || theme === null)
             return BUTTON_DEFAULT_HOVER_BACKGROUND_COLOR
 
         else if (theme === "edit")
@@ -57,7 +57,9 @@ export const CustomButton: React.FC<Props> = ({onClick, dimensions, title, theme
 
     return (
         <div>
-            <ColorButton style={dimensions} onClick={onClick}>
+            <ColorButton 
+            style={(dimensions !== undefined && dimensions !== null) ? dimensions : {width: 70 , height: 35}} 
+            onClick={onClick}>
                 {title}
             </ColorButton>
         </div>

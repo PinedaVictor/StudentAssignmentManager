@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { create } from "ts-style";
 import { Card } from "react-bootstrap";
 import {DynamicCard}  from "../ReusableParts/DynamicCard";
@@ -9,6 +9,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { PRIMARY_COLOR , SECONDARY_COLOR } from "../../Styles/global";
 import { Box } from "@material-ui/core";
+import { CustomButton } from "../ReusableParts/CustomButton";
 
 const classData = [
     {
@@ -221,6 +222,9 @@ const tableColumns = [ "Class", "Assignment" , "Due By" , "Duration" , "Priority
 
 export const Home: React.FC = () => {
 
+    const [gradeSettingsModal, setGradeSettingsModal] = useState(false);
+    const [assignmentsSettingsModal, setAssignmentsSettingsModal] = useState(false);
+
     function LinearProgressWithLabel(value: number){
         return (
             <Box position= 'relative' display= 'inline-flex'>
@@ -246,20 +250,46 @@ export const Home: React.FC = () => {
           );
     }
 
+    const renderGradeSettingsModal = () => (
+        <div>
+
+            <CustomButton
+            title = "Close"
+            onClick = {() => setGradeSettingsModal(false)}
+            />
+        </div>
+    )
+
+    const renderAssignmentSettingsModal = () => (
+        <div>
+
+            <CustomButton
+            title = "Close"
+            onClick = {() => setAssignmentsSettingsModal(false)}
+            />
+        </div>
+    )
+
     return(
         <div style = {styles.pageLayout}>
             <Card style = {styles.cardParent}>
                 <div style = {styles.cardHeader}>
                     
                     <div style = {styles.buttonContainer}>
-                    <CustomModal
-                    layout = {<div>Grade Settings</div>}
-                    buttonTitle = "Settings"
-                    buttonDimensions={{
+
+                    <CustomButton
+                    title = "Settings"
+                    onClick = {() => setGradeSettingsModal(true)}
+                    theme = "default"
+                    dimensions = {{
                         width: 70,
                         height: 25
                     }}
-                    buttonTheme = "default"
+                    />
+                    
+                    <CustomModal
+                    layout = {renderGradeSettingsModal()}
+                    modalState = {gradeSettingsModal}
                     />
                     </div>
                     
@@ -289,14 +319,19 @@ export const Home: React.FC = () => {
             <Card style = {styles.cardParent}>
                 <div style = {styles.cardHeader}>
                     <div style = {styles.buttonContainer}>
+
+                    <CustomButton
+                        title = "Settings"
+                        dimensions={{
+                            width: 70,
+                            height: 25
+                        }}
+                        theme = "default"
+                        onClick = {() => setAssignmentsSettingsModal(true)}
+                    />
                     <CustomModal
-                    layout = {<div>Assignment Settings</div>}
-                    buttonTitle = "Settings"
-                    buttonDimensions={{
-                        width: 70,
-                        height: 25
-                    }}
-                    buttonTheme = "default"
+                    layout = {renderAssignmentSettingsModal()}
+                    modalState = {assignmentsSettingsModal}
                     />
                     </div>
                     
