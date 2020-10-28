@@ -9,18 +9,14 @@ export const Landing: React.FC = () => {
   const [form, toggleForms] = useState(true);
 
   function toggleSignUp() {
-    console.log("SignUp");
     if (form) {
       toggleForms(false);
-      console.log(form);
     }
   }
 
   function toggleLogin() {
-    console.log("Login");
     if (!form) {
       toggleForms(true);
-      console.log(form);
     }
   }
   return (

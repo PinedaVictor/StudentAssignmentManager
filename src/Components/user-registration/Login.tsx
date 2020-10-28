@@ -1,28 +1,34 @@
-import React from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import { create } from "ts-style";
 import { PRIMARY_COLOR } from "../../Styles/global";
 import { Form, Button } from "react-bootstrap";
 // TODO:
-// import { Redirect } from "react-router";
-// import { ath } from "../Database/initFirebase";
-// import { AuthContext } from "../Database/Auth";
+import { Redirect } from "react-router";
+import { app } from "../../Database/initFirebase";
+import { AuthContext } from "./AuthProvider";
 
 export const LoginForm: React.FC = () => {
-  // const user = ath.currentUser;
-  // const HandleLogin = useCallback(async (event) => {
-  //   event.preventDefault();
-  //   const { email, password } = event.target.elements;
-  //   try {
-  //     await ath.signInWithEmailAndPassword(email.value, password.value);
-  //   } catch (error) {
-  //     alert(error);
-  //   }
-  // }, []);
+  const HandleLogin = useCallback(async (event) => {
+    event.preventDefault();
+    const { email, password } = event.target.elements;
+    try {
+      await app.auth().signInWithEmailAndPassword(email.value, password.value);
+    } catch (error) {
+      alert(error);
+    }
+    console.log("Finished authenticating user");
+  }, []);
+
+  // TODO: uncomment and add user to firebase
+  // console.log("User with auth::::", app.auth().currentUser?.email);
+  if (app.auth().currentUser) {
+    return <Redirect to="/Home" />;
+  }
 
   return (
     <Form
       style={{ maxWidth: "320px", paddingLeft: "25px" }}
-      onSubmit={() => console.log("Login button clicked")}
+      onSubmit={HandleLogin}
     >
       <Form.Group style={styles.group} controlId="Email">
         <Form.Control
