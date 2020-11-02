@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {DynamicCard}  from "../ReusableParts/DynamicCard";
 import { create } from "ts-style";
 import { createStyles, makeStyles, TextField, Theme } from "@material-ui/core";
 import { CustomButton } from "../ReusableParts/CustomButton";
 import { CustomModal } from "../ReusableParts/CustomModal";
+
 
 const cardTitles = ["Phil 101", "Comp 356", "Meh zzz", "Rand 555", "bleh 100", "phys 220a", "abc 123", "def 456"]
 
@@ -124,37 +125,52 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
+interface ModalFields {
+  courseName: string,
+  email: string,
+  hours: string,
+  latePolicy: string,
+  gradeScale: string,
+  hwWeight: string,
+  projWeight: string,
+  examWeight: string,
+  quizWeight: string
+}
+
 export const Courses: React.FC = () => {
   const classes = useStyles()
 
   const [cardModal, setCardModal] = useState(false);
 
-  const [courseText, setCourseText] = useState("");
-  const [emailText, setEmailText] = useState("");
-  const [hoursText, setHoursText] = useState("");
-  const [latePolicyText, setLatePolicyText] = useState("");
-  const [gradeScaleText, setGradeScaleText] = useState("");
-  const [hwWeightText, setHwWeightText] = useState("");
-  const [projWeightText, setProjWeightText] = useState("");
-  const [examWeightText, setExamWeightText] = useState("");
-  const [quizWeightText, setQuizWeightText] = useState("");
+  const [EditCourse, setEditCourse] = useState<ModalFields>({
+    courseName: "",
+    email: "",
+    hours: "",
+    latePolicy: "",
+    gradeScale: "",
+    hwWeight: "",
+    projWeight: "",
+    examWeight: "",
+    quizWeight: ""
+  })
 
   const clearTextInputs = () => {
-    setCourseText("")
-    setEmailText("")
-    setHoursText("")
-    setLatePolicyText("")
-    setGradeScaleText("")
-    setHwWeightText("")
-    setProjWeightText("")
-    setExamWeightText("")
-    setQuizWeightText("")
+    setEditCourse({
+      courseName: "",
+      email: "",
+      latePolicy: "",
+      gradeScale: "",
+      hours: "",
+      hwWeight: "",
+      projWeight: "",
+      examWeight: "",
+      quizWeight: "",
+    })
   }
 
   const postCourse = (action: "add" | "edit") => {
 
     if (action === "add"){
-      
     }
 
     else {
@@ -175,13 +191,27 @@ export const Courses: React.FC = () => {
     setCardModal(false)
   }
 
+  const setModalInput = (field: "courseName" | "email" | "latePolicy" | "gradeScale" | "hwWeight" | "examWeight" | "projWeight" | "hours" | "quizWeight", value: string) => {
+   setEditCourse( {
+      courseName: (field === "courseName") ? value : EditCourse.courseName,
+      email: (field === "email") ? value : EditCourse.email,
+      latePolicy: (field === "latePolicy") ? value : EditCourse.latePolicy,
+      gradeScale: (field === "gradeScale") ? value : EditCourse.gradeScale,
+      hours: (field === "hours") ? value : EditCourse.hours,
+      hwWeight: (field === "hwWeight") ? value : EditCourse.hwWeight,
+      projWeight: (field === "projWeight") ? value : EditCourse.projWeight,
+      examWeight: (field === "examWeight") ? value : EditCourse.examWeight,
+      quizWeight: (field === "quizWeight") ? value : EditCourse.quizWeight
+    })
+  }
+
   const getCourseModalBody = (course?: Array<string>, index?: number) => (
     
     <form className={classes.root} noValidate autoComplete="off">
         <div>
             <TextField 
-            value = {courseText}
-            onChange = {(e) => { setCourseText(e.target.value) }}
+            value = {EditCourse.courseName}
+            onChange = {(e) => {setModalInput("courseName", e.target.value)}}
             label = {"Class Name"}
             placeholder = {(index !== undefined && course !== undefined) ? cardTitles[index] : "Math 101"}
             variant = "filled"
@@ -195,8 +225,8 @@ export const Courses: React.FC = () => {
 
         <div>
             <TextField 
-            value = {emailText}
-            onChange = {(e) => { setEmailText(e.target.value) }}
+            value = {EditCourse.email}
+            onChange = {(e) => {setModalInput("email", e.target.value)}}
             label = {"Email"}
             placeholder = {(course !== undefined) ? course[0] : "random.email@aol.com"}
             variant = "filled"
@@ -209,8 +239,8 @@ export const Courses: React.FC = () => {
 
         <div>
             <TextField 
-            value = {hoursText}
-            onChange = {(e) => { setHoursText(e.target.value) }}
+            value = {EditCourse.hours}
+            onChange = {(e) => {setModalInput("hours", e.target.value)}}
             label = {"Office Hours"}
             placeholder = {(course !== undefined) ? course[1] : "Mo/We 2:00pm - 3:45pm"}
             variant = "filled"
@@ -223,8 +253,8 @@ export const Courses: React.FC = () => {
 
         <div>
             <TextField 
-            value = {latePolicyText}
-            onChange = {(e) => { setLatePolicyText(e.target.value) }}
+            value = {EditCourse.latePolicy}
+            onChange = {(e) => {setModalInput("latePolicy", e.target.value)}}
             label = {"Late Work Policy"}
             placeholder = {(course !== undefined) ? course[2] : "No late work allowed!"}
             variant = "filled"
@@ -237,8 +267,8 @@ export const Courses: React.FC = () => {
 
         <div>
             <TextField 
-            value = {gradeScaleText}
-            onChange = {(e) => { setGradeScaleText(e.target.value) }}
+            value = {EditCourse.gradeScale}
+            onChange = {(e) => {setModalInput("gradeScale", e.target.value)}}
             label = {"Grading Scale"}
             placeholder = {(course !== undefined) ? course[3] : "A- = 85%, B- = ..."}
             variant = "filled"
@@ -252,8 +282,8 @@ export const Courses: React.FC = () => {
 
         <div>
             <TextField 
-            value = {hwWeightText}
-            onChange = {(e) => { setHwWeightText(e.target.value) }}
+            value = {EditCourse.hwWeight}
+            onChange = {(e) => {setModalInput("hwWeight", e.target.value)}}
             label = {"HW Weight"}
             placeholder = {(course !== undefined) ? course[4] : "20%"}
             variant = "filled"
@@ -264,8 +294,8 @@ export const Courses: React.FC = () => {
             />
 
             <TextField 
-            value = {projWeightText}
-            onChange = {(e) => { setProjWeightText(e.target.value) }}
+            value = {EditCourse.projWeight}
+            onChange = {(e) => {setModalInput("projWeight", e.target.value)}}
             label = {"Project Weight"}
             placeholder = {(course !== undefined) ? course[5] : "35%"}
             variant = "filled"
@@ -276,8 +306,8 @@ export const Courses: React.FC = () => {
             />
 
             <TextField 
-            value = {examWeightText}
-            onChange = {(e) => { setExamWeightText(e.target.value) }}
+            value = {EditCourse.examWeight}
+            onChange = {(e) => {setModalInput("examWeight", e.target.value)}}
             label = {"Exam Weight"}
             placeholder = {(course !== undefined) ? course[6] : "50%"}
             variant = "filled"
@@ -288,8 +318,8 @@ export const Courses: React.FC = () => {
             />
 
             <TextField 
-            value = {quizWeightText}
-            onChange = {(e) => { setQuizWeightText(e.target.value) }}
+            value = {EditCourse.quizWeight}
+            onChange = {(e) => {setModalInput("quizWeight", e.target.value)}}
             label = {"Quiz Weight"}
             placeholder = {(course !== undefined) ? course[7] : "20%"}
             variant = "filled"
