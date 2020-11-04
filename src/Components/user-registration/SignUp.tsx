@@ -50,26 +50,6 @@ export const SignUpForm: React.FC = () => {
     [history, setCurrentUser]
   );
 
-  // if (currentUser) {
-  //   console.log("User:::", currentUser);
-  //   return <Redirect to="/Home" />;
-  // } else {
-  //   console.log(currentUser);
-  //   console.log("::::::::::::::::::::", !currentUser);
-  // }
-
-  // if (!user) {
-  //   console.log("User:::", user);
-  //   return <Redirect to="/Home" />;
-  // } else {
-  //   console.log(user);
-  //   console.log("::::::::::::::::::::", !user);
-  // }
-
-  // const user = app.auth().currentUser;
-  // setCurrentUser(user);
-  // console.log("user::::", user);
-
   return (
     <Form
       style={{ maxWidth: "320px", paddingLeft: "25px", paddingTop: "10px" }}
