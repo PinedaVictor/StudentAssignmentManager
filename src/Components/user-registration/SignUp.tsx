@@ -1,46 +1,70 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useCallback } from "react";
 import { PRIMARY_COLOR } from "../../Styles/global";
 import { Form, Col, Button } from "react-bootstrap";
-import { Redirect } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { app } from "../../Database/initFirebase";
 import { AuthContext } from "./AuthProvider";
 
 export const SignUpForm: React.FC = () => {
-  const [currentUser, setCurrentUser] = useContext(AuthContext);
-  // setCurrentUser({ name: "Victor" });
-  // TODO: any vs unknown
-  // TODO: event type:
-  const registerUser = async (event: any) => {
-    event.preventDefault();
-    console.log("Calling Register User");
-    const { Name, Email } = event.target.elements;
-    console.log("Name: ", Name.value, " Email: ", Email.value);
+  const [, setCurrentUser] = useContext(AuthContext);
+  const history = useHistory();
+  const registerUser = useCallback(
+    async (event: any) => {
+      event.preventDefault();
+      console.log("Calling Register User");
+      const { name, email, password } = event.target.elements;
 
-    try {
-      await app
-        .auth()
-        .createUserWithEmailAndPassword(Name.value, Email.value)
-        .then((userCredentials) => {
-          app
-            .firestore()
-            .collection("users")
-            .doc(userCredentials.user?.uid)
-            .set({
-              name: Name.value,
-              email: Email.value,
-            });
-        });
-      setCurrentUser({ name: Name.value, email: Email.value });
-    } catch {
-      console.log("Error signing up user");
-    }
-  };
+      try {
+        console.log("Creating user");
+        console.log(name.value, email.value, password.value);
+        await app
+          .auth()
+          .createUserWithEmailAndPassword(email.value, password.value)
+          .then((userCredentials) => {
+            console.log(
+              "Now setting user in firestore with:::",
+              userCredentials
+            );
+            setCurrentUser(userCredentials.user);
+            app
+              .firestore()
+              .collection("users")
+              .doc(userCredentials.user?.uid)
+              .set({
+                name: name.value,
+                email: email.value,
+              });
+            console.log("Setting current user");
+          })
+          .then(() => {
+            console.log("Pushing history");
+            history.push("/Home");
+          })
+          .catch((error) => {
+            console.log("Could not register user:::::", error);
+          });
+      } catch {
+        console.log("Error signing up user");
+      }
+    },
+    [history, setCurrentUser]
+  );
 
-  if (currentUser === null) {
-    console.log("User:::", currentUser);
-  } else {
-    console.log("::::::::::::::::::::");
-  }
+  // if (currentUser) {
+  //   console.log("User:::", currentUser);
+  //   return <Redirect to="/Home" />;
+  // } else {
+  //   console.log(currentUser);
+  //   console.log("::::::::::::::::::::", !currentUser);
+  // }
+
+  // if (!user) {
+  //   console.log("User:::", user);
+  //   return <Redirect to="/Home" />;
+  // } else {
+  //   console.log(user);
+  //   console.log("::::::::::::::::::::", !user);
+  // }
 
   // const user = app.auth().currentUser;
   // setCurrentUser(user);
@@ -53,12 +77,12 @@ export const SignUpForm: React.FC = () => {
     >
       <Form.Row>
         <Form.Group as={Col} controlId="formName">
-          <Form.Control name="Name" type="name" placeholder="Name" />
+          <Form.Control name="name" type="name" placeholder="Name" />
         </Form.Group>
       </Form.Row>
       <Form.Row>
         <Form.Group as={Col} controlId="formGridEmail">
-          <Form.Control name="Email" type="email" placeholder="Email" />
+          <Form.Control name="email" type="email" placeholder="Email" />
         </Form.Group>
       </Form.Row>
 

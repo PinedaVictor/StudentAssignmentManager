@@ -2,19 +2,12 @@ import React, { useState } from "react";
 import { create } from "ts-style";
 import { PRIMARY_COLOR } from "../Styles/global";
 import "../../node_modules/react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
-import {
-  Container,
-  // Media,
-  ButtonGroup,
-  Row,
-  // DropdownButton,
-  // Dropdown,
-  Button,
-} from "react-bootstrap";
+import { Container, ButtonGroup, Row, Button } from "react-bootstrap";
 import { Assignments, Courses } from "../Components/student-tools";
 
 export const Home: React.FC = () => {
   const [tool, setTool] = useState(<Assignments />);
+
   return (
     <>
       <Container fluid>
