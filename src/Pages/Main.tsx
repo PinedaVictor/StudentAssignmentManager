@@ -11,7 +11,8 @@ import {
   // Dropdown,
   Button,
 } from "react-bootstrap";
-import { Home, Assignments, Homework, Courses } from "../Components/student-tools";
+import { Home, Assignments, Homework, Courses, Exams } from "../Components/student-tools";
+
 
 export const Main: React.FC = () => {
   const [tool, setTool] = useState(<Home/>);
@@ -56,7 +57,12 @@ export const Main: React.FC = () => {
           >
             Homework
           </Button>
-
+          <Button
+            style = {styles.linkStyle}
+            onClick={() => setTool(<Exams/>)}
+          >
+            Exams
+          </Button>
         </div>
 
         <div
