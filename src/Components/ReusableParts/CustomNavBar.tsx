@@ -1,37 +1,81 @@
-import React, { Component } from 'react';
-import ScrollMenu from 'react-horizontal-scrolling-menu';
-import {NavBarStyle} from './CustomNavBar.style';
+import React from 'react';
+import { makeStyles, Theme} from '@material-ui/core/styles';
+import AppBar from '@material-ui/core/AppBar';
+import { Box, Typography, Tab, Tabs } from '@material-ui/core';
 
-const NavBarItems = (list: string[], selected: any) => 
-    list.map(element => {
-        const name = element;
+import { PRIMARY_COLOR } from '../../Styles/global';
 
-        return (
-            <div key={name} className={`menu-item ${selected ? 'active' : ''}`}>
-                {element}
-            </div>);
-    });
+type NavBarProps = {
+    children?: React.ReactNode;
+    index: any;
+    value: any;
+}
+
+const NavBarTabPanel = (props: NavBarProps) => {
+    const {children, value, index, ...other} = props;
+
+    return(
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`scrollable-auto-tabpanel-${index}`}
+            aria-labelledby={`scrollable-auto-tab-${index}`}
+            {...other}
+        >
+            {value === index && (
+                <Box p={3}>
+                    <Typography>{children}</Typography>
+                </Box>
+            )}
+        </div>
+    );
+}
+
+const allyProps = (index: any) => {
+    return {
+        id: `scrollabe-auto-tab-${index}`,
+        'aria-controls': `scrollable-auto-tabpanel-${index}`,
+    };
+}
+
+// Place styles in this for the NavBar
+// It will be moved once the navbar is finalized
+const useStyles = makeStyles((theme: Theme) => ({
+    root: {
+        flexGrow: 1,
+        width: '100%',
+    },
+}));
 
 type Props = {
     list: string[];
-    selected: string;
-    onSelect?: any;
+}
+
+export const CustomNavBar:React.FC<Props> = ({list}) => {
+    const classes = useStyles();
+    const[value, setValue] = React.useState(0);
+
+    const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+        setValue(newValue);
+    };
+    
+    return (
+        <div className={classes.root}>
+            <AppBar position="static" color="default">
+                <Tabs
+                    value={value}
+                    onChange={handleChange}
+                    indicatorColor="primary"
+                    textColor="primary"
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    centered
+                >
+                    {list.map((element, index) => {
+                        return (<Tab label={element} {...allyProps(index)}/>);
+                    })}
+                </Tabs>
+            </AppBar>
+        </div>
+    )
 };
-
-const CustomNavBar: React.FC<Props> = ({list, selected, onSelect}) => (
-    // TODO: need to add styles
-    <NavBarStyle>
-        <ScrollMenu 
-            data={NavBarItems(list, selected)}
-            arrowLeft={<div className='arrow-prev'>&lt;</div>}
-            arrowRight={<div className='arrow-next'>&gt;</div>}
-            selected={selected}
-            onSelect={onSelect}
-            hideSingleArrow={true}
-            hideArrows={true}
-            alignOnResize={true}
-        />
-    </NavBarStyle>
-)
-
-export default CustomNavBar;
