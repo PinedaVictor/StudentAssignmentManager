@@ -225,7 +225,7 @@ export const Home: React.FC = () => {
     const [gradeSettingsModal, setGradeSettingsModal] = useState(false);
     const [assignmentsSettingsModal, setAssignmentsSettingsModal] = useState(false);
 
-    function LinearProgressWithLabel(value: number){
+    function CircularProgressWithLabel(value: number){
         return (
             <Box position= 'relative' display= 'inline-flex'>
 
@@ -303,13 +303,12 @@ export const Home: React.FC = () => {
                     {classData.map((item) => (
                         <DynamicCard
                         header={item.Name}
-                        bodyTitles={["Total", "Homework", "Exams", "Projects"]}
-                        bodyContents={[
-                            LinearProgressWithLabel(item.Total), 
-                            LinearProgressWithLabel(item.Homework), 
-                            LinearProgressWithLabel(item.Exams), 
-                            LinearProgressWithLabel(item.Projects)]}
-                        width={"200px"}
+                        bodyContents={{
+                            Total: CircularProgressWithLabel(item.Total), 
+                            Homework: CircularProgressWithLabel(item.Homework), 
+                            Exams: CircularProgressWithLabel(item.Exams), 
+                            Projects: CircularProgressWithLabel(item.Projects)}}
+                        width={"225px"}
                         type="tiny"
                         /> 
                     ))}
