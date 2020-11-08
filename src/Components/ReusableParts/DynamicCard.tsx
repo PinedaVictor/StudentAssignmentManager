@@ -1,14 +1,13 @@
+import { format } from "path";
 import React from "react";
 import { create } from "ts-style";
 import { SECONDARY_COLOR , BORDER_COLOR , BUTTON_DELETE_BACKGROUND_COLOR , BUTTON_EDIT_BACKGROUND_COLOR } from "../../Styles/global";
 
 import { CustomButton } from "./CustomButton"
-import { CustomModal } from "./CustomModal";
 
 interface Props {
     header: string,
-    bodyTitles: Array<any>,
-    bodyContents: Array<any>,
+    bodyContents: Object,
     width: string,
     type: "standard" | "divided" | "tiny"
     editClick?: ((event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void),
@@ -28,24 +27,82 @@ Required props:
                         -"standard": Has 3 rows, with buttons at the bottom.  No dividers between the body sections.  Text is on the same line as the headers.
                         -"divided": Has 3 rows, with buttons at the bottom.  Has dividers between the body sections.  Text starts on a line below the headers.  Headers are centered.
 */
-export const DynamicCard: React.FC<Props> = ({header, bodyTitles, bodyContents, width, type, editClick, deleteClick}) => {
+export const DynamicCard: React.FC<Props> = ({header, bodyContents, width, type, editClick, deleteClick}) => {
 
-    const onDeleteClick = () => {
+    const formatTitle = (title: string) => {
+
+        if(title !== null && title !== undefined){
+            var words = title.split(/(?=[A-Z])/)
+            
+            var index = 0
+
+            for (index; index < words.length; index++){
+                words[index] = words[index].charAt(0).toUpperCase() + words[index].slice(1)
+            }
+
+            return words.join(" ")
+        }
 
     }
 
+    const checkForObject = (index: number, item: (string | number) | Object) => {
+        if (typeof item === 'string' || item instanceof String)
+            return item.toString()
+
+        else if (typeof item === 'number' || item instanceof Number)
+            return item.toString() + "%"
+
+        else {
+        
+        return (
+            <div style = {{
+                borderBottom: "solid 1px black",
+                borderTop: "solid 1px black",
+                marginTop: 10,
+                marginBottom: 10,
+                width: "100%"
+            }}>
+                {
+                Object.entries(item).map(([key, value], index) => (
+                    
+                    <div style = {{
+                        display: 'flex',
+                        flexDirection: "row" as "row"
+                    }}>
+                        <text style = {{
+                            fontSize: 18,
+                            fontWeight: "bold" as "bold"
+                        }}>
+                            {formatTitle(key)}
+                        </text>
+                        :
+                        <text style = {{
+                            fontSize: 18,
+                            marginLeft: 10
+                        }}>
+                            {value}
+                            {(typeof value === 'number' || value instanceof Number) && "%"}
+                        </text>
+                    </div>
+                ))
+                }
+            </div>
+            )
+        }
+    }
+
     const renderBody = () => (
-    bodyTitles.map((title: string, index: number) => (
+    Object.entries(bodyContents).map(([key, value], index) => (
 
     (type === "divided") ?
 
     <div style = {styles.bodyDividerStyle}>
         <div style = {styles.bodyTitle}>
-            {title}
+            {formatTitle(key)}
         </div>  
 
         <div style = {styles.bodyContent}>
-            {bodyContents[index]}
+            {checkForObject(index, value)}
         </div>
     </div>
 
@@ -57,10 +114,10 @@ export const DynamicCard: React.FC<Props> = ({header, bodyTitles, bodyContents, 
         <div style = {{display: 'flex', flexDirection: "row" as "row"}}>
             <text>
                 <text style = {styles.bodyTitle}>
-                {title}:    
+                {formatTitle(key)}:    
                 </text>  
                 <text style = {{fontSize: 16}}>
-                        {bodyContents[index]}
+                    {checkForObject(index, value)}
                 </text>
             </text>
         </div>
@@ -71,10 +128,10 @@ export const DynamicCard: React.FC<Props> = ({header, bodyTitles, bodyContents, 
     <div style = {styles.bodyStandardStyle}>
         <div style = {{display: 'flex', flexDirection: "row" as "row", justifyContent: 'left', alignItems: 'center'}}>
             <div style = {styles.bodyTitle}>
-                {title}:    
+                {formatTitle(key)}:    
             </div>  
             <div style = {{fontSize: 16}}>
-                {bodyContents[index]}
+                {value}
             </div>
         </div>
     </div>
@@ -138,7 +195,7 @@ const styles = create({
     cardTitle: {
         textAlign: 'center' as 'center', 
         fontWeight: 'bold' as 'bold',
-        fontSize: 22,
+        fontSize: 26,
         minWidth: 150,
         maxWidth: "auto"
     },
@@ -170,12 +227,12 @@ const styles = create({
     bodyTitle: {
         fontWeight: 'bold' as 'bold',
         textDecorationLine: 'underline',
-        fontSize: 18,
+        fontSize: 22,
         marginRight: 10
     },
 
     bodyContent: {
-        fontSize: 16,
+        fontSize: 20,
     },
 
     button: {
