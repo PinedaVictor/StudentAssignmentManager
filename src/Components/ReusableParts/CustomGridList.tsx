@@ -3,39 +3,43 @@ import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import { createStyles, makeStyles, Theme } from '@material-ui/core';
 import { DynamicCard } from './DynamicCard';
-
-const COLUMNS_IN_GRID = 4;
-
-const styles = makeStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'space-around',
-            overflow: 'hidden',
-            backgroundColor: '#fff' 
-        },
-        gridList: {
-            flexWrap: 'nowrap',
-            transform: 'translateZ(0)',
-        },
-    }));
+import { create } from 'ts-style';
 
 type Props = {
-    list: string[];
+    headers: any[];
+    bodyTitles: any[];
+    bodyContents: any[][];
+    width: string;
+    type: "standard" | "divided" | "tiny";
 }
 
-export const CustomGridList: React.FC<Props> = ({list}) => {
-    const classes = styles();
-    
+
+export const CustomGridList: React.FC<Props> = 
+    ({headers, bodyTitles, bodyContents, width, type}) => {
     return (
-        <div className={classes.root}>
-            <GridList className={classes.gridList} cols={COLUMNS_IN_GRID} spacing={10}>
-                {list.map((card) =>(
-                    <GridListTile key={card}>
-                    </GridListTile>
-                ))}
-            </GridList>
+        <div style={styles.coursesBody}>
+            {headers.map((item, i) => (
+                <DynamicCard
+                    header={item}
+                    bodyTitles={bodyTitles}
+                    bodyContents={bodyContents[i]}
+                    width={width}
+                    type={type}
+                />
+            ))}
         </div>
     )
 };
+
+const styles = create({
+    coursesBody: {
+        display: "flex",
+        flexDirection: "row" as "row",
+        justifyContent: "left",
+        alignItems: "left",
+        minWidth: 400,
+        maxWidth: 1080,
+        height: "auto",
+        overflowX: "scroll" as "scroll",
+    }
+});

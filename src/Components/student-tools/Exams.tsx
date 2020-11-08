@@ -16,19 +16,50 @@ const list = [
     'item8'
 ]
 
-const gridList = [
-    'stuff',
-    'lots',
-    'of',
-    'stuff',
+interface ExamData {
+    title: string
+    section_weight: string
+    overall_weight: string
+    related_hw: string
+    related_projs: string
+    resources: string
+    related_exams: string
+
+}
+
+const titles = [
+    "section weight",
+    "overall weight",
+    "related homework", 
+    "related projects",
+    "resources",
+    "related exams"
 ]
+
+const tempData = [
+    [
+        "50%",
+        "20%",
+        "hw#1",
+        "Project 1",
+        "www.google.com",
+        "none"
+    ],
+    [
+        "50%",
+        "20%",
+        "hw#2",
+        "Project 2",
+        "www.google.com",
+        "none"
+    ]
+];
 
 export const Exams: React.FC = () => {
     const [cardModal, setCardModal] = useState(false);
-
     return (
         <div style={styles.pageStyle}>
-            <CustomNavBar list={list} />
+           <CustomNavBar list={list} />
            <div style={styles.buttonStyle}>
                 <CustomButton
                     title='Add Exam'
@@ -40,7 +71,13 @@ export const Exams: React.FC = () => {
                     }}
                 />
             </div>
-            <CustomGridList list={gridList}/>
+            <CustomGridList 
+                headers={["exam 1", "exam 2"]}
+                bodyTitles={titles}
+                bodyContents={tempData}
+                width={"auto"}
+                type={"divided"}
+            />
         </div>
     )
 }
