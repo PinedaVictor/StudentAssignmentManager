@@ -1,28 +1,38 @@
-import React from "react";
+import React, { useCallback, useContext } from "react";
 import { create } from "ts-style";
-import { PRIMARY_COLOR } from "../Styles/global";
+import { PRIMARY_COLOR } from "../../Styles/global";
 import { Form, Button } from "react-bootstrap";
-// TODO:
-// import { Redirect } from "react-router";
-// import { ath } from "../Database/initFirebase";
-// import { AuthContext } from "../Database/Auth";
+import { useHistory } from "react-router";
+import { app } from "../../Database/initFirebase";
+import { AuthContext } from "./AuthProvider";
 
 export const LoginForm: React.FC = () => {
-  // const user = ath.currentUser;
-  // const HandleLogin = useCallback(async (event) => {
-  //   event.preventDefault();
-  //   const { email, password } = event.target.elements;
-  //   try {
-  //     await ath.signInWithEmailAndPassword(email.value, password.value);
-  //   } catch (error) {
-  //     alert(error);
-  //   }
-  // }, []);
+  const [, setUser] = useContext(AuthContext);
+  const history = useHistory();
+  const HandleLogin = useCallback(
+    async (event) => {
+      event.preventDefault();
+      const { email, password } = event.target.elements;
+      try {
+        await app
+          .auth()
+          .signInWithEmailAndPassword(email.value, password.value)
+          .then(() => {
+            setUser(app.auth().currentUser);
+          });
+        history.push("/Home");
+      } catch (error) {
+        alert(error);
+      }
+      console.log("Finished authenticating user");
+    },
+    [history, setUser]
+  );
 
   return (
     <Form
       style={{ maxWidth: "320px", paddingLeft: "25px" }}
-      onSubmit={() => console.log("Login button clicked")}
+      onSubmit={HandleLogin}
     >
       <Form.Group style={styles.group} controlId="Email">
         <Form.Control
@@ -48,8 +58,11 @@ export const LoginForm: React.FC = () => {
           label="remember me"
         />
       </Form.Group>
-      <Button size="lg" style={styles.loginButton} type="submit">
-        Log In
+      <Button
+        type="submit"
+        style={{ backgroundColor: PRIMARY_COLOR, marginBottom: "10px" }}
+      >
+        Login
       </Button>
     </Form>
   );
