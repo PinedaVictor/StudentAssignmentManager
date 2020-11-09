@@ -11,10 +11,6 @@ const list = [
     'item2',
     'item3',
     'item4',
-    'item5',
-    'item6',
-    'item7',
-    'item8'
 ]
 
 interface ExamData {
@@ -48,14 +44,16 @@ const exams = [
             'Quiz 1',
             'Quiz 2'
         ]
-    }
+    },
 ]
 
 export const Exams: React.FC = () => {
     const [cardModal, setCardModal] = useState(false);
     return (
         <div style={styles.pageStyle}>
-{/*            <CustomNavBar list={list} /> */}
+            <div>
+                <CustomNavBar list={list} />
+            </div>
            <div style={styles.buttonStyle}>
                 <CustomButton
                     title='Add Exam'

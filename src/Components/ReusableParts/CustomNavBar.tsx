@@ -44,7 +44,19 @@ const useStyles = makeStyles((theme: Theme) => ({
     root: {
         flexGrow: 1,
         width: '100%',
+        borderRadius: 50, 
+        backgroundColor: theme.palette.background.paper,
     },
+    active_tab: { 
+        fontSize: 14,
+        fontWeight: 'bolder',
+        backgroundColor: PRIMARY_COLOR,
+    },
+    default_tab: {
+        fontSize: 14,
+        backgroundColor: PRIMARY_COLOR,
+        fontWeight: 'normal'
+    }
 }));
 
 type Props = {
@@ -61,18 +73,18 @@ export const CustomNavBar:React.FC<Props> = ({list}) => {
     
     return (
         <div className={classes.root}>
-            <AppBar position="static" color="default">
+            <AppBar position="static" color="default" >
                 <Tabs
                     value={value}
                     onChange={handleChange}
                     indicatorColor="primary"
-                    textColor="primary"
                     variant="scrollable"
                     scrollButtons="auto"
-                    centered
                 >
                     {list.map((element, index) => {
-                        return (<Tab label={element} {...allyProps(index)}/>);
+                        return (<Tab label={element}
+                            className={value === index? classes.active_tab : classes.default_tab}
+                            {...allyProps(index)}/>);
                     })}
                 </Tabs>
             </AppBar>
