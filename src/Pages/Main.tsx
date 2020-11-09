@@ -8,6 +8,7 @@ import {
   // Assignments,
   Homework,
   Courses,
+  Exams
 } from "../Components/student-tools/index";
 
 export const MainUI: React.FC = () => {
@@ -39,6 +40,12 @@ export const MainUI: React.FC = () => {
             onClick={() => setTool(<Homework />)}
           >
             Homework
+          </Button>
+          <Button
+            style={styles.linkStyle}
+            onClick={() => setTool(<Exams />)}
+          >
+            Exams
           </Button>
         </div>
 

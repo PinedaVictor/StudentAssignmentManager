@@ -4,6 +4,7 @@ import { create } from 'ts-style';
 import { CustomNavBar } from '../ReusableParts/CustomNavBar';
 import { CustomButton } from '../ReusableParts/CustomButton';
 import { CustomGridList } from '../ReusableParts/CustomGridList';
+import { DynamicCard } from '../ReusableParts/DynamicCard';
 
 const list = [
     'item1',
@@ -27,39 +28,34 @@ interface ExamData {
 
 }
 
-const titles = [
-    "section weight",
-    "overall weight",
-    "related homework", 
-    "related projects",
-    "resources",
-    "related exams"
+const exams = [
+    {
+        title: 'Exam #1',
+        sectionWeight: 10,
+        relatedHomework: [
+            'Homework 1',
+            'Homework 2',
+            'Homework 3'
+        ],
+        relatedProjects: [
+            'Project 1'
+        ],
+        resources: [
+            'www.google.com'
+        ],
+        relatedExams: [
+            'Exam 1',
+            'Quiz 1',
+            'Quiz 2'
+        ]
+    }
 ]
-
-const tempData = [
-    [
-        "50%",
-        "20%",
-        "hw#1",
-        "Project 1",
-        "www.google.com",
-        "none"
-    ],
-    [
-        "50%",
-        "20%",
-        "hw#2",
-        "Project 2",
-        "www.google.com",
-        "none"
-    ]
-];
 
 export const Exams: React.FC = () => {
     const [cardModal, setCardModal] = useState(false);
     return (
         <div style={styles.pageStyle}>
-           <CustomNavBar list={list} />
+{/*            <CustomNavBar list={list} /> */}
            <div style={styles.buttonStyle}>
                 <CustomButton
                     title='Add Exam'
@@ -71,13 +67,24 @@ export const Exams: React.FC = () => {
                     }}
                 />
             </div>
-            <CustomGridList 
-                headers={["exam 1", "exam 2"]}
-                bodyTitles={titles}
-                bodyContents={tempData}
-                width={"auto"}
-                type={"divided"}
-            />
+            <div style={styles.examBody}>
+                {exams.map((item, i) => (
+                    <DynamicCard
+                        header={item.title}
+                        bodyContents={{
+                            sectionWeight: item.sectionWeight,
+                            relatedHomework: item.relatedHomework,
+                            relatedProjects: item.relatedProjects,
+                            resources: item.resources,
+                            relatedExams: item.relatedExams
+                        }}
+                        width={'auto'}
+                        type='standard'
+                        editClick={() =>{}}
+                        deleteClick={() => {}}
+                    />
+                ))}
+            </div>
         </div>
     )
 }
@@ -96,5 +103,14 @@ const styles = create({
         paddingTop: 75,
         paddingBottom: 25 
     },
-
+    examBody: {
+        display: "flex",
+        flexDirection: "row" as "row",
+        justifyContent: "left",
+        alignItems: "left",
+        minWidth: 400,
+        maxWidth: 1080,
+        height: "auto",
+        overflowX: "scroll" as "scroll",
+    }
 })

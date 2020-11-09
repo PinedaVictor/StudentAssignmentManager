@@ -1,3 +1,4 @@
+// WIP to replace the hard coded values
 import React from 'react';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
@@ -7,7 +8,6 @@ import { create } from 'ts-style';
 
 type Props = {
     headers: any[];
-    bodyTitles: any[];
     bodyContents: any[][];
     width: string;
     type: "standard" | "divided" | "tiny";
@@ -15,13 +15,12 @@ type Props = {
 
 
 export const CustomGridList: React.FC<Props> = 
-    ({headers, bodyTitles, bodyContents, width, type}) => {
+    ({headers, bodyContents, width, type}) => {
     return (
         <div style={styles.coursesBody}>
             {headers.map((item, i) => (
                 <DynamicCard
                     header={item}
-                    bodyTitles={bodyTitles}
                     bodyContents={bodyContents[i]}
                     width={width}
                     type={type}
