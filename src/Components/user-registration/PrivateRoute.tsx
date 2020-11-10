@@ -15,6 +15,6 @@ export const PrivateRoute: React.FC<RouterProps> = (props) => {
   return currentUser ? (
     <Route path={props.path} component={props.component} {...props.children} />
   ) : (
-    <Redirect to="/" />
+    <Redirect to="/Login" />
   );
 };

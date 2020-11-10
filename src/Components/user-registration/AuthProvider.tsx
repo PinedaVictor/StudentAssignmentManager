@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createContext } from "react";
+import React, { useState, createContext, useEffect } from "react";
 import { app } from "../../Database/initFirebase";
 
 type UserContext = [
@@ -17,6 +17,11 @@ export const AuthProvider = (props: any) => {
       setPending(false);
     });
   }, []);
+
+  // app.auth().onAuthStateChanged((user) => {
+  //   setUser(user);
+  //   setPending(false);
+  // });
 
   if (pending) {
     return <>Loading...</>;
