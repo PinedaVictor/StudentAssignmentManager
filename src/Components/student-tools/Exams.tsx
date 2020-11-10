@@ -67,33 +67,8 @@ export const Exams: React.FC = () => {
 
     return (
         <div className={classes.root}>
-            <Paper className={classes.paper}>
-                <Grid container 
-                      spacing={4}
-                      alignItems="center"
-                      justify="center"
-                >
-                    <Grid item xs={12} alignItems='center'>
-                        <AppBar position='static' className={classes.appBar} >
-                            <Tabs
-                                value={tabValue}
-                                onChange={handleNavChange}
-                                variant='scrollable'
-                                scrollButtons='auto'
-                                aria-label='class nav bar'
-                                classes={{ indicator: classes.indicator}}
-                            >
-                                {list.map((element, index) => {
-                                    return (<Tab label={element} {...allyProps(index)}/>);
-                                })}
-                            </Tabs>
-                        </AppBar>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Button variant="contained" className={classes.button}>Add Exam</Button>
-                    </Grid>
-                </Grid>
-            </Paper>
+            <Grid container>
+           </Grid>
         </div>
     )
 }
@@ -102,7 +77,6 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             flexGrow: 1,
-            paddingTop: '2%'
         },
         paper: { 
             padding: theme.spacing(2),
