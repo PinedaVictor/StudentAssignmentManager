@@ -78,14 +78,6 @@ const useStyles = makeStyles((theme: Theme) => ({
         color: 'black',
         borderRadius: 10,
     },
-    active_tab: { 
-        fontSize: '20',
-        fontWeight: 'bolder',
-    },
-    default_tab: {
-        fontSize: '20',
-        fontWeight: 'bold'
-    }, 
     indicator: {
         backgroundColor: 'transparent',
     }

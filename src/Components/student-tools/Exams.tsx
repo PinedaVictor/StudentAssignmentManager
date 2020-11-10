@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, createStyles, Grid, GridList, GridListTile, makeStyles, Paper, Theme } from "@material-ui/core";
+import { Button, createStyles, Grid, GridList, GridListTile, makeStyles, Paper, Theme, Tabs, Tab } from "@material-ui/core";
 import { create } from 'ts-style';
 import { CustomNavBar } from '../ReusableParts/CustomNavBar';
 import { CustomButton } from '../ReusableParts/CustomButton';
@@ -48,8 +48,23 @@ const exams = [
         ]
     },
 ]
+
+const allyProps = (index: any) => {
+    return {
+        id: `scrollable-auto-tab-${index}`,
+        'aria-controls': `scrollable-auto-tabpanel-${index}`
+    }
+}
+
 export const Exams: React.FC = () => {
     const classes = useStyles();
+    const [tabValue, setTabValue] = React.useState(0);
+    const [currentClass, setCurrentClass] = React.useState("");
+
+    const handleNavChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+        setTabValue(newValue);
+    };
+
     return (
         <div className={classes.root}>
             <Paper className={classes.paper}>
@@ -58,36 +73,44 @@ export const Exams: React.FC = () => {
                       alignItems="center"
                       justify="center"
                 >
-                    <Grid item xs={12}>
-                        <CustomNavBar list={list}/>
+                    <Grid item xs={12} alignItems='center'>
+                        <AppBar position='static' className={classes.appBar} >
+                            <Tabs
+                                value={tabValue}
+                                onChange={handleNavChange}
+                                variant='scrollable'
+                                scrollButtons='auto'
+                                aria-label='class nav bar'
+                                classes={{ indicator: classes.indicator}}
+                            >
+                                {list.map((element, index) => {
+                                    return (<Tab label={element} {...allyProps(index)}/>);
+                                })}
+                            </Tabs>
+                        </AppBar>
                     </Grid>
-
-                    <Button variant="contained" className={classes.button}>Add Exam</Button>
                     <Grid item xs={12}>
-                        <GridList className={classes.gridList} cols={2.5}>
-                                {exams.map((ele) => (
-                                    <GridListTile key={ele.title}>
-                                        
-                                    </GridListTile>
-                                ))}
-                            </GridList>
-                        </Grid>
+                        <Button variant="contained" className={classes.button}>Add Exam</Button>
+                    </Grid>
                 </Grid>
             </Paper>
         </div>
     )
 }
 
-
-
 const useStyles = makeStyles((theme: Theme) => 
     createStyles({
         root: {
-/*             flexGrow: 1,
-            paddingTop: '2%' */
+            flexGrow: 1,
+            paddingTop: '2%'
         },
         paper: { 
             padding: theme.spacing(2),
+        },
+        appBar: {
+            background: PRIMARY_COLOR,
+            color: 'black',
+            borderRadius: 10,
         },
         button: {
             backgroundColor: SECONDARY_COLOR,
@@ -104,5 +127,8 @@ const useStyles = makeStyles((theme: Theme) =>
             flexWrap: 'nowrap',
             transform: 'translateZ(0)',
         },
+        indicator: {
+            backgroundColor: 'transparent',
+        }
     })
 );
