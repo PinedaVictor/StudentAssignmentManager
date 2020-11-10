@@ -1,18 +1,24 @@
 import React, { useState } from 'react';
-import { Button, createStyles, Grid, GridList, GridListTile, makeStyles, Paper, Theme, Tabs, Tab } from "@material-ui/core";
+import { Button, createStyles, Grid, makeStyles, Paper, Theme, Tabs, Tab, Card, GridList, GridListTile } from "@material-ui/core";
 import { create } from 'ts-style';
 import { CustomNavBar } from '../ReusableParts/CustomNavBar';
 import { CustomButton } from '../ReusableParts/CustomButton';
 import AppBar from '@material-ui/core/AppBar';
-import { CustomGridList } from '../ReusableParts/CustomGridList';
-import { DynamicCard } from '../ReusableParts/DynamicCard';
 import { PRIMARY_COLOR, SECONDARY_COLOR } from '../../Styles/global';
 
 const list = [
     'Phil 101',
     'Comp 301',
     'Nap 101',
-    
+]
+
+const examData = [
+    'Exam #1',
+    'Exam #2',
+    'Exam #3',
+    'Exam #4',
+    'Exam #5',
+    'Exam #6',
 ]
 
 interface ExamData {
@@ -55,7 +61,15 @@ const allyProps = (index: any) => {
         'aria-controls': `scrollable-auto-tabpanel-${index}`
     }
 }
-
+const getExamCards = () => {
+    return(
+        <Grid item xs={12}>
+            {examData.map(ele => {
+                return <Card>ele</Card>
+            })}
+        </Grid>
+    );
+}
 export const Exams: React.FC = () => {
     const classes = useStyles();
     const [tabValue, setTabValue] = React.useState(0);
@@ -67,7 +81,36 @@ export const Exams: React.FC = () => {
 
     return (
         <div className={classes.root}>
-            <Grid container>
+           <Grid container spacing={5} justify="space-between" alignItems="center" direction="column">
+               <Grid item xs={12}>
+                    <AppBar position="static" className={classes.appBar}>
+                        <Tabs
+                            value={tabValue}
+                            onChange={handleNavChange}
+                            variant="scrollable"
+                            scrollButtons="auto"
+                            aria-label="exams nav"
+                            classes={{indicator: classes.indicator}}
+                            centered
+                        >
+                            {list.map((element, index) => {
+                                return <Tab label={element} {...allyProps(index)}/>
+                            })}
+                        </Tabs>
+                    </AppBar>
+                </Grid>
+                <Grid item xs={12} style={{ textAlign: "center"}}>
+                    <Button variant="contained">Add Exam</Button>
+                </Grid>
+                <Grid item xs={12}>
+                    <GridList className={classes.gridList} cols={4}>
+                        {examData.map((ele) => (
+                            <GridListTile key={ele}>
+                                <Card >{ele}</Card>
+                            </GridListTile>
+                        ))}
+                    </GridList>
+                </Grid>
            </Grid>
         </div>
     )
@@ -77,9 +120,9 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             flexGrow: 1,
-        },
-        paper: { 
-            padding: theme.spacing(2),
+            paddingTop: '5%',
+            alignItems: "center",
+            justifyContent: "center"
         },
         appBar: {
             background: PRIMARY_COLOR,
@@ -88,21 +131,13 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         button: {
             backgroundColor: SECONDARY_COLOR,
-            fontSize: '20'
-        },
-        gridListRoot: {
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'space-around',
-            overflow: 'hidden',
-            backgroundColor: theme.palette.background.paper
-        } ,
-        gridList: {
-            flexWrap: 'nowrap',
-            transform: 'translateZ(0)',
         },
         indicator: {
             backgroundColor: 'transparent',
+        },
+        gridList: {
+            flexWrap: 'nowrap',
+            transform: 'translateZ(0)',
         }
     })
 );
