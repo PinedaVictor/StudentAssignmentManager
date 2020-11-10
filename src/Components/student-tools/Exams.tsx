@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { createStyles, makeStyles, Theme } from "@material-ui/core";
+import { Button, createStyles, Grid, GridList, GridListTile, makeStyles, Paper, Theme } from "@material-ui/core";
 import { create } from 'ts-style';
 import { CustomNavBar } from '../ReusableParts/CustomNavBar';
 import { CustomButton } from '../ReusableParts/CustomButton';
+import AppBar from '@material-ui/core/AppBar';
 import { CustomGridList } from '../ReusableParts/CustomGridList';
 import { DynamicCard } from '../ReusableParts/DynamicCard';
+import { PRIMARY_COLOR, SECONDARY_COLOR } from '../../Styles/global';
 
 const list = [
-    'item1',
-    'item2',
-    'item3',
-    'item4',
+    'Phil 101',
+    'Comp 301',
+    'Nap 101',
+    
 ]
 
 interface ExamData {
@@ -46,69 +48,61 @@ const exams = [
         ]
     },
 ]
-
 export const Exams: React.FC = () => {
-    const [cardModal, setCardModal] = useState(false);
+    const classes = useStyles();
     return (
-        <div style={styles.pageStyle}>
-            <div>
-                <CustomNavBar list={list} />
-            </div>
-           <div style={styles.buttonStyle}>
-                <CustomButton
-                    title='Add Exam'
-                    onClick={() => setCardModal(true)}
-                    theme='default'
-                    dimensions={{
-                        width: 'auto',
-                        height: 'auto'
-                    }}
-                />
-            </div>
-            <div style={styles.examBody}>
-                {exams.map((item, i) => (
-                    <DynamicCard
-                        header={item.title}
-                        bodyContents={{
-                            sectionWeight: item.sectionWeight,
-                            relatedHomework: item.relatedHomework,
-                            relatedProjects: item.relatedProjects,
-                            resources: item.resources,
-                            relatedExams: item.relatedExams
-                        }}
-                        width={'auto'}
-                        type='standard'
-                        editClick={() =>{}}
-                        deleteClick={() => {}}
-                    />
-                ))}
-            </div>
+        <div className={classes.root}>
+            <Paper className={classes.paper}>
+                <Grid container 
+                      spacing={4}
+                      alignItems="center"
+                      justify="center"
+                >
+                    <Grid item xs={12}>
+                        <CustomNavBar list={list}/>
+                    </Grid>
+
+                    <Button variant="contained" className={classes.button}>Add Exam</Button>
+                    <Grid item xs={12}>
+                        <GridList className={classes.gridList} cols={2.5}>
+                                {exams.map((ele) => (
+                                    <GridListTile key={ele.title}>
+                                        
+                                    </GridListTile>
+                                ))}
+                            </GridList>
+                        </Grid>
+                </Grid>
+            </Paper>
         </div>
     )
 }
 
-const styles = create({
-    pageStyle: {
-        display: 'grid',
-        paddingTop: 50, 
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    buttonStyle: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingTop: 75,
-        paddingBottom: 25 
-    },
-    examBody: {
-        display: "flex",
-        flexDirection: "row" as "row",
-        justifyContent: "left",
-        alignItems: "left",
-        minWidth: 400,
-        maxWidth: 1080,
-        height: "auto",
-        overflowX: "scroll" as "scroll",
-    }
-})
+
+
+const useStyles = makeStyles((theme: Theme) => 
+    createStyles({
+        root: {
+/*             flexGrow: 1,
+            paddingTop: '2%' */
+        },
+        paper: { 
+            padding: theme.spacing(2),
+        },
+        button: {
+            backgroundColor: SECONDARY_COLOR,
+            fontSize: '20'
+        },
+        gridListRoot: {
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'space-around',
+            overflow: 'hidden',
+            backgroundColor: theme.palette.background.paper
+        } ,
+        gridList: {
+            flexWrap: 'nowrap',
+            transform: 'translateZ(0)',
+        },
+    })
+);

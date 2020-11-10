@@ -38,27 +38,6 @@ const allyProps = (index: any) => {
     };
 }
 
-// Place styles in this for the NavBar
-// It will be moved once the navbar is finalized
-const useStyles = makeStyles((theme: Theme) => ({
-    root: {
-        flexGrow: 1,
-        width: '100%',
-        borderRadius: 50, 
-        backgroundColor: theme.palette.background.paper,
-    },
-    active_tab: { 
-        fontSize: 14,
-        fontWeight: 'bolder',
-        backgroundColor: PRIMARY_COLOR,
-    },
-    default_tab: {
-        fontSize: 14,
-        backgroundColor: PRIMARY_COLOR,
-        fontWeight: 'normal'
-    }
-}));
-
 type Props = {
     list: string[];
 }
@@ -72,22 +51,44 @@ export const CustomNavBar:React.FC<Props> = ({list}) => {
     };
     
     return (
-        <div className={classes.root}>
-            <AppBar position="static" color="default" >
+            <AppBar position="static" className={classes.appBar} >
                 <Tabs
                     value={value}
                     onChange={handleChange}
-                    indicatorColor="primary"
                     variant="scrollable"
                     scrollButtons="auto"
+                    aria-label="scrollable auto tabs"
+                    classes={{ indicator: classes.indicator }}
                 >
                     {list.map((element, index) => {
                         return (<Tab label={element}
-                            className={value === index? classes.active_tab : classes.default_tab}
+                            /* className={value === index? classes.active_tab : classes.default_tab} */
                             {...allyProps(index)}/>);
                     })}
                 </Tabs>
             </AppBar>
-        </div>
     )
 };
+
+// Place styles in this for the NavBar
+// It will be moved once the navbar is finalized
+const useStyles = makeStyles((theme: Theme) => ({
+    appBar: {
+        background: PRIMARY_COLOR,
+        color: 'black',
+        borderRadius: 10,
+    },
+    active_tab: { 
+        fontSize: '20',
+        fontWeight: 'bolder',
+    },
+    default_tab: {
+        fontSize: '20',
+        fontWeight: 'bold'
+    }, 
+    indicator: {
+        backgroundColor: 'transparent',
+    }
+}));
+
+
