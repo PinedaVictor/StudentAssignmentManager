@@ -19,14 +19,11 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import SchoolIcon from "@material-ui/icons/School";
 import { NavItems } from "./Config";
-
-interface HeaderProps {
-  navItemFunction: (Param: React.FC) => void;
-}
+import { Link } from "react-router-dom";
 
 const drawerWidth = 240;
 
-export const Header: React.FC<HeaderProps> = (props) => {
+export const Header: React.FC = () => {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
@@ -100,31 +97,31 @@ export const Header: React.FC<HeaderProps> = (props) => {
         <Divider />
         <List style={{}}>
           {NavItems.map((item, index) => (
-            <ListItem
-              button
-              key={index}
-              onClick={() => {
-                props.navItemFunction(item.Component);
-                handleDrawerClose();
-              }}
-            >
-              <ListItemIcon>
-                <item.icon
-                  style={{ height: "2.0em", width: "2.0em", color: "white" }}
-                />
-              </ListItemIcon>
-              <p
-                style={{
-                  margin: "0",
-                  padding: "0",
-                  fontSize: "12pt",
-                  color: "white",
-                  fontWeight: "bold",
+            <Link to={item.path} key={index}>
+              <ListItem
+                button
+                onClick={() => {
+                  handleDrawerClose();
                 }}
               >
-                {item.title}
-              </p>
-            </ListItem>
+                <ListItemIcon>
+                  <item.icon
+                    style={{ height: "2.0em", width: "2.0em", color: "white" }}
+                  />
+                </ListItemIcon>
+                <p
+                  style={{
+                    margin: "0",
+                    padding: "0",
+                    fontSize: "12pt",
+                    color: "white",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {item.title}
+                </p>
+              </ListItem>
+            </Link>
           ))}
         </List>
         <Divider />
