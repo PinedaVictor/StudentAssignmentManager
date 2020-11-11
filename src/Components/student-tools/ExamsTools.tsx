@@ -5,6 +5,7 @@ import { CustomNavBar } from '../ReusableParts/CustomNavBar';
 import { CustomButton } from '../ReusableParts/CustomButton';
 import AppBar from '@material-ui/core/AppBar';
 import { PRIMARY_COLOR, SECONDARY_COLOR } from '../../Styles/global';
+import { Container } from "react-bootstrap";
 
 const list = [
     'Phil 101',
@@ -70,64 +71,47 @@ const getExamCards = () => {
         </Grid>
     );
 }
-export const Exams: React.FC = () => {
-    const classes = useStyles();
-    const [tabValue, setTabValue] = React.useState(0);
-    const [currentClass, setCurrentClass] = React.useState("");
 
+export const ExamsTools: React.FC = () => {
+    const classes = useStyles();
+    const[tabValue, setTabValue] = React.useState(0);
     const handleNavChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setTabValue(newValue);
     };
 
-    return (
+    return(
         <div className={classes.root}>
-           <Grid container spacing={5} justify="space-between" alignItems="center" direction="column">
-               <Grid item xs={12}>
-                    <AppBar position="static" className={classes.appBar}>
-                        <Tabs
-                            value={tabValue}
-                            onChange={handleNavChange}
-                            variant="scrollable"
-                            scrollButtons="auto"
-                            aria-label="exams nav"
-                            classes={{indicator: classes.indicator}}
-                            centered
-                        >
-                            {list.map((element, index) => {
-                                return <Tab label={element} {...allyProps(index)}/>
-                            })}
-                        </Tabs>
-                    </AppBar>
-                </Grid>
-                <Grid item xs={12} style={{ textAlign: "center"}}>
-                    <Button variant="contained">Add Exam</Button>
-                </Grid>
-                <Grid item xs={12}>
-                    <GridList className={classes.gridList} cols={4}>
-                        {examData.map((ele) => (
-                            <GridListTile key={ele}>
-                                <Card >{ele}</Card>
-                            </GridListTile>
-                        ))}
-                    </GridList>
-                </Grid>
-           </Grid>
+            <Tabs
+                className={classes.tabs}
+                value={tabValue}
+                onChange={handleNavChange}
+                aria-label="exams nav"
+                classes={{indicator: classes.indicator}}
+                scrollButtons='auto'
+                variant="scrollable"
+            >
+                {list.map((element, index) => {
+                    return <Tab label={<span className={classes.tab}>{element}</span>} {...allyProps(index)}/>
+                })}
+            </Tabs>
+            <p>CardList Here</p>
+            <Button className={classes.button} variant="contained">Add Exams</Button>
         </div>
-    )
+    );
 }
-
 const useStyles = makeStyles((theme: Theme) => 
     createStyles({
         root: {
             flexGrow: 1,
-            paddingTop: '5%',
-            alignItems: "center",
-            justifyContent: "center"
+            justifyContent: 'center',
         },
-        appBar: {
+        tabs: {
             background: PRIMARY_COLOR,
             color: 'black',
             borderRadius: 10,
+        },
+        tab: {
+            fontSize: '15px'
         },
         button: {
             backgroundColor: SECONDARY_COLOR,

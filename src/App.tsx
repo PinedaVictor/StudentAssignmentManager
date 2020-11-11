@@ -3,7 +3,7 @@ import "./Database/initFirebase";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { AuthProvider, PrivateRoute } from "./Components/user-registration";
 //  Pages:
-import { TodoList, Home, Landing, Courses, Homework } from "./Pages";
+import { TodoList, Home, Landing, Courses, Homework, Exams } from "./Pages";
 
 function App() {
   return (
@@ -16,6 +16,7 @@ function App() {
             <PrivateRoute exact path="/Courses" component={Courses} />
             <PrivateRoute exact path="/TODO" component={TodoList} />
             <PrivateRoute exact path="/Homework" component={Homework} />
+            <PrivateRoute exact path="/Exam" component={Exams} />
           </Switch>
         </Router>
       </AuthProvider>
