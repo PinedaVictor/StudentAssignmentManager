@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
 import { Button, createStyles, Grid, makeStyles, Theme, Tabs, Tab, Card, Box} from "@material-ui/core";
-import { create } from 'ts-style';
-import { CustomNavBar } from '../ReusableParts/CustomNavBar';
-import { CustomButton } from '../ReusableParts/CustomButton';
-import AppBar from '@material-ui/core/AppBar';
 import { PRIMARY_COLOR, SECONDARY_COLOR } from '../../Styles/global';
 
 const list = [
@@ -32,6 +28,7 @@ interface ExamData {
 
 }
 
+
 const exams = [
     {
         title: 'Exam #1',
@@ -55,12 +52,6 @@ const exams = [
     },
 ]
 
-const allyProps = (index: any) => {
-    return {
-        id: `scrollable-auto-tab-${index}`,
-        'aria-controls': `scrollable-auto-tabpanel-${index}`
-    }
-}
 const getExamCards = () => {
     return(
         <Grid item xs={12}>
@@ -90,12 +81,18 @@ export const ExamsTools: React.FC = () => {
                 variant="scrollable"
             >
                 {list.map((element, index) => {
-                    return <Tab label={<span className={classes.tab}>{element}</span>} {...allyProps(index)}/>
+                    return <Tab label={<span className={classes.tab}>{element}</span>} key={element} onClick={() => {console.log(element);}}/>
                 })}
             </Tabs>
             <p>CardList Here</p>
             <Box textAlign='center'>
-                <Button className={classes.button} variant="contained">Add Exams</Button>
+                <Button 
+                    className={classes.button}
+                    variant="contained"
+                    onClick={() => {console.log('Button Clicked');}}
+                >
+                        Add Exams
+                </Button>
             </Box>
         </div>
     );
