@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { Button, createStyles, Grid, makeStyles, Paper, Theme, Tabs, Tab, Card, GridList, GridListTile } from "@material-ui/core";
+import { Button, createStyles, Grid, makeStyles, Theme, Tabs, Tab, Card, Box} from "@material-ui/core";
 import { create } from 'ts-style';
 import { CustomNavBar } from '../ReusableParts/CustomNavBar';
 import { CustomButton } from '../ReusableParts/CustomButton';
 import AppBar from '@material-ui/core/AppBar';
 import { PRIMARY_COLOR, SECONDARY_COLOR } from '../../Styles/global';
-import { Container } from "react-bootstrap";
 
 const list = [
     'Phil 101',
@@ -95,7 +94,9 @@ export const ExamsTools: React.FC = () => {
                 })}
             </Tabs>
             <p>CardList Here</p>
-            <Button className={classes.button} variant="contained">Add Exams</Button>
+            <Box textAlign='center'>
+                <Button className={classes.button} variant="contained">Add Exams</Button>
+            </Box>
         </div>
     );
 }
