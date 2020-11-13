@@ -95,9 +95,9 @@ export const ExamsTools: React.FC = () => {
     // Information needed
     const classes = useStyles();
     const theme = useTheme();
-    const fullScreen = useMediaQuery(theme.breakpoints.down('xs'));
-    const data = fetchExamData();
-
+    const isSmallDevice = useMediaQuery(theme.breakpoints.down('xs'));
+    let data:ExamData[] = fetchExamData();
+    
     // Hooks
     const [tabValue, setTabValue] = React.useState(0);
     const [openAdd, setOpenAdd] = React.useState(false);
@@ -116,7 +116,7 @@ export const ExamsTools: React.FC = () => {
 
     return(
         <div className={classes.root}>
-            <Box textAlign='center' m={4} > 
+            <Box textAlign='center' m={isSmallDevice ? 0 : 4} > 
                 <Tabs
                     className={classes.tabs}
                     value={tabValue}
@@ -130,9 +130,9 @@ export const ExamsTools: React.FC = () => {
                         return <Tab label={<span className={classes.tab}>{element.class}</span>} key={element.class} onClick={() => {console.log(element);}}/>
                     })}
                 </Tabs>
-                <Box p={4} m={4}>
+                <Box p={4} m={isSmallDevice ? 2 : 4}>
                     {data.map((element, index) => {
-                        return <TabPanels value={tabValue} index={index} examInfo={element}/>
+                        return <TabPanels value={tabValue} index={index} examInfo={element} key={element.class}/>
                     })}
                 </Box>
 
@@ -148,7 +148,7 @@ export const ExamsTools: React.FC = () => {
                 <Dialog
                     open={openAdd}
                     onClose={handleClose}
-                    fullScreen={fullScreen}
+                    fullScreen={isSmallDevice}
                 >
                     <DialogTitle id="form-dialog-title">Adding Exam</DialogTitle>
                     <DialogContent>
@@ -188,9 +188,6 @@ const useStyles = makeStyles((theme: Theme) =>
         gridList: {
             flexWrap: 'nowrap',
             transform: 'translateZ(0)',
-        },
-        textFields:{
-            
         },
         addButton: {
             backgroundColor: BUTTON_EDIT_BACKGROUND_COLOR,
