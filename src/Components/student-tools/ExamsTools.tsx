@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
-import { Button, createStyles, Grid, makeStyles, Theme, Tabs, Tab, Card, Box} from "@material-ui/core";
-import { PRIMARY_COLOR, SECONDARY_COLOR } from '../../Styles/global';
+import React from 'react';
+import { createStyles, makeStyles, Theme, Button, Box,
+        Tabs, Tab,
+        Card, GridList, GridListTile,
+        Dialog, DialogTitle, DialogContent, DialogContentText, useMediaQuery, useTheme, DialogActions, TextField} from "@material-ui/core";
+import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR, BUTTON_EDIT_BACKGROUND_COLOR, BUTTON_EDIT_HOVER_BACKGROUND_COLOR, PRIMARY_COLOR, SECONDARY_COLOR } from '../../Styles/global';
 
 const list = [
     'Phil 101',
@@ -17,7 +20,7 @@ const examData = [
     'Exam #6',
 ]
 
-interface ExamData {
+type ExamData = {
     title: string
     section_weight: string
     overall_weight: string
@@ -28,6 +31,14 @@ interface ExamData {
 
 }
 
+//TODO
+const fetchClasses = () => {
+    return list;
+}
+// TODO
+const fetchExamData = () => {
+    return examData;
+}
 
 const exams = [
     {
@@ -52,56 +63,98 @@ const exams = [
     },
 ]
 
-const getExamCards = () => {
-    return(
-        <Grid item xs={12}>
-            {examData.map(ele => {
-                return <Card>ele</Card>
-            })}
-        </Grid>
-    );
-}
+const examFields = (
+    <div style={{textAlign: 'center'}}>
+        <TextField required autoFocus fullWidth variant="outlined" label="Exam" type="text" />
+        <TextField required variant="outlined" label="Section Weight" type="text" />
+        <TextField required variant="outlined" label="Overall Weight" type="text"/>
+        <TextField required fullWidth variant="outlined" label="Related Homework" type="text"/>
+        <TextField required fullWidth variant="outlined" label="Related Projects" type="text"/>
+        <TextField required fullWidth variant="outlined" label="Resources" type="text" />
+        <TextField required fullWidth variant="outlined" label="Resources" type="text" />
+    </div>
+)
 
 export const ExamsTools: React.FC = () => {
     const classes = useStyles();
-    const[tabValue, setTabValue] = React.useState(0);
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down('xs'));
+    // Hooks
+    const [tabValue, setTabValue] = React.useState(0);
+    const [openAdd, setOpenAdd] = React.useState(false);
+
+    // Functions
     const handleNavChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setTabValue(newValue);
     };
+    const handleOpen = () => {
+        setOpenAdd(true);
+    };
+    const handleClose = () => {
+        setOpenAdd(false);
+    };
+
 
     return(
         <div className={classes.root}>
-            <Tabs
-                className={classes.tabs}
-                value={tabValue}
-                onChange={handleNavChange}
-                aria-label="exams nav"
-                classes={{indicator: classes.indicator}}
-                scrollButtons='auto'
-                variant="scrollable"
-            >
-                {list.map((element, index) => {
-                    return <Tab label={<span className={classes.tab}>{element}</span>} key={element} onClick={() => {console.log(element);}}/>
-                })}
-            </Tabs>
-            <p>CardList Here</p>
-            <Box textAlign='center'>
-                <Button 
-                    className={classes.button}
-                    variant="contained"
-                    onClick={() => {console.log('Button Clicked');}}
+            <Box textAlign='center' m={4} > 
+                <Tabs
+                    className={classes.tabs}
+                    value={tabValue}
+                    onChange={handleNavChange}
+                    aria-label="exams nav"
+                    classes={{indicator: classes.indicator}}
+                    scrollButtons='auto'
+                    variant="scrollable"
                 >
-                        Add Exams
-                </Button>
+                    {list.map((element, index) => {
+                        return <Tab label={<span className={classes.tab}>{element}</span>} key={element} onClick={() => {console.log(element);}}/>
+                    })}
+                </Tabs>
+                <Box p={4} m={4}>
+                    <GridList className={classes.gridList} cols={3}>
+                        {examData.map((element, index) => (
+                            <GridListTile key={element}>
+                                <p>{element}</p>
+                            </GridListTile>
+                        ))}
+                    </GridList>
+                </Box>
+
+                <Box m={6}>
+                    <Button
+                        className={classes.examButton}
+                        variant="contained"
+                        onClick={handleOpen}
+                    >
+                            Add Exams
+                    </Button>
+                </Box>
+                <Dialog
+                    open={openAdd}
+                    onClose={handleClose}
+                    fullScreen={fullScreen}
+                >
+                    <DialogTitle id="form-dialog-title">Adding Exam</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            {examFields}
+                        </DialogContentText>
+                        <DialogActions>
+                            <Button onClick={handleClose} className={classes.cancelButton}> Cancel</Button>
+                            <Button onClick={handleClose} className={classes.addButton}>Add</Button>
+                        </DialogActions>
+                    </DialogContent>
+                </Dialog>
             </Box>
         </div>
     );
 }
+
 const useStyles = makeStyles((theme: Theme) => 
     createStyles({
         root: {
             flexGrow: 1,
-            justifyContent: 'center',
         },
         tabs: {
             background: PRIMARY_COLOR,
@@ -111,7 +164,7 @@ const useStyles = makeStyles((theme: Theme) =>
         tab: {
             fontSize: '15px'
         },
-        button: {
+        examButton: {
             backgroundColor: SECONDARY_COLOR,
         },
         indicator: {
@@ -120,6 +173,21 @@ const useStyles = makeStyles((theme: Theme) =>
         gridList: {
             flexWrap: 'nowrap',
             transform: 'translateZ(0)',
+        },
+        textFields:{
+            
+        },
+        addButton: {
+            backgroundColor: BUTTON_EDIT_BACKGROUND_COLOR,
+            '&:hover': {
+                backgroundColor: BUTTON_EDIT_HOVER_BACKGROUND_COLOR,
+            }
+        },
+        cancelButton: {
+            backgroundColor: BUTTON_DELETE_BACKGROUND_COLOR,
+            '&:hover': {
+                backgroundColor: BUTTON_DELETE_HOVER_BACKGROUND_COLOR,
+            }
         }
     })
 );
