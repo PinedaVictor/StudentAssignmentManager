@@ -20,7 +20,8 @@ const examData = [
     'Exam #6',
 ]
 
-type ExamData = {
+// Information types
+interface ExamData {
     title: string
     section_weight: string
     overall_weight: string
@@ -29,6 +30,12 @@ type ExamData = {
     resources: string
     related_exams: string
 
+}
+
+interface TabPanelProps {
+    children?: React.ReactNode;
+    index: any;
+    value: any;
 }
 
 //TODO
@@ -73,8 +80,29 @@ const examFields = (
         <TextField required fullWidth variant="outlined" label="Resources" type="text" />
         <TextField required fullWidth variant="outlined" label="Resources" type="text" />
     </div>
-)
+);
 
+function tabsPanel(props: TabPanelProps){
+    const {children, value, index, ...other} = props;
+
+    return(
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            {...other}
+        >
+            {value === index && (
+                <GridList style={{flexWrap: 'nowrap', transform: 'translateZ(0)'}} cols={3}>
+                    {examData.map((element, index) => (
+                        <GridListTile key={element}>
+                            <p>{element}</p>
+                        </GridListTile>
+                    ))}
+                </GridList>
+            )}
+        </div>
+    )
+}
 export const ExamsTools: React.FC = () => {
     const classes = useStyles();
     const theme = useTheme();
@@ -112,13 +140,7 @@ export const ExamsTools: React.FC = () => {
                     })}
                 </Tabs>
                 <Box p={4} m={4}>
-                    <GridList className={classes.gridList} cols={3}>
-                        {examData.map((element, index) => (
-                            <GridListTile key={element}>
-                                <p>{element}</p>
-                            </GridListTile>
-                        ))}
-                    </GridList>
+                    {}
                 </Box>
 
                 <Box m={6}>
@@ -127,7 +149,7 @@ export const ExamsTools: React.FC = () => {
                         variant="contained"
                         onClick={handleOpen}
                     >
-                            Add Exams
+                        Add Exams
                     </Button>
                 </Box>
                 <Dialog
