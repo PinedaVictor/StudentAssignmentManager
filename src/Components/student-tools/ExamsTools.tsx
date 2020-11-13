@@ -6,6 +6,17 @@ import { createStyles, makeStyles, Theme, Button, Box,
         Dialog, DialogTitle, DialogContent, DialogContentText, useMediaQuery, useTheme, DialogActions, TextField, Typography} from "@material-ui/core";
 import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR, BUTTON_EDIT_BACKGROUND_COLOR, BUTTON_EDIT_HOVER_BACKGROUND_COLOR, PRIMARY_COLOR, SECONDARY_COLOR } from '../../Styles/global';
 
+/********************************** 
+ * TODO:
+ *      - Better styling for text selected
+ *      - Add exams to current tabs
+ *      - Improve fill out form for exams
+ *      - Figure out how to make vertical box 
+ *        for gridlists on mobile so it doesn't extend
+ *        over a small set box
+************************************/
+
+
 const ExamDataJson: ExamData[] = [
     {
         class: 'Phil 101',
@@ -184,10 +195,6 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         indicator: {
             backgroundColor: 'transparent',
-        },
-        gridList: {
-            flexWrap: 'nowrap',
-            transform: 'translateZ(0)',
         },
         addButton: {
             backgroundColor: BUTTON_EDIT_BACKGROUND_COLOR,
