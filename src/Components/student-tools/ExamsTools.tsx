@@ -1,74 +1,56 @@
 import React from 'react';
 import { createStyles, makeStyles, Theme, Button, Box,
         Tabs, Tab,
-        Card, GridList, GridListTile,
-        Dialog, DialogTitle, DialogContent, DialogContentText, useMediaQuery, useTheme, DialogActions, TextField} from "@material-ui/core";
+        Card, CardContent,
+        GridList, GridListTile,
+        Dialog, DialogTitle, DialogContent, DialogContentText, useMediaQuery, useTheme, DialogActions, TextField, Typography} from "@material-ui/core";
 import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR, BUTTON_EDIT_BACKGROUND_COLOR, BUTTON_EDIT_HOVER_BACKGROUND_COLOR, PRIMARY_COLOR, SECONDARY_COLOR } from '../../Styles/global';
 
-const list = [
-    'Phil 101',
-    'Comp 301',
-    'Nap 101',
-]
-
-const examData = [
-    'Exam #1',
-    'Exam #2',
-    'Exam #3',
-    'Exam #4',
-    'Exam #5',
-    'Exam #6',
+const ExamDataJson: ExamData[] = [
+    {
+        class: 'Phil 101',
+        exams: [
+            'Exam #1',
+            'Exam #2'
+        ]
+    },
+    {
+        class: 'Comp 101',
+        exams: [
+            'Exam #1',
+            'Exam #2',
+            'Exam #3'
+        ]
+    },
+    {
+        class: 'Nap 101',
+        exams: []
+    }
 ]
 
 // Information types
 interface ExamData {
-    title: string
-    section_weight: string
+    class: string
+    exams: string[]
+/*     section_weight: string
     overall_weight: string
     related_hw: string
     related_projs: string
     resources: string
-    related_exams: string
-
+    related_exams: string */
 }
 
 interface TabPanelProps {
     children?: React.ReactNode;
     index: any;
     value: any;
+    examInfo: ExamData;
 }
 
-//TODO
-const fetchClasses = () => {
-    return list;
-}
 // TODO
 const fetchExamData = () => {
-    return examData;
+    return ExamDataJson;
 }
-
-const exams = [
-    {
-        title: 'Exam #1',
-        sectionWeight: 10,
-        relatedHomework: [
-            'Homework 1',
-            'Homework 2',
-            'Homework 3'
-        ],
-        relatedProjects: [
-            'Project 1'
-        ],
-        resources: [
-            'www.google.com'
-        ],
-        relatedExams: [
-            'Exam 1',
-            'Quiz 1',
-            'Quiz 2'
-        ]
-    },
-]
 
 const examFields = (
     <div style={{textAlign: 'center'}}>
@@ -82,8 +64,8 @@ const examFields = (
     </div>
 );
 
-function tabsPanel(props: TabPanelProps){
-    const {children, value, index, ...other} = props;
+function TabPanels(props: TabPanelProps){
+    const {children, value, index, examInfo, ...other} = props;
 
     return(
         <div
@@ -93,9 +75,15 @@ function tabsPanel(props: TabPanelProps){
         >
             {value === index && (
                 <GridList style={{flexWrap: 'nowrap', transform: 'translateZ(0)'}} cols={3}>
-                    {examData.map((element, index) => (
+                    {examInfo.exams.map((element) => (
                         <GridListTile key={element}>
-                            <p>{element}</p>
+                            <Card>
+                                <CardContent>
+                                    <Typography style={{ fontSize: 14 }}>
+                                        {element}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
                         </GridListTile>
                     ))}
                 </GridList>
@@ -104,9 +92,12 @@ function tabsPanel(props: TabPanelProps){
     )
 }
 export const ExamsTools: React.FC = () => {
+    // Information needed
     const classes = useStyles();
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('xs'));
+    const data = fetchExamData();
+
     // Hooks
     const [tabValue, setTabValue] = React.useState(0);
     const [openAdd, setOpenAdd] = React.useState(false);
@@ -135,12 +126,14 @@ export const ExamsTools: React.FC = () => {
                     scrollButtons='auto'
                     variant="scrollable"
                 >
-                    {list.map((element, index) => {
-                        return <Tab label={<span className={classes.tab}>{element}</span>} key={element} onClick={() => {console.log(element);}}/>
+                    {data.map((element, index) => {
+                        return <Tab label={<span className={classes.tab}>{element.class}</span>} key={element.class} onClick={() => {console.log(element);}}/>
                     })}
                 </Tabs>
                 <Box p={4} m={4}>
-                    {}
+                    {data.map((element, index) => {
+                        return <TabPanels value={tabValue} index={index} examInfo={element}/>
+                    })}
                 </Box>
 
                 <Box m={6}>
