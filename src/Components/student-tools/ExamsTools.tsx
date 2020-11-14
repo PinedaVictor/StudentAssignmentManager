@@ -169,7 +169,7 @@ export const ExamsTools: React.FC = () => {
                     variant="scrollable"
                 >
                     {examData.map((element, index) => {
-                        return <Tab label={<span className={classes.tab}>{element.class}</span>} key={element.class} onClick={() => {console.log(element);}}/>
+                        return <Tab label={<span className={classes.tab}>{element.class}</span>} key={element.class} />
                     })}
                 </Tabs>
                 <Box p={4} m={isSmallDevice ? 2 : 4}>
