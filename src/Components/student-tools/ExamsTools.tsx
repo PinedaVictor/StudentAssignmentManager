@@ -141,6 +141,7 @@ export const ExamsTools: React.FC = () => {
         setOpenAdd(false);
     };
     const handleFormCancel = () => {
+        clearInputs();
         setOpenAdd(false);
     };
     const onTextChange = ({target: {id, value}}: any) => {
