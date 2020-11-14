@@ -118,6 +118,11 @@ export const ExamsTools: React.FC = () => {
     ]);
 
     // Functions
+    const clearInputs = () => {
+        const newInputs = [...inputs];
+        newInputs.forEach(input => input.value = '');
+        setInputs(newInputs);
+    };
     const handleNavChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setTabValue(newValue);
     };
@@ -131,9 +136,10 @@ export const ExamsTools: React.FC = () => {
         // TODO need to refine this for multiple sections
         const newExam: Exam = {title: inputs[inputs.findIndex(input => input.id === 'title')].value}
         newExamData[classIndex].exams = [ ...examData[classIndex].exams, newExam];
+        clearInputs();
         setExamData(newExamData);
         setOpenAdd(false);
-    }
+    };
     const handleFormCancel = () => {
         setOpenAdd(false);
     };
@@ -142,7 +148,7 @@ export const ExamsTools: React.FC = () => {
         const index = inputs.findIndex(input => input.id === id);
         newInputs[index] = {...inputs[index], value};
         setInputs(newInputs);
-    }
+    };
     // Information needed
     const classes = useStyles();
     const isSmallDevice = useMediaQuery(useTheme().breakpoints.down('xs'));
