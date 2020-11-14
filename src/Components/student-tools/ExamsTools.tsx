@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createStyles, makeStyles, Theme, Button, Box,
         Tabs, Tab,
         Card, CardContent,
@@ -6,31 +6,42 @@ import { createStyles, makeStyles, Theme, Button, Box,
         Dialog, DialogTitle, DialogContent, DialogContentText, useMediaQuery, useTheme, DialogActions, TextField, Typography} from "@material-ui/core";
 import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR, BUTTON_EDIT_BACKGROUND_COLOR, BUTTON_EDIT_HOVER_BACKGROUND_COLOR, PRIMARY_COLOR, SECONDARY_COLOR } from '../../Styles/global';
 
-/********************************** 
+/*********************************************************
  * TODO:
  *      - Better styling for text selected
- *      - Add exams to current tabs
+ *      - Add exams to current tabs !!!!! DONE !!!!!
  *      - Improve fill out form for exams
  *      - Figure out how to make vertical box 
  *        for gridlists on mobile so it doesn't extend
  *        over a small set box
-************************************/
+ *      - Add sliding for dialog box?
+***********************************************************/
 
-
+// BELOW IS JUST A PLACE HOLDER FOR DATA
 const ExamDataJson: ExamData[] = [
     {
         class: 'Phil 101',
         exams: [
-            'Exam #1',
-            'Exam #2'
+            {
+                title: 'Exam #1',
+            },
+            {
+                title: 'Exam #2',
+            }
         ]
     },
     {
         class: 'Comp 101',
         exams: [
-            'Exam #1',
-            'Exam #2',
-            'Exam #3'
+            {
+                title: 'Exam #1',
+            },
+            {
+                title: 'Exam #2',
+            },
+            {
+                title: 'Exam #3',
+            },
         ]
     },
     {
@@ -38,44 +49,39 @@ const ExamDataJson: ExamData[] = [
         exams: []
     }
 ]
+// END OF PLACEHOLDER DATA
 
-// Information types
-interface ExamData {
-    class: string
-    exams: string[]
-/*     section_weight: string
-    overall_weight: string
-    related_hw: string
-    related_projs: string
-    resources: string
-    related_exams: string */
+// INTERFACES
+// Needed for every individual exam
+interface Exam {
+    title: string;
+    section_weight?: string; 
+    overall_weight?: string; 
+    related_hw?: string[];     
+    related_projs?: string[];  
+    resources?: string[];      
+    related_exams?: string[];
 }
-
+// Needed for every class and its exams
+interface ExamData {
+    class: string;
+    exams: Exam[];
+}
+// Needed for tab creation
 interface TabPanelProps {
     children?: React.ReactNode;
     index: any;
     value: any;
     examInfo: ExamData;
 }
+// END INTERFACES
 
-// TODO
+// TODO - add backend data fetch
 const fetchExamData = () => {
     return ExamDataJson;
 }
 
-const examFields = (
-    <div style={{textAlign: 'center'}}>
-        <TextField required autoFocus fullWidth variant="outlined" label="Exam" type="text" />
-        <TextField required variant="outlined" label="Section Weight" type="text" />
-        <TextField required variant="outlined" label="Overall Weight" type="text"/>
-        <TextField required fullWidth variant="outlined" label="Related Homework" type="text"/>
-        <TextField required fullWidth variant="outlined" label="Related Projects" type="text"/>
-        <TextField required fullWidth variant="outlined" label="Resources" type="text" />
-        <TextField required fullWidth variant="outlined" label="Resources" type="text" />
-    </div>
-);
-
-function TabPanels(props: TabPanelProps){
+const TabPanels = (props: TabPanelProps) => {
     const {children, value, index, examInfo, ...other} = props;
 
     return(
@@ -87,11 +93,11 @@ function TabPanels(props: TabPanelProps){
             {value === index && (
                 <GridList style={{flexWrap: 'nowrap', transform: 'translateZ(0)'}} cols={3}>
                     {examInfo.exams.map((element) => (
-                        <GridListTile key={element}>
+                        <GridListTile key={element.title}>
                             <Card>
                                 <CardContent>
-                                    <Typography style={{ fontSize: 14 }}>
-                                        {element}
+                                    <Typography component={'span'} style={{ fontSize: 14 }}>
+                                        {element.title}
                                     </Typography>
                                 </CardContent>
                             </Card>
@@ -103,26 +109,51 @@ function TabPanels(props: TabPanelProps){
     )
 }
 export const ExamsTools: React.FC = () => {
-    // Information needed
-    const classes = useStyles();
-    const theme = useTheme();
-    const isSmallDevice = useMediaQuery(theme.breakpoints.down('xs'));
-    let data:ExamData[] = fetchExamData();
-    
     // Hooks
-    const [tabValue, setTabValue] = React.useState(0);
-    const [openAdd, setOpenAdd] = React.useState(false);
+    const [tabValue, setTabValue] = useState(0);
+    const [openAdd, setOpenAdd] = useState(false);
+    const [examData, setExamData] = useState<ExamData[]>(fetchExamData());
+    const [inputs, setInputs] = useState([
+        {id: 'title', label: 'Exam', value: ''},
+    ]);
 
     // Functions
     const handleNavChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setTabValue(newValue);
     };
-    const handleOpen = () => {
+    const handleFormOpen = () => {
         setOpenAdd(true);
     };
-    const handleClose = () => {
+    // TODO add firebase backend on add
+    const handleFormAdd = () => {
+        const newExamData = [...examData];
+        const classIndex = tabValue;
+        // TODO need to refine this for multiple sections
+        const newExam: Exam = {title: inputs[inputs.findIndex(input => input.id === 'title')].value}
+        newExamData[classIndex].exams = [ ...examData[classIndex].exams, newExam];
+        setExamData(newExamData);
+        setOpenAdd(false);
+    }
+    const handleFormCancel = () => {
         setOpenAdd(false);
     };
+    const onTextChange = ({target: {id, value}}: any) => {
+        const newInputs = [...inputs];
+        const index = inputs.findIndex(input => input.id === id);
+        newInputs[index] = {...inputs[index], value};
+        setInputs(newInputs);
+    }
+    // Information needed
+    const classes = useStyles();
+    const isSmallDevice = useMediaQuery(useTheme().breakpoints.down('xs'));
+
+    const examFields = (
+        <div style={{textAlign: 'center', justifyContent: 'space-around'}} >
+            {inputs.map(input => (
+                <TextField key={input.id} id={input.id} label={input.label} value={input.value} type="text" onChange={onTextChange}/>
+            ))}
+        </div>
+    );
 
 
     return(
@@ -137,12 +168,12 @@ export const ExamsTools: React.FC = () => {
                     scrollButtons='auto'
                     variant="scrollable"
                 >
-                    {data.map((element, index) => {
+                    {examData.map((element, index) => {
                         return <Tab label={<span className={classes.tab}>{element.class}</span>} key={element.class} onClick={() => {console.log(element);}}/>
                     })}
                 </Tabs>
                 <Box p={4} m={isSmallDevice ? 2 : 4}>
-                    {data.map((element, index) => {
+                    {examData.map((element, index) => {
                         return <TabPanels value={tabValue} index={index} examInfo={element} key={element.class}/>
                     })}
                 </Box>
@@ -151,24 +182,25 @@ export const ExamsTools: React.FC = () => {
                     <Button
                         className={classes.examButton}
                         variant="contained"
-                        onClick={handleOpen}
+                        onClick={handleFormOpen}
                     >
                         Add Exams
                     </Button>
                 </Box>
                 <Dialog
                     open={openAdd}
-                    onClose={handleClose}
+                    onClose={handleFormCancel}
                     fullScreen={isSmallDevice}
                 >
                     <DialogTitle id="form-dialog-title">Adding Exam</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            {examFields}
+                            To add an exam fill in the boxes below.
                         </DialogContentText>
+                        {examFields}
                         <DialogActions>
-                            <Button onClick={handleClose} className={classes.cancelButton}> Cancel</Button>
-                            <Button onClick={handleClose} className={classes.addButton}>Add</Button>
+                            <Button onClick={handleFormCancel} className={classes.cancelButton}> Cancel</Button>
+                            <Button onClick={handleFormAdd} className={classes.addButton}>Add</Button>
                         </DialogActions>
                     </DialogContent>
                 </Dialog>
