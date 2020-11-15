@@ -8,13 +8,16 @@ import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR, B
 
 /*********************************************************
  * TODO:
- *      - Better styling for text selected
- *      - Add exams to current tabs !!!!! DONE !!!!!
- *      - Improve fill out form for exams
- *      - Figure out how to make vertical box 
+ *      1. Better styling for text selected
+ *      2. Add exams to current tabs !!!!! DONE !!!!!
+ *      3. Improve fill out form for exams 
+ *          a. Some form of validation. Needs improvement.
+ *          b. Currently looks like any fill out form
+ *              maybe needs an improvement and styling
+ *      4. Figure out how to make vertical box 
  *        for gridlists on mobile so it doesn't extend
- *        over a small set box
- *      - Add sliding for dialog box?
+ *        over a small set box ?
+ *      5. Add sliding for dialog box?
 ***********************************************************/
 
 // BELOW IS JUST A PLACE HOLDER FOR DATA
@@ -58,9 +61,9 @@ interface Exam {
     section_weight?: string; 
     overall_weight?: string; 
     related_hw?: string[];     
-    related_projs?: string[];  
+    related_projs?: string[];
+    related_exams?: string[]; 
     resources?: string[];      
-    related_exams?: string[];
 }
 // Needed for every class and its exams
 interface ExamData {
@@ -114,7 +117,20 @@ export const ExamsTools: React.FC = () => {
     const [openAdd, setOpenAdd] = useState(false);
     const [examData, setExamData] = useState<ExamData[]>(fetchExamData());
     const [inputs, setInputs] = useState([
-        {id: 'title', label: 'Exam', value: ''},
+        {id: 'title', label: 'Exam Title', value: '', placeholder: 'Exam #1',
+         isInvalid: (value: string) => value === '' },
+        {id: 'section-weight', label: 'Section Weight', value: '', placeholder: '10',
+         isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
+        {id: 'overall-weight', label: 'Overall Weight', value: '', placeholder: '10',
+         isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
+        {id: 'related-hw', label: 'Related Homework', value: '', placeholder: 'HW #1',
+         isInvalid: (value: string) => value === ''},
+        {id: 'related-pros', label: 'Related Projects', value: '', placeholder: 'Project #1',
+         isInvalid: (value: string) => value === ''},
+        {id: 'related-exams', label: 'Related Exams', value: '', placeholder: 'Exam #1',
+         isInvalid: (value: string) => value === '' },
+        {id: 'resources', label: 'Resources', value: '', placeholder: 'www.youtube.com',
+         isInvalid: (value: string) => value === ''}
     ]);
 
     // Functions
@@ -131,9 +147,10 @@ export const ExamsTools: React.FC = () => {
     };
     // TODO add firebase backend on add
     const handleFormAdd = () => {
+        // TODO add a check on all inputs to make they're all valid before adding
         const newExamData = [...examData];
         const classIndex = tabValue;
-        // TODO need to refine this for multiple sections
+        // TODO need to refine this for multiple sections get a function that parses all the data
         const newExam: Exam = {title: inputs[inputs.findIndex(input => input.id === 'title')].value}
         newExamData[classIndex].exams = [ ...examData[classIndex].exams, newExam];
         clearInputs();
@@ -155,10 +172,12 @@ export const ExamsTools: React.FC = () => {
     const isSmallDevice = useMediaQuery(useTheme().breakpoints.down('xs'));
 
     const examFields = (
-        <div style={{textAlign: 'center', justifyContent: 'space-around'}} >
-            {inputs.map(input => (
-                <TextField key={input.id} id={input.id} label={input.label} value={input.value} type="text" onChange={onTextChange}/>
-            ))}
+        <div className={classes.textFields} >
+            {inputs.map(input => {
+                const invalid = input.isInvalid(input.value);
+                return <TextField required fullWidth key={input.id} id={input.id} label={input.label} value={input.value}
+                    type="text" onChange={onTextChange} error={invalid} placeholder={input.placeholder}/>
+            })}
         </div>
     );
 
@@ -228,6 +247,11 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         tab: {
             fontSize: '15px'
+        },
+        textFields:
+        {
+            justify:'space-between',
+            alignItems: 'center',
         },
         examButton: {
             backgroundColor: SECONDARY_COLOR,
