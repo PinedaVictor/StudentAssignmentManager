@@ -10,8 +10,7 @@ import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR, B
  * TODO:
  *      1. Better styling for text selected !!!!! DONE ? !!!!!
  *      3. Improve fill out form for exams 
- *          a. Some form of validation. Needs improvement.
- *          b. Currently looks like any fill out form
+ *          a. Currently looks like any fill out form
  *              maybe needs an improvement and styling
  *      4. Figure out how to make vertical box 
  *        for gridlists on mobile so it doesn't extend
@@ -171,6 +170,12 @@ export const ExamsTools: React.FC = () => {
     };
     // TODO add firebase backend on add
     const handleFormAdd = () => {
+        const validForm = inputs.every(input => !input.isInvalid(input.value));
+        if(!validForm){
+            setIsInvalidData(true);
+            return;
+        }
+        
         const newExamData = [...examData];
         const classIndex = tabValue;
         // TODO need make sure data entered is proper before submitting
@@ -200,7 +205,7 @@ export const ExamsTools: React.FC = () => {
         <div className={classes.textFields} >
             {inputs.map(input => {
                 const invalid = input.isInvalid(input.value);
-                return <TextField required fullWidth key={input.id} id={input.id} label={input.label} value={input.value}
+                return <TextField fullWidth key={input.id} id={input.id} label={input.label} value={input.value}
                     type="text" onChange={onTextChange} error={invalid} placeholder={input.placeholder}/>
             })}
         </div>
