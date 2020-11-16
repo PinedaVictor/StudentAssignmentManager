@@ -8,8 +8,7 @@ import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR, B
 
 /*********************************************************
  * TODO:
- *      1. Better styling for text selected
- *      2. Add exams to current tabs !!!!! DONE !!!!!
+ *      1. Better styling for text selected !!!!! DONE ? !!!!!
  *      3. Improve fill out form for exams 
  *          a. Some form of validation. Needs improvement.
  *          b. Currently looks like any fill out form
@@ -18,6 +17,7 @@ import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR, B
  *        for gridlists on mobile so it doesn't extend
  *        over a small set box ?
  *      5. Add sliding for dialog box?
+ *      6. Need validation to find out if exam exists already
 ***********************************************************/
 
 // BELOW IS JUST A PLACE HOLDER FOR DATA
@@ -27,9 +27,13 @@ const ExamDataJson: ExamData[] = [
         exams: [
             {
                 title: 'Exam #1',
+                section_weight: '10',
+                overall_weight: '10'
             },
             {
                 title: 'Exam #2',
+                section_weight: '10',
+                overall_weight: '10'
             }
         ]
     },
@@ -38,12 +42,18 @@ const ExamDataJson: ExamData[] = [
         exams: [
             {
                 title: 'Exam #1',
+                section_weight: '10',
+                overall_weight: '10'
             },
             {
                 title: 'Exam #2',
+                section_weight: '10',
+                overall_weight: '10'
             },
             {
                 title: 'Exam #3',
+                section_weight: '10',
+                overall_weight: '10'
             },
         ]
     },
@@ -58,12 +68,12 @@ const ExamDataJson: ExamData[] = [
 // Needed for every individual exam
 interface Exam {
     title: string;
-    section_weight?: string; 
-    overall_weight?: string; 
-    related_hw?: string[];     
-    related_projs?: string[];
-    related_exams?: string[]; 
-    resources?: string[];      
+    section_weight: string; 
+    overall_weight: string; 
+    related_hw?: string/* [] */;     
+    related_projs?: string/* [] */;
+    related_exams?: string/* [] */; 
+    resources?: string/* [] */;      
 }
 // Needed for every class and its exams
 interface ExamData {
@@ -82,6 +92,16 @@ interface TabPanelProps {
 // TODO - add backend data fetch
 const fetchExamData = () => {
     return ExamDataJson;
+}
+
+const formatInfo = (info: string[]): Exam => {
+    let i = 0;
+    let exam: Exam = {
+        title: info[i++], 
+        section_weight: info[i++],
+        overall_weight: info[i++],
+    }
+    return exam;
 }
 
 const TabPanels = (props: TabPanelProps) => {
@@ -115,6 +135,7 @@ export const ExamsTools: React.FC = () => {
     // Hooks
     const [tabValue, setTabValue] = useState(0);
     const [openAdd, setOpenAdd] = useState(false);
+    const [isInvalidData, setIsInvalidData] = useState(false);
     const [examData, setExamData] = useState<ExamData[]>(fetchExamData());
     const [inputs, setInputs] = useState([
         {id: 'title', label: 'Exam Title', value: '', placeholder: 'Exam #1',
@@ -124,13 +145,13 @@ export const ExamsTools: React.FC = () => {
         {id: 'overall-weight', label: 'Overall Weight', value: '', placeholder: '10',
          isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
         {id: 'related-hw', label: 'Related Homework', value: '', placeholder: 'HW #1',
-         isInvalid: (value: string) => value === ''},
+         isInvalid: value => false},
         {id: 'related-pros', label: 'Related Projects', value: '', placeholder: 'Project #1',
-         isInvalid: (value: string) => value === ''},
+         isInvalid: value => false},
         {id: 'related-exams', label: 'Related Exams', value: '', placeholder: 'Exam #1',
-         isInvalid: (value: string) => value === '' },
+         isInvalid: value => false},
         {id: 'resources', label: 'Resources', value: '', placeholder: 'www.youtube.com',
-         isInvalid: (value: string) => value === ''}
+         isInvalid: value => false}
     ]);
 
     // Functions
@@ -142,16 +163,20 @@ export const ExamsTools: React.FC = () => {
     const handleNavChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setTabValue(newValue);
     };
+    const handleInvalidDataClose = () =>{
+        setIsInvalidData(false);
+    }
     const handleFormOpen = () => {
         setOpenAdd(true);
     };
     // TODO add firebase backend on add
     const handleFormAdd = () => {
-        // TODO add a check on all inputs to make they're all valid before adding
         const newExamData = [...examData];
         const classIndex = tabValue;
-        // TODO need to refine this for multiple sections get a function that parses all the data
-        const newExam: Exam = {title: inputs[inputs.findIndex(input => input.id === 'title')].value}
+        // TODO need make sure data entered is proper before submitting
+        // Just title and weights that's all
+        const examInfo = inputs.map(input => input.value);
+        const newExam = formatInfo(examInfo);
         newExamData[classIndex].exams = [ ...examData[classIndex].exams, newExam];
         clearInputs();
         setExamData(newExamData);
@@ -195,7 +220,7 @@ export const ExamsTools: React.FC = () => {
                     variant="scrollable"
                 >
                     {examData.map((element, index) => {
-                        return <Tab label={<span className={classes.tab}>{element.class}</span>} key={element.class} />
+                        return <Tab label={<span className={classes.tab}>{element.class}</span>} key={element.class} classes={{ selected: classes["&$tabSelected"]}}/>
                     })}
                 </Tabs>
                 <Box p={4} m={isSmallDevice ? 2 : 4}>
@@ -230,6 +255,15 @@ export const ExamsTools: React.FC = () => {
                         </DialogActions>
                     </DialogContent>
                 </Dialog>
+                <Dialog
+                    open={isInvalidData}
+                    onClose={handleInvalidDataClose}
+                >
+                    <DialogTitle id="invalid-data">{"One or more data entries are invalid"}</DialogTitle>
+                    <DialogActions>
+                        <Button onClick={handleInvalidDataClose} color="primary">OK</Button>
+                    </DialogActions>
+                </Dialog>
             </Box>
         </div>
     );
@@ -242,11 +276,15 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         tabs: {
             background: PRIMARY_COLOR,
-            color: 'black',
+            color: 'white',
             borderRadius: 10,
         },
         tab: {
-            fontSize: '15px'
+            fontSize: '16px'
+        },
+        '&$tabSelected':{
+            fontWeight: 'bolder',
+            fontStyle: 'italic'
         },
         textFields:
         {
@@ -254,7 +292,8 @@ const useStyles = makeStyles((theme: Theme) =>
             alignItems: 'center',
         },
         examButton: {
-            backgroundColor: SECONDARY_COLOR,
+            backgroundColor: '#1c588c',
+            color: 'white'
         },
         indicator: {
             backgroundColor: 'transparent',
