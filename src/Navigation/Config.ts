@@ -2,6 +2,7 @@ import HomeIcon from "@material-ui/icons/Home";
 import PlaylistAddCheckIcon from "@material-ui/icons/PlaylistAddCheck";
 import LibraryBooksIcon from "@material-ui/icons/LibraryBooks";
 import ClassIcon from "@material-ui/icons/Class";
+import TimerIcon from "@material-ui/icons/Timer";
 
 export const NavItems = [
   {
@@ -18,6 +19,11 @@ export const NavItems = [
     title: "Homework",
     icon: LibraryBooksIcon,
     path: "/Homework",
+  },
+  {
+    title: "Exams",
+    icon: TimerIcon,
+    path: "/Exam",
   },
   {
     title: "TODO",
