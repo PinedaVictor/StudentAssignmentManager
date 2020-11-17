@@ -3,9 +3,8 @@ Look up either React lodash, or React debounce for potential performance improve
 */
 
 import React, { useState } from "react";
-import { DynamicCard }  from "../ReusableParts/DynamicCard";
-import { create } from "ts-style";
-import { createStyles, makeStyles, Slider, TextField, Theme } from "@material-ui/core";
+import { CustomCardStandard }  from "../ReusableParts/CustomCardStandard";
+import { Container, createMuiTheme, Grid, makeStyles, responsiveFontSizes, Slider, TextField, Theme } from "@material-ui/core";
 import { CustomButton } from "../ReusableParts/CustomButton";
 import { CustomModal } from "../ReusableParts/CustomModal";
 
@@ -14,12 +13,12 @@ import { app } from "../../Database/initFirebase"
 const courses = [
   {
     id: "gf67hx",
-    name: "Comp 356",
+    courseName: "Comp 356",
     email: "some.guy@gmail.com",
-    officeHours: "Tu/Th 2:00pm - 3:15pm",
-    lateWorkPolicy: "No late work allowed",
+    hours: "Tu/Th 2:00pm - 3:15pm",
+    latePolicy: "No late work allowed",
 
-    gradingScale: {
+    gradeScale: {
       AMinus: 85,
       BMinus: 70,
       CMinus: 55,
@@ -35,82 +34,137 @@ const courses = [
   },
 
   {
-    id: "buq5gb",
-    name: "Phil 101",
-    email: "dude.broson@gmail.com",
-    officeHours: "Mo 7:00pm - 9:45pm",
-    lateWorkPolicy: "Turn it in whenever, I don't care.",
+    id: "gf67hx",
+    courseName: "Comp 356",
+    email: "some.guy@gmail.com",
+    hours: "Tu/Th 2:00pm - 3:15pm",
+    latePolicy: "No late work allowed",
 
-    gradingScale: {
-      AMinus: 90,
-      BMinus: 80,
-      CMinus: 70,
-      DMinus: 60
+    gradeScale: {
+      AMinus: 85,
+      BMinus: 70,
+      CMinus: 55,
+      DMinus: 40
     },
 
     gradeWeights: {
-      homework: 25,
-      project: 0,
-      exam: 50,
-      quiz: 25
+      homework: 20,
+      project: 30,
+      exam: 40,
+      quiz: 10
     }
   },
 
   {
-    id: "ha4n7",
-    name: "BS 101",
-    email: "blah.mehson@gmail.com",
-    officeHours: "Tu/Th 12:00pm - 2:00pm",
-    lateWorkPolicy: "No late work allowed",
+    id: "gf67hx",
+    courseName: "Comp 356",
+    email: "some.guy@gmail.com",
+    hours: "Tu/Th 2:00pm - 3:15pm",
+    latePolicy: "No late work allowed",
 
-    gradingScale: {
-      AMinus: 95,
-      BMinus: 90,
-      CMinus: 85,
-      DMinus: 80
+    gradeScale: {
+      AMinus: 85,
+      BMinus: 70,
+      CMinus: 55,
+      DMinus: 40
     },
 
     gradeWeights: {
-      homework: 0,
-      project: 0,
-      exam: 100,
-      quiz: 0
+      homework: 20,
+      project: 30,
+      exam: 40,
+      quiz: 10
     }
-  }
+  },
+
+  {
+    id: "gf67hx",
+    courseName: "Comp 356",
+    email: "some.guy@gmail.com",
+    hours: "Tu/Th 2:00pm - 3:15pm",
+    latePolicy: "No late work allowed",
+
+    gradeScale: {
+      AMinus: 85,
+      BMinus: 70,
+      CMinus: 55,
+      DMinus: 40
+    },
+
+    gradeWeights: {
+      homework: 20,
+      project: 30,
+      exam: 40,
+      quiz: 10
+    }
+  },
+
+  {
+    id: "gf67hx",
+    courseName: "Comp 356",
+    email: "some.guy@gmail.com",
+    hours: "Tu/Th 2:00pm - 3:15pm",
+    latePolicy: "No late work allowed",
+
+    gradeScale: {
+      AMinus: 85,
+      BMinus: 70,
+      CMinus: 55,
+      DMinus: 40
+    },
+
+    gradeWeights: {
+      homework: 20,
+      project: 30,
+      exam: 40,
+      quiz: 10
+    }
+  },
+
+  {
+    id: "gf67hx",
+    courseName: "Comp 356",
+    email: "some.guy@gmail.com",
+    hours: "Tu/Th 2:00pm - 3:15pm",
+    latePolicy: "No late work allowed",
+
+    gradeScale: {
+      AMinus: 85,
+      BMinus: 70,
+      CMinus: 55,
+      DMinus: 40
+    },
+
+    gradeWeights: {
+      homework: 20,
+      project: 30,
+      exam: 40,
+      quiz: 10
+    }
+  },
+
+  {
+    id: "gf67hx",
+    courseName: "Comp 356",
+    email: "some.guy@gmail.com",
+    hours: "Tu/Th 2:00pm - 3:15pm",
+    latePolicy: "No late work allowed",
+
+    gradeScale: {
+      AMinus: 85,
+      BMinus: 70,
+      CMinus: 55,
+      DMinus: 40
+    },
+
+    gradeWeights: {
+      homework: 20,
+      project: 30,
+      exam: 40,
+      quiz: 10
+    }
+  },
 ]
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      '& .MuiTextField-root': {
-        margin: theme.spacing(1),
-        width: 1000
-      },
-    },
-
-    textField: {
-        marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1),
-        width: '75ch',
-    },
-
-    numberField: {
-        width: '15ch',
-    },
-
-    textNormal: {
-      fontSize: 18
-    },
-
-    inputTextSmall: {
-      fontSize: 14
-    },
-
-    labelTextSmall: {
-      fontSize: 12
-    }
-  }),
-);
 
 interface ModalFields {
   courseName: string,
@@ -132,6 +186,9 @@ interface ModalFields {
   }
 }
 
+let fontTheme = createMuiTheme();
+fontTheme = responsiveFontSizes(fontTheme);
+
 export const Courses: React.FC = () => {
   const classes = useStyles()
 
@@ -143,6 +200,7 @@ export const Courses: React.FC = () => {
     email: "",
     hours: "",
     latePolicy: "",
+
     gradeScale: {
       AMinus: 0,
       BMinus: 0,
@@ -160,22 +218,40 @@ export const Courses: React.FC = () => {
 
   const cycleModalStage = (direction: 1 | -1) => {
 
-    if (modalStage === 0){
-      setCardModal(true)
-    }
-
-    
     setModalStage(modalStage + direction)
 
+  }
+
+  const openEditModal = (data: 
+    {
+      courseName: string, 
+      email: string, 
+      hours: string, 
+      latePolicy: string, 
+      gradeScale: {AMinus: number, BMinus: number, CMinus: number, DMinus: number}
+      gradeWeights: {homework: number, project: number, exam: number, quiz: number}
+    } ) => {
+
+    setEditCourse(data)
+
+    cycleModalStage(1)
+    setCardModal(true)
   }
 
   const submitModal = () => {
           
     setModalStage(0)
     setCardModal(false)
-    clearTextInputs()
+    clearModalInputs()
   }
 
+  const closeModal = () => {
+    setModalStage(0)
+    setCardModal(false)
+    clearModalInputs()
+  }
+
+  /*
   const getModalForm = () => {
     if (modalStage === 1)
       return CourseModal_Stage1
@@ -189,7 +265,9 @@ export const Courses: React.FC = () => {
     else return (<form></form>)
   }
 
-  const clearTextInputs = () => {
+  */
+
+  const clearModalInputs = () => {
     setEditCourse({
       courseName: "",
       email: "",
@@ -212,14 +290,14 @@ export const Courses: React.FC = () => {
     })
   }
 
-  const deleteCourse = () => {
+  const deleteCourse = (id: string) => {
 
   }
 
   const setModalInput = (field: "courseName" | "email" | "latePolicy"  | "hours" | "A-" | "B-" | "C-" | "D-" | "hwWeight" | "examWeight" | "projWeight" | "quizWeight", value: string) => {
    setEditCourse( {
-      courseName: (field === "courseName")  ?  value : EditCourse.courseName,
-      email: (field === "email")            ?            value : EditCourse.email,
+      courseName: (field === "courseName")  ?   value : EditCourse.courseName,
+      email: (field === "email")            ?   value : EditCourse.email,
       latePolicy: (field === "latePolicy")  ?   value : EditCourse.latePolicy,
       hours: (field === "hours")            ?   value : EditCourse.hours,
 
@@ -262,6 +340,7 @@ export const Courses: React.FC = () => {
     else return 0;
   }
 
+/*
   const CourseModal_Stage1 = (
     
     <form className={classes.root} noValidate autoComplete="off">
@@ -352,8 +431,8 @@ export const Courses: React.FC = () => {
     
   )
 
-const CourseModal_Stage2 = (
-  <form  className={classes.root} noValidate autoComplete="off">
+  const CourseModal_Stage2 = (
+    <form  className={classes.root} noValidate autoComplete="off">
 
     <div style = {styles.modalHeader}> Grading Scale </div>
     
@@ -447,8 +526,8 @@ const CourseModal_Stage2 = (
   </form>
   )
 
-const CourseModal_Stage3 = (
-  <form  className={classes.root} noValidate autoComplete="off">
+  const CourseModal_Stage3 = (
+    <form  className={classes.root} noValidate autoComplete="off">
 
     <div style = {styles.modalHeader}> Grade Weights </div>
 
@@ -541,105 +620,145 @@ const CourseModal_Stage3 = (
       </div>
   </form>
   )
+*/
 
-  return (
-    <div style = {styles.pageLayout}>
+  const getModalMapping = () => {
 
-      <div 
-      style = {{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingBottom: 25
-      }}>
+    let mapping = [
+      ModalStage0,
+      ModalStage1
+    ]
+
+    return mapping[modalStage]
+  }
+
+  const ModalStage0 = (<form></form>)
+
+  const ModalStage1 = (
+
+    <form className = {classes.modalWindow}>
+      <Grid container direction = "column" spacing = {3}>
+        <Grid item xs = {12}>
+          <TextField
+          value = {EditCourse.email}
+          onChange = {(event) => setModalInput("email", event.target.value)}
+          placeholder = {(EditCourse.email !== "") ? EditCourse.email : "example.email@gmail.com"}
+          InputProps = {{ className: classes.modalTextField}}
+          variant = "filled"
+          fullWidth
+          size = "medium"
+          />
+        </Grid>
+        
+      </Grid>
+
+      <Grid container direction = "row" spacing = {2} alignContent = "center" justify = "space-between" style = {{paddingBottom: 12}}>
         <CustomButton
-        title = "Add Class"
+        title = "Next"
+        size = "small"
+        theme = "edit"
         onClick = {() => cycleModalStage(1)}
-        theme = "default"
-        dimensions = {{
-          width: "auto",
-          height: "auto"
-        }}
         />
-      </div>
 
-      <div style = {styles.coursesBody}>
-        {courses.map((item, i) => (
-          <DynamicCard
-          header={item.name}
-          bodyContents={{
-            email: item.email,
-            officeHours: item.officeHours,
-            lateWorkPolicy: item.lateWorkPolicy,
-            gradingScale: item.gradingScale,
-            gradeWeights: item.gradeWeights
-          }}
-          width={"auto"}
-          type="standard"
-          editClick = {() => cycleModalStage(1)}
-          deleteClick = {() => deleteCourse()}
-          /> 
-        ))}
-      </div>
+        <CustomButton
+        title = "Exit"
+        size = "small"
+        theme = "delete"
+        onClick = {() => closeModal()}
+        />
+      </Grid>
+    </form>
+  )
+  
+  return (
 
-      {(modalStage !== 0) &&
-        <CustomModal
-          layout = {getModalForm()}
-          modalState = {cardModal}
-        />}
-    </div>
+    <Container style = {{width: "85%"}}>
+      <Grid
+      container
+      spacing = {8}
+      justify = "center"
+      alignItems = "center"
+      >
+
+        <Grid 
+        item 
+        xs = {12}
+        style = {{textAlign: 'center'}}
+        >
+          <CustomButton
+          title = "Add Course"
+          onClick = {() => cycleModalStage(1)}
+          size = "large"
+          />
+        </Grid>
+
+        <Grid
+        container
+        spacing = {3}
+        justify = "center"
+        alignItems = "stretch"
+        direction = "row"
+        >
+          {
+          courses.map((course, index) => (
+            <Grid
+            item
+            alignContent = "space-between"
+            xs={12}
+            sm={9}
+            md={5}
+            lg={4}
+            xl={4}
+            key={course.id}
+            >
+              <CustomCardStandard
+              title = {course.courseName}
+              data = {{
+                email: course.email,
+                officeHours: course.hours,
+                lateWorkPolicy: course.latePolicy,
+                gradingScale: {
+                  AMinus: course.gradeScale.AMinus + "%",
+                  BMinus: course.gradeScale.BMinus + "%",
+                  CMinus: course.gradeScale.CMinus + "%",
+                  DMinus: course.gradeScale.DMinus + "%",
+                },
+
+                gradingWeights: {
+                  AMinus: course.gradeWeights.homework + "%",
+                  BMinus: course.gradeWeights.project + "%",
+                  CMinus: course.gradeWeights.exam + "%",
+                  DMinus: course.gradeWeights.quiz + "%",
+                },
+              }}
+              editClick = {() => openEditModal(course)}
+              deleteClick = {() => deleteCourse(course.id)}
+              />
+            </Grid>
+          ))
+          }
+        </Grid>
+        
+      </Grid>
+
+      <CustomModal
+      layout = {getModalMapping()}
+      modalState = {cardModal}
+      />
+      
+    </Container>
   );
 };
 
-const styles = create({
-  pageLayout: {
-    display: 'grid',
-    paddingTop: 50,
-    justifyContent: 'center',
-    alignItems: 'center'
-},
-
-  coursesBody: {
-    display: "flex",
-    flexDirection: "row" as "row",
-    justifyContent: "left",
-    alignItems: "left",
-    minWidth: 400,
-    maxWidth: 1080,
-    height: "auto",
-    overflowX: "scroll" as "scroll",
+const useStyles = makeStyles((theme) => ({
+  modalWindow: {
+    '& .MuiTextField-root': {
+      margin: theme.spacing(1),
+      width: '95%'
+    },
   },
 
-  modalHeader: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    fontSize: 22,
-    fontWeight: "bold" as "bold"
-  },
-
-  weightSection: {
-    display: 'grid',
-    gridTemplateRows: "auto auto",
-    margin: 15,
-    width: "90%"
-  },
-
-  weightRow: {
-    display: 'grid',
-    gridTemplateColumns: "350px auto",
-    columnGap: "1rem"
-  },
-
-  labelStyle: {
-    marginBottom: 15,
-    fontSize: 18,
-    fontWeight: "bold" as "bold",
-    height: 10
-  },
-
-  inputStyle: {
-    fontSize: 14,
-    width: 45
+  modalTextField: {
+    fontSize: 20
   }
-})
+}))
