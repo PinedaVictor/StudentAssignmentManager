@@ -92,7 +92,9 @@ interface TabPanelProps {
 const fetchExamData = () => {
     return ExamDataJson;
 }
-
+const storeExamData = (data: ExamData) => {
+}
+// TODO need to add other sections
 const formatInfo = (info: string[]): Exam => {
     let i = 0;
     let exam: Exam = {
@@ -131,11 +133,12 @@ const TabPanels = (props: TabPanelProps) => {
     )
 }
 export const ExamsTools: React.FC = () => {
-    // Hooks
+    // HOOKS
     const [tabValue, setTabValue] = useState(0);
     const [openAdd, setOpenAdd] = useState(false);
     const [isInvalidData, setIsInvalidData] = useState(false);
     const [examData, setExamData] = useState<ExamData[]>(fetchExamData());
+    // The hook below is used to keep track of sections we need
     const [inputs, setInputs] = useState([
         {id: 'title', label: 'Exam Title', value: '', placeholder: 'Exam #1',
          isInvalid: (value: string) => value === '' },
@@ -153,7 +156,7 @@ export const ExamsTools: React.FC = () => {
          isInvalid: value => false}
     ]);
 
-    // Functions
+    // FUNCTIONS
     const clearInputs = () => {
         const newInputs = [...inputs];
         newInputs.forEach(input => input.value = '');
@@ -264,7 +267,7 @@ export const ExamsTools: React.FC = () => {
                     open={isInvalidData}
                     onClose={handleInvalidDataClose}
                 >
-                    <DialogTitle id="invalid-data">{"One or more data entries are invalid"}</DialogTitle>
+                    <DialogTitle className={classes.invalid} id="invalid-data">{"One or more data entries are invalid"}</DialogTitle>
                     <DialogActions>
                         <Button onClick={handleInvalidDataClose} color="primary">OK</Button>
                     </DialogActions>
@@ -314,6 +317,9 @@ const useStyles = makeStyles((theme: Theme) =>
             '&:hover': {
                 backgroundColor: BUTTON_DELETE_HOVER_BACKGROUND_COLOR,
             }
+        },
+        invalid: {
+            color: 'red',
         }
     })
 );
