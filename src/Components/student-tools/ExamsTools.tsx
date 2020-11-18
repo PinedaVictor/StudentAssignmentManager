@@ -3,8 +3,12 @@ import { createStyles, makeStyles, Theme, Button, Box,
         Tabs, Tab,
         Card, CardContent,
         GridList, GridListTile,
-        Dialog, DialogTitle, DialogContent, DialogContentText, useMediaQuery, useTheme, DialogActions, TextField, Typography} from "@material-ui/core";
-import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR, BUTTON_EDIT_BACKGROUND_COLOR, BUTTON_EDIT_HOVER_BACKGROUND_COLOR, PRIMARY_COLOR, SECONDARY_COLOR } from '../../Styles/global';
+        Dialog, DialogTitle, DialogContent, DialogContentText, useMediaQuery, useTheme, DialogActions, TextField, Grid} from "@material-ui/core";
+import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR,
+         BUTTON_EDIT_BACKGROUND_COLOR, BUTTON_EDIT_HOVER_BACKGROUND_COLOR,
+         PRIMARY_COLOR, SECONDARY_COLOR } from '../../Styles/global';
+import { CustomCardStandard } from '../ReusableParts/CustomCardStandard';
+
 
 /*********************************************************
  * TODO:
@@ -27,12 +31,20 @@ const ExamDataJson: ExamData[] = [
             {
                 title: 'Exam #1',
                 section_weight: '10',
-                overall_weight: '10'
+                overall_weight: '10',
+                related_hw: 'HW #1',
+                related_projs: '',
+                related_exams: '',
+                resources: 'youtube.com',
             },
             {
                 title: 'Exam #2',
                 section_weight: '10',
-                overall_weight: '10'
+                overall_weight: '10',
+                related_hw: 'HW #1, HW #2',
+                related_projs: 'Project #1',
+                related_exams: 'Exam #1',
+                resources: 'youtube.com',
             }
         ]
     },
@@ -42,17 +54,29 @@ const ExamDataJson: ExamData[] = [
             {
                 title: 'Exam #1',
                 section_weight: '10',
-                overall_weight: '10'
+                overall_weight: '10',
+                related_hw: 'HW #1',
+                related_projs: '',
+                related_exams: '',
+                resources: 'youtube.com',
             },
             {
                 title: 'Exam #2',
                 section_weight: '10',
-                overall_weight: '10'
+                overall_weight: '10',
+                related_hw: 'HW #1, HW #2',
+                related_projs: 'Project #1',
+                related_exams: 'Exam #1',
+                resources: 'youtube.com',
             },
             {
                 title: 'Exam #3',
                 section_weight: '10',
-                overall_weight: '10'
+                overall_weight: '10',
+                related_hw: 'HW #1, HW #2, HW #3',
+                related_projs: 'Project #1, Project #2',
+                related_exams: '',
+                resources: 'youtube.com',
             },
         ]
     },
@@ -69,10 +93,10 @@ interface Exam {
     title: string;
     section_weight: string; 
     overall_weight: string; 
-    related_hw?: string/* [] */;     
-    related_projs?: string/* [] */;
-    related_exams?: string/* [] */; 
-    resources?: string/* [] */;      
+    related_hw: string/* [] */;     
+    related_projs: string/* [] */;
+    related_exams: string/* [] */; 
+    resources: string/* [] */;      
 }
 // Needed for every class and its exams
 interface ExamData {
@@ -85,6 +109,7 @@ interface TabPanelProps {
     index: any;
     value: any;
     examInfo: ExamData;
+    delete: (examName: string) => void;
 }
 // END INTERFACES
 
@@ -92,6 +117,7 @@ interface TabPanelProps {
 const fetchExamData = () => {
     return ExamDataJson;
 }
+// TODO - store data on creation
 const storeExamData = (data: ExamData) => {
 }
 // TODO need to add other sections
@@ -101,37 +127,81 @@ const formatInfo = (info: string[]): Exam => {
         title: info[i++], 
         section_weight: info[i++],
         overall_weight: info[i++],
+        related_hw: info[i++],
+        related_projs: info[i++],
+        related_exams: info[i++],
+        resources: info[i],
     }
     return exam;
 }
 
 const TabPanels = (props: TabPanelProps) => {
-    const {children, value, index, examInfo, ...other} = props;
+    const {children, value, index, examInfo, ...func} = props;
 
     return(
         <div
             role="tabpanel"
             hidden={value !== index}
-            {...other}
         >
             {value === index && (
-                <GridList style={{flexWrap: 'nowrap', transform: 'translateZ(0)'}} cols={3}>
+                <Grid container
+                    spacing={3}
+                    justify='center'
+                    alignItems='stretch'
+                    direction='row'
+                >
+                    {examInfo.exams.map((element, index) => (
+                        <Grid
+                            item
+                            alignContent='space-between'
+                            xs={12}
+                            sm={9}
+                            md={5}
+                            lg={4}
+                            xl={4}
+                            key={element.title}
+                        >
+                            <CustomCardStandard
+                                title={element.title}
+                                data={{
+                                    sectionWeight: element.section_weight + '%',
+                                    overallWeight: element.overall_weight + '%',
+                                    relatedHomework: element.related_hw,
+                                    relatedProjects: element.related_projs,
+                                    relatedExams: element.related_exams,
+                                    resources: element.resources,
+                                }}
+                                editClick={() => {console.log('Edit Card')}}
+                                deleteClick={() => func.delete(element.title)}
+                            />
+                        </Grid>
+                    ))}
+                </Grid>
+/*                 <GridList style={{flexWrap: 'nowrap', transform: 'translateZ(0)'}} cols={3}>
                     {examInfo.exams.map((element) => (
                         <GridListTile key={element.title}>
-                            <Card>
-                                <CardContent>
-                                    <Typography component={'span'} style={{ fontSize: 14 }}>
-                                        {element.title}
-                                    </Typography>
-                                </CardContent>
-                            </Card>
+                            <CustomCardStandard
+                                title={element.title}
+                                data={{
+                                    sectionWeight: element.section_weight + '%',
+                                    overallWeight: element.overall_weight + '%',
+                                    relatedHomework: element.related_hw,
+                                    relatedProjects: element.related_projs,
+                                    relatedExams: element.related_exams,
+                                    resources: element.resources,
+                                }}
+                                editClick={() => {console.log('Edit Card')}}
+                                deleteClick={() => {console.log('Delete Card')}}
+                            />
+
                         </GridListTile>
                     ))}
-                </GridList>
+                </GridList> */
             )}
         </div>
     )
 }
+
 export const ExamsTools: React.FC = () => {
     // HOOKS
     const [tabValue, setTabValue] = useState(0);
@@ -200,6 +270,17 @@ export const ExamsTools: React.FC = () => {
         newInputs[index] = {...inputs[index], value};
         setInputs(newInputs);
     };
+    const handleDeleteButton = (examName: string) => {
+        console.log('Delete Exam');
+        const newExamData = [...examData];
+        const classIndex = tabValue;
+
+        // TODO make sure deletion updates the DB
+        
+        const examIndex = examData[classIndex].exams.findIndex(exam => exam.title === examName);
+        newExamData[classIndex].exams.splice(examIndex, 1);
+        setExamData(newExamData);
+    }
     // Information needed
     const classes = useStyles();
     const isSmallDevice = useMediaQuery(useTheme().breakpoints.down('xs'));
@@ -231,12 +312,6 @@ export const ExamsTools: React.FC = () => {
                         return <Tab label={<span className={classes.tab}>{element.class}</span>} key={element.class} classes={{ selected: classes["&$tabSelected"]}}/>
                     })}
                 </Tabs>
-                <Box p={4} m={isSmallDevice ? 2 : 4}>
-                    {examData.map((element, index) => {
-                        return <TabPanels value={tabValue} index={index} examInfo={element} key={element.class}/>
-                    })}
-                </Box>
-
                 <Box m={6}>
                     <Button
                         className={classes.examButton}
@@ -246,6 +321,12 @@ export const ExamsTools: React.FC = () => {
                         Add Exams
                     </Button>
                 </Box>
+                <Box p={4} m={isSmallDevice ? 2 : 4}>
+                    {examData.map((element, index) => {
+                        return <TabPanels value={tabValue} index={index} examInfo={element} key={element.class} delete={handleDeleteButton}/>
+                    })}
+                </Box>
+
                 <Dialog
                     open={openAdd}
                     onClose={handleFormCancel}
