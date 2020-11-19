@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { createStyles, makeStyles, Theme, Button, Box,
         Tabs, Tab,
-        Card, CardContent,
-        GridList, GridListTile,
         Dialog, DialogTitle, DialogContent, DialogContentText, useMediaQuery, useTheme, DialogActions, TextField, Grid} from "@material-ui/core";
 import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR,
          BUTTON_EDIT_BACKGROUND_COLOR, BUTTON_EDIT_HOVER_BACKGROUND_COLOR,
@@ -120,6 +118,11 @@ const fetchExamData = () => {
 // TODO - store data on creation
 const storeExamData = (data: ExamData) => {
 }
+// TODO - delete a value from the db
+const deleteExamData = () => {
+
+}
+
 // TODO need to add other sections
 const formatInfo = (info: string[]): Exam => {
     let i = 0;
@@ -177,26 +180,6 @@ const TabPanels = (props: TabPanelProps) => {
                         </Grid>
                     ))}
                 </Grid>
-/*                 <GridList style={{flexWrap: 'nowrap', transform: 'translateZ(0)'}} cols={3}>
-                    {examInfo.exams.map((element) => (
-                        <GridListTile key={element.title}>
-                            <CustomCardStandard
-                                title={element.title}
-                                data={{
-                                    sectionWeight: element.section_weight + '%',
-                                    overallWeight: element.overall_weight + '%',
-                                    relatedHomework: element.related_hw,
-                                    relatedProjects: element.related_projs,
-                                    relatedExams: element.related_exams,
-                                    resources: element.resources,
-                                }}
-                                editClick={() => {console.log('Edit Card')}}
-                                deleteClick={() => {console.log('Delete Card')}}
-                            />
-
-                        </GridListTile>
-                    ))}
-                </GridList> */
             )}
         </div>
     )
@@ -271,7 +254,6 @@ export const ExamsTools: React.FC = () => {
         setInputs(newInputs);
     };
     const handleDeleteButton = (examName: string) => {
-        console.log('Delete Exam');
         const newExamData = [...examData];
         const classIndex = tabValue;
 
