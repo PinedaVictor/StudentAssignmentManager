@@ -6,6 +6,7 @@ import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR,
          BUTTON_EDIT_BACKGROUND_COLOR, BUTTON_EDIT_HOVER_BACKGROUND_COLOR,
          PRIMARY_COLOR, SECONDARY_COLOR } from '../../Styles/global';
 import { CustomCardStandard } from '../ReusableParts/CustomCardStandard';
+import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
 
 
 /*********************************************************
@@ -279,21 +280,14 @@ export const ExamsTools: React.FC = () => {
 
 
     return(
-        <div className={classes.root}>
+        <>
             <Box textAlign='center' m={isSmallDevice ? 0 : 4} > 
-                <Tabs
+                <CustomScrollableTabs
                     className={classes.tabs}
-                    value={tabValue}
+                    tabValue={tabValue}
                     onChange={handleNavChange}
-                    aria-label="exams nav"
-                    classes={{indicator: classes.indicator}}
-                    scrollButtons='auto'
-                    variant="scrollable"
-                >
-                    {examData.map((element, index) => {
-                        return <Tab label={<span className={classes.tab}>{element.class}</span>} key={element.class} classes={{ selected: classes["&$tabSelected"]}}/>
-                    })}
-                </Tabs>
+                    tabNames={examData.map(element => element.class)}
+                />
                 <Box m={6}>
                     <Button
                         className={classes.examButton}
@@ -308,7 +302,6 @@ export const ExamsTools: React.FC = () => {
                         return <TabPanels value={tabValue} index={index} examInfo={element} key={element.class} delete={handleDeleteButton}/>
                     })}
                 </Box>
-
                 <Dialog
                     open={openAdd}
                     onClose={handleFormCancel}
@@ -336,26 +329,16 @@ export const ExamsTools: React.FC = () => {
                     </DialogActions>
                 </Dialog>
             </Box>
-        </div>
+        </>
     );
 }
 
 const useStyles = makeStyles((theme: Theme) => 
     createStyles({
-        root: {
-            flexGrow: 1,
-        },
         tabs: {
             background: PRIMARY_COLOR,
             color: 'white',
             borderRadius: 10,
-        },
-        tab: {
-            fontSize: '16px'
-        },
-        '&$tabSelected':{
-            fontWeight: 'bolder',
-            fontStyle: 'italic'
         },
         textFields:
         {
@@ -365,9 +348,6 @@ const useStyles = makeStyles((theme: Theme) =>
         examButton: {
             backgroundColor: '#1c588c',
             color: 'white'
-        },
-        indicator: {
-            backgroundColor: 'transparent',
         },
         addButton: {
             backgroundColor: BUTTON_EDIT_BACKGROUND_COLOR,
