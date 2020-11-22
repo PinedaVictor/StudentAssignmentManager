@@ -6,20 +6,15 @@ import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR,
          PRIMARY_COLOR } from '../../Styles/global';
 import { CustomCardStandard } from '../ReusableParts/CustomCardStandard';
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
-import {ExamData} from './utils';
+import { Exam, ExamData} from './utils';
 import { AddExam } from '../NonReusableComponents/AddExamForm';
 import { EditExam } from '../NonReusableComponents/EditExamForm';
 
 /*********************************************************
  * TODO:
- *      1. Better styling for text selected !!!!! DONE ? !!!!!
  *      3. Improve fill out form for exams 
  *          a. Currently looks like any fill out form
  *              maybe needs an improvement and styling
- *      4. Figure out how to make vertical box 
- *        for gridlists on mobile so it doesn't extend
- *        over a small set box ?
- *      5. Add sliding for dialog box?
  *      6. Need validation to find out if exam exists already
 ***********************************************************/
 
@@ -161,7 +156,12 @@ const TabPanels = (props: TabPanelProps) => {
 
 export const ExamsTools: React.FC = () => {
     // HOOKS
-    const [currentEdit, setCurrentEdit] = useState('');
+    const emptyExam: Exam = {
+        title: '', section_weight: '0', overall_weight:'0',
+        related_hw: '', related_projs: '', related_exams: '',
+        resources: ''
+    };
+    const [currentEdit, setCurrentEdit] = useState(emptyExam);
     const [tabValue, setTabValue] = useState(0);
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
@@ -183,7 +183,10 @@ export const ExamsTools: React.FC = () => {
         setExamData(newExamData);
     }
     const handleEditButton = (examName: string) => {
-        setCurrentEdit(examName);
+        const examIndex = examData[tabValue].exams.findIndex(exam => exam.title === examName);
+        const examToEdit = examData[tabValue].exams[examIndex];
+        console.log(examToEdit);
+        setCurrentEdit(examToEdit);
         setOpenEdit(true);
     }
     // Information needed
@@ -231,7 +234,8 @@ export const ExamsTools: React.FC = () => {
                     examData={examData}
                     setExamData={setExamData}
                     classIndex={tabValue}
-                    examName={currentEdit}
+                    examName={currentEdit.title}
+                    exam={currentEdit}
                 />
 
             </Box>
