@@ -3,7 +3,7 @@ import { Dialog, DialogActions, DialogTitle,
          useMediaQuery, useTheme, makeStyles, Theme, createStyles, 
        } from '@material-ui/core';
 import React, { useState } from 'react';
-import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_EDIT_BACKGROUND_COLOR,
+import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR, BUTTON_EDIT_BACKGROUND_COLOR,
          BUTTON_EDIT_HOVER_BACKGROUND_COLOR } from '../../Styles/global';
 import { ExamData, Exam } from '../student-tools/utils';
 
@@ -29,8 +29,7 @@ const formatInfo = (info: string[]): Exam => {
     return exam;
 }
 
-export const AddExam = (addExamProps: AddExamProps) =>
-{
+export const AddExam = (addExamProps: AddExamProps) => {
     // HOOKS
     const [isInvalidData, setIsInvalidData] = useState(false);
     const [inputs, setInputs] = useState([
@@ -133,11 +132,6 @@ const useStyles = makeStyles((theme: Theme) =>
             alignItems: 'center',
             margin: '5%',
         },
-        addIcon: {
-            height: '2em',
-            width: '2em',
-            backgroundColor: 'blue',
-        },
         addButton: {
             backgroundColor: BUTTON_EDIT_BACKGROUND_COLOR,
             '&:hover': {
@@ -147,7 +141,7 @@ const useStyles = makeStyles((theme: Theme) =>
         cancelButton: {
             backgroundColor: BUTTON_DELETE_BACKGROUND_COLOR,
             '&:hover': {
-                backgroundColor: BUTTON_DELETE_BACKGROUND_COLOR,
+                backgroundColor: BUTTON_DELETE_HOVER_BACKGROUND_COLOR,
             }
         },
         invalid: {
