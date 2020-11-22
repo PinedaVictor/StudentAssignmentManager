@@ -2,12 +2,14 @@ import React, { useRef } from "react";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
+// import ListItemIcon from "@material-ui/core/ListItemIcon";
 import DeleteIcon from "@material-ui/icons/Delete";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
-import Checkbox from "@material-ui/core/Checkbox";
+// import Checkbox from "@material-ui/core/Checkbox";
+import CheckCircleIcon from "@material-ui/icons/CheckCircle";
+import HighlightOffIcon from "@material-ui/icons/HighlightOff";
 import IconButton from "@material-ui/core/IconButton";
-import BackspaceIcon from "@material-ui/icons/Backspace";
+// import BackspaceIcon from "@material-ui/icons/Backspace";
 import AddIcon from "@material-ui/icons/Add";
 import Card from "@material-ui/core/Card";
 import { FormControl, InputGroup } from "react-bootstrap";
@@ -102,7 +104,9 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
         </div>
         <div>
           <IconButton>
-            <DeleteIcon style={{ width: "1.5em", height: "1.5em" }} />
+            <DeleteIcon
+              style={{ width: "1.5em", height: "1.5em", color: "#D9042B" }}
+            />
           </IconButton>
         </div>
       </div>
@@ -121,7 +125,7 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
                 style={{
                   backgroundColor: item.complete ? "#04bf7b" : "white",
                   color: item.complete ? "white" : "black",
-                  width: "100%",
+                  width: "87%",
                   height: "100%",
                   borderRadius: "10px",
                 }}
@@ -150,9 +154,23 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
                   </div>
                 </Editable>
               </div>
-              <ListItemSecondaryAction>
-                <IconButton edge="end" aria-label="comments">
-                  <BackspaceIcon />
+              <ListItemSecondaryAction style={{ backgroundColor: "" }}>
+                <IconButton edge="end">
+                  <CheckCircleIcon
+                    style={{
+                      color: item.complete ? "#04bf7b" : "grey",
+                      width: "1.3em",
+                      height: "1.3em",
+                    }}
+                  />
+                </IconButton>
+                <IconButton edge="end">
+                  <HighlightOffIcon
+                    style={{
+                      width: "1.3em",
+                      height: "1.3em",
+                    }}
+                  />
                 </IconButton>
               </ListItemSecondaryAction>
             </ListItem>
