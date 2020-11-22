@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { createStyles, makeStyles, Theme, Button, Box,
-        Tabs, Tab,
-        Dialog, DialogTitle, DialogContent, DialogContentText, useMediaQuery, useTheme, DialogActions, TextField, Grid} from "@material-ui/core";
+        useMediaQuery, useTheme, Grid} from "@material-ui/core";
 import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR,
          BUTTON_EDIT_BACKGROUND_COLOR, BUTTON_EDIT_HOVER_BACKGROUND_COLOR,
-         PRIMARY_COLOR, SECONDARY_COLOR } from '../../Styles/global';
+         PRIMARY_COLOR } from '../../Styles/global';
 import { CustomCardStandard } from '../ReusableParts/CustomCardStandard';
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
-
+import {ExamData} from './utils';
+import { AddExam } from '../NonReusableComponents/AddExamForm';
+import { EditExam } from '../NonReusableComponents/EditExamForm';
 
 /*********************************************************
  * TODO:
@@ -87,21 +88,6 @@ const ExamDataJson: ExamData[] = [
 // END OF PLACEHOLDER DATA
 
 // INTERFACES
-// Needed for every individual exam
-interface Exam {
-    title: string;
-    section_weight: string; 
-    overall_weight: string; 
-    related_hw: string/* [] */;     
-    related_projs: string/* [] */;
-    related_exams: string/* [] */; 
-    resources: string/* [] */;      
-}
-// Needed for every class and its exams
-interface ExamData {
-    class: string;
-    exams: Exam[];
-}
 // Needed for tab creation
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -109,6 +95,7 @@ interface TabPanelProps {
     value: any;
     examInfo: ExamData;
     delete: (examName: string) => void;
+    edit: (examName: string) => void;
 }
 // END INTERFACES
 
@@ -116,27 +103,14 @@ interface TabPanelProps {
 const fetchExamData = () => {
     return ExamDataJson;
 }
+
 // TODO - store data on creation
 const storeExamData = (data: ExamData) => {
 }
+
 // TODO - delete a value from the db
 const deleteExamData = () => {
 
-}
-
-// TODO need to add other sections
-const formatInfo = (info: string[]): Exam => {
-    let i = 0;
-    let exam: Exam = {
-        title: info[i++], 
-        section_weight: info[i++],
-        overall_weight: info[i++],
-        related_hw: info[i++],
-        related_projs: info[i++],
-        related_exams: info[i++],
-        resources: info[i],
-    }
-    return exam;
 }
 
 const TabPanels = (props: TabPanelProps) => {
@@ -157,7 +131,6 @@ const TabPanels = (props: TabPanelProps) => {
                     {examInfo.exams.map((element, index) => (
                         <Grid
                             item
-                            alignContent='space-between'
                             xs={12}
                             sm={9}
                             md={5}
@@ -175,7 +148,7 @@ const TabPanels = (props: TabPanelProps) => {
                                     relatedExams: element.related_exams,
                                     resources: element.resources,
                                 }}
-                                editClick={() => {console.log('Edit Card')}}
+                                editClick={() => func.edit(element.title)}
                                 deleteClick={() => func.delete(element.title)}
                             />
                         </Grid>
@@ -190,94 +163,31 @@ export const ExamsTools: React.FC = () => {
     // HOOKS
     const [tabValue, setTabValue] = useState(0);
     const [openAdd, setOpenAdd] = useState(false);
-    const [isInvalidData, setIsInvalidData] = useState(false);
     const [examData, setExamData] = useState<ExamData[]>(fetchExamData());
-    // The hook below is used to keep track of sections we need
-    const [inputs, setInputs] = useState([
-        {id: 'title', label: 'Exam Title', value: '', placeholder: 'Exam #1',
-         isInvalid: (value: string) => value === '' },
-        {id: 'section-weight', label: 'Section Weight', value: '', placeholder: '10',
-         isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
-        {id: 'overall-weight', label: 'Overall Weight', value: '', placeholder: '10',
-         isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
-        {id: 'related-hw', label: 'Related Homework', value: '', placeholder: 'HW #1',
-         isInvalid: value => false},
-        {id: 'related-pros', label: 'Related Projects', value: '', placeholder: 'Project #1',
-         isInvalid: value => false},
-        {id: 'related-exams', label: 'Related Exams', value: '', placeholder: 'Exam #1',
-         isInvalid: value => false},
-        {id: 'resources', label: 'Resources', value: '', placeholder: 'www.youtube.com',
-         isInvalid: value => false}
-    ]);
-
     // FUNCTIONS
-    const clearInputs = () => {
-        const newInputs = [...inputs];
-        newInputs.forEach(input => input.value = '');
-        setInputs(newInputs);
-    };
     const handleNavChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setTabValue(newValue);
     };
-    const handleInvalidDataClose = () =>{
-        setIsInvalidData(false);
-    }
     const handleFormOpen = () => {
         setOpenAdd(true);
     };
-    // TODO add firebase backend on add
-    const handleFormAdd = () => {
-        const validForm = inputs.every(input => !input.isInvalid(input.value));
-        if(!validForm){
-            setIsInvalidData(true);
-            return;
-        }
-        
-        const newExamData = [...examData];
-        const classIndex = tabValue;
-        // TODO need make sure data entered is proper before submitting
-        // Just title and weights that's all
-        const examInfo = inputs.map(input => input.value);
-        const newExam = formatInfo(examInfo);
-        newExamData[classIndex].exams = [ ...examData[classIndex].exams, newExam];
-        clearInputs();
-        setExamData(newExamData);
-        setOpenAdd(false);
-    };
-    const handleFormCancel = () => {
-        clearInputs();
-        setOpenAdd(false);
-    };
-    const onTextChange = ({target: {id, value}}: any) => {
-        const newInputs = [...inputs];
-        const index = inputs.findIndex(input => input.id === id);
-        newInputs[index] = {...inputs[index], value};
-        setInputs(newInputs);
-    };
+
     const handleDeleteButton = (examName: string) => {
         const newExamData = [...examData];
         const classIndex = tabValue;
-
         // TODO make sure deletion updates the DB
-        
         const examIndex = examData[classIndex].exams.findIndex(exam => exam.title === examName);
         newExamData[classIndex].exams.splice(examIndex, 1);
         setExamData(newExamData);
     }
+    const handleEditButton = (examName: string) => {
+        const classIndex = tabValue;
+        const exam = examData[classIndex].exams.find(input => input.title === examName);
+        console.log(exam);
+    }
     // Information needed
     const classes = useStyles();
     const isSmallDevice = useMediaQuery(useTheme().breakpoints.down('xs'));
-
-    const examFields = (
-        <div className={classes.textFields} >
-            {inputs.map(input => {
-                const invalid = input.isInvalid(input.value);
-                return <TextField fullWidth key={input.id} id={input.id} label={input.label} value={input.value}
-                    type="text" onChange={onTextChange} error={invalid} placeholder={input.placeholder}/>
-            })}
-        </div>
-    );
-
 
     return(
         <>
@@ -299,35 +209,21 @@ export const ExamsTools: React.FC = () => {
                 </Box>
                 <Box p={4} m={isSmallDevice ? 2 : 4}>
                     {examData.map((element, index) => {
-                        return <TabPanels value={tabValue} index={index} examInfo={element} key={element.class} delete={handleDeleteButton}/>
+                        return <TabPanels 
+                                    value={tabValue}
+                                    index={index}
+                                    examInfo={element}
+                                    key={element.class}
+                                    delete={handleDeleteButton}
+                                    edit={handleEditButton}/>
                     })}
                 </Box>
-                <Dialog
-                    open={openAdd}
-                    onClose={handleFormCancel}
-                    fullScreen={isSmallDevice}
-                >
-                    <DialogTitle id="form-dialog-title">Adding Exam</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            To add an exam fill in the boxes below.
-                        </DialogContentText>
-                        {examFields}
-                        <DialogActions>
-                            <Button onClick={handleFormCancel} className={classes.cancelButton}> Cancel</Button>
-                            <Button onClick={handleFormAdd} className={classes.addButton}>Add</Button>
-                        </DialogActions>
-                    </DialogContent>
-                </Dialog>
-                <Dialog
-                    open={isInvalidData}
-                    onClose={handleInvalidDataClose}
-                >
-                    <DialogTitle className={classes.invalid} id="invalid-data">{"One or more data entries are invalid"}</DialogTitle>
-                    <DialogActions>
-                        <Button onClick={handleInvalidDataClose} color="primary">OK</Button>
-                    </DialogActions>
-                </Dialog>
+                <AddExam
+                    openAdd={openAdd}
+                    setOpenAdd={setOpenAdd}
+                    examData={examData}
+                    setExamData={setExamData}
+                    classIndex={tabValue}/>
             </Box>
         </>
     );
