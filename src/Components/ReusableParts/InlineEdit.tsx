@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Button, ButtonGroup } from "react-bootstrap";
-import { create } from "ts-style";
+// import { Button, ButtonGroup } from "react-bootstrap";
+// import { create } from "ts-style";
 
 interface EditableText {
   text: string;
@@ -37,10 +37,11 @@ export const Editable: React.FC<EditableText> = (props) => {
     }
   };
 
-  const handleSaveButton = () => {
-    props.saveText();
-    setEditing(false);
-  };
+  // TODO: Pass save function
+  // const handleSaveButton = () => {
+  //   props.saveText();
+  //   setEditing(false);
+  // };
 
   return (
     <section style={props.style}>
@@ -57,17 +58,18 @@ export const Editable: React.FC<EditableText> = (props) => {
   );
 };
 
-const styles = create({
-  buttonGroup: {},
-  button: {
-    width: "30px",
-    height: "30px",
-    borderRadius: "50px",
-    backgroundColor: "blue",
-    borderWidth: "1.5px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    margin: "10px",
-  },
-});
+// TODO: Implement or delete
+// const styles = create({
+//   buttonGroup: {},
+//   button: {
+//     width: "30px",
+//     height: "30px",
+//     borderRadius: "50px",
+//     backgroundColor: "blue",
+//     borderWidth: "1.5px",
+//     display: "flex",
+//     alignItems: "center",
+//     justifyContent: "center",
+//     margin: "10px",
+//   },
+// });
