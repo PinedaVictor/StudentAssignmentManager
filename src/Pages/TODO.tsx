@@ -6,10 +6,15 @@ import { MainLayout } from "../Components/ReusableParts/Layout";
 import { TodoCard } from "../Components/student-tools/todo-list/List";
 import { app } from "../Database/initFirebase";
 
+// TODO:
+// Setup firebase listener
+// Implement card editing - remove todo items
+
 interface TodoCard {
   title: string;
   date: string;
   todoList: { todo: string; complete: boolean }[];
+  cardID: string;
 }
 
 export const TodoList: React.FC = () => {
@@ -33,6 +38,7 @@ export const TodoList: React.FC = () => {
             title: todoData.title,
             date: todoData.date,
             todoList: todoData.todoList,
+            cardID: document.id,
           };
           tempTodoList.push(listData);
         }
@@ -100,6 +106,7 @@ export const TodoList: React.FC = () => {
           title={item.title}
           date={item.date}
           listItems={item.todoList}
+          cardID={item.cardID}
         />
       ))}
     </Container>

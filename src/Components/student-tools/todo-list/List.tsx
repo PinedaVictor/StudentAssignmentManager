@@ -2,44 +2,67 @@ import React, { useRef } from "react";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-// import ListItemIcon from "@material-ui/core/ListItemIcon";
 import DeleteIcon from "@material-ui/icons/Delete";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
-// import Checkbox from "@material-ui/core/Checkbox";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import HighlightOffIcon from "@material-ui/icons/HighlightOff";
 import IconButton from "@material-ui/core/IconButton";
-// import BackspaceIcon from "@material-ui/icons/Backspace";
 import AddIcon from "@material-ui/icons/Add";
 import Card from "@material-ui/core/Card";
 import { FormControl, InputGroup } from "react-bootstrap";
 import { Editable } from "../../ReusableParts/InlineEdit";
+import { app } from "../../../Database/initFirebase";
 
 interface TodoListProps {
   title: string;
   date: string;
   listItems: { todo: string; complete: boolean }[];
+  cardID: string;
 }
 
 export const TodoCard: React.FC<TodoListProps> = (props) => {
   const classes = useStyles();
-  const [checked, setChecked] = React.useState([0]);
 
   const cardTitleRef = useRef() as React.MutableRefObject<HTMLInputElement>;
   const cardDateRef = useRef() as React.MutableRefObject<HTMLInputElement>;
   const todoItemRef = useRef() as React.MutableRefObject<HTMLInputElement>;
 
-  const handleToggle = (value: number) => () => {
-    const currentIndex = checked.indexOf(value);
-    const newChecked = [...checked];
-    console.log("Calling handleToggle::::::CHecked?", value);
+  const addTodoItem = async () => {
+    try {
+      const card = app
+        .firestore()
+        .collection("users")
+        .doc("iaswHXNT2MSNXarjGKcs51g64R32")
+        .collection("TODOs")
+        .doc(props.cardID);
 
-    if (currentIndex === -1) {
-      newChecked.push(value);
-    } else {
-      newChecked.splice(currentIndex, 1);
+      const cardDocument = await card.get();
+      const cardData = cardDocument.data();
+      if (cardData) {
+        const todoList = cardData.todoList;
+        const addedOneTodo = todoList.concat([
+          { todo: "edit", complete: false },
+        ]);
+        card.update({ todoList: addedOneTodo });
+      }
+    } catch {
+      console.log("Error updating todo card");
     }
-    setChecked(newChecked);
+  };
+
+  const deleteTodoCard = () => {
+    try {
+      app
+        .firestore()
+        .collection("users")
+        .doc("iaswHXNT2MSNXarjGKcs51g64R32")
+        .collection("TODOs")
+        .doc(props.cardID)
+        .delete();
+      console.log("Deleted todo card successfully");
+    } catch {
+      console.log("Did not delete todo card");
+    }
   };
 
   return (
@@ -103,16 +126,19 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
           </div>
         </div>
         <div>
-          <IconButton>
+          <IconButton onClick={deleteTodoCard}>
             <DeleteIcon
               style={{ width: "1.5em", height: "1.5em", color: "#D9042B" }}
             />
           </IconButton>
         </div>
       </div>
+      <div
+        style={{ height: "3px", width: "100%", backgroundColor: "#1c588c" }}
+      ></div>
       <List className={classes.root}>
         {props.listItems.map((item, index) => {
-          const labelId = `checkbox-list-label-${item}`;
+          // const labelId = `checkbox-list-label-${item}`;
           return (
             <ListItem
               key={index}
@@ -177,8 +203,10 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
           );
         })}
       </List>
-      <IconButton>
-        <AddIcon style={{ width: "1.5em", height: "1.5em" }} />
+      <IconButton onClick={addTodoItem}>
+        <AddIcon
+          style={{ width: "1.5em", height: "1.5em", color: "#04bf7b" }}
+        />
       </IconButton>
     </Card>
   );
