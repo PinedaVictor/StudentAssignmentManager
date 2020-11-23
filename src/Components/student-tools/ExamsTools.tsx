@@ -156,12 +156,8 @@ const TabPanels = (props: TabPanelProps) => {
 
 export const ExamsTools: React.FC = () => {
     // HOOKS
-    const emptyExam: Exam = {
-        title: '', section_weight: '0', overall_weight:'0',
-        related_hw: '', related_projs: '', related_exams: '',
-        resources: ''
-    };
-    const [currentEdit, setCurrentEdit] = useState(emptyExam);
+;
+    const [currentEdit, setCurrentEdit] = useState('');
     const [tabValue, setTabValue] = useState(0);
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
@@ -183,10 +179,7 @@ export const ExamsTools: React.FC = () => {
         setExamData(newExamData);
     }
     const handleEditButton = (examName: string) => {
-        const examIndex = examData[tabValue].exams.findIndex(exam => exam.title === examName);
-        const examToEdit = examData[tabValue].exams[examIndex];
-        console.log(examToEdit);
-        setCurrentEdit(examToEdit);
+        setCurrentEdit(examName);
         setOpenEdit(true);
     }
     // Information needed
@@ -234,8 +227,7 @@ export const ExamsTools: React.FC = () => {
                     examData={examData}
                     setExamData={setExamData}
                     classIndex={tabValue}
-                    examName={currentEdit.title}
-                    exam={currentEdit}
+                    examName={currentEdit}
                 />
 
             </Box>

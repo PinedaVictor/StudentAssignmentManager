@@ -15,30 +15,44 @@ interface EditExamProps {
     setExamData: React.Dispatch<React.SetStateAction<ExamData[]>>;
     classIndex: number;
     examName: string;
-    exam: Exam;
 }
+
+const formatInfo = (info: string[]): Exam => {
+    let i = 0;
+    let exam: Exam = {
+        title: info[i++], 
+        section_weight: info[i++],
+        overall_weight: info[i++],
+        related_hw: info[i++],
+        related_projs: info[i++],
+        related_exams: info[i++],
+        resources: info[i],
+    }
+    return exam;
+}
+
 
 export const EditExam = (editProps: EditExamProps) => {
     //DATA
     const isSmallDevice = useMediaQuery(useTheme().breakpoints.down('xs'));
     const classes = useStyles();
-    const {openEdit, setOpenEdit, examData, setExamData, classIndex, examName, exam} = editProps;
+    const {openEdit, setOpenEdit, examData, setExamData, classIndex, examName} = editProps;
     // HOOKS
     const [isInvalidData, setIsInvalidData] = useState(false);
     const [inputs, setInputs] = useState([
-        {id: 'title', label: 'Exam Title', value: exam.title, placeholder: 'Exam #1',
+        {id: 'title', label: 'Exam Title', value: '', placeholder: 'Exam #1',
          isInvalid: (value: string) => value === '' },
-        {id: 'section-weight', label: 'Section Weight', value: exam.section_weight, placeholder: '10',
+        {id: 'section-weight', label: 'Section Weight', value: '', placeholder: '10',
          isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
-        {id: 'overall-weight', label: 'Overall Weight', value: exam.overall_weight, placeholder: '10',
+        {id: 'overall-weight', label: 'Overall Weight', value: '', placeholder: '10',
          isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
-        {id: 'related-hw', label: 'Related Homework', value: exam.related_hw, placeholder: 'HW #1, HW #2',
+        {id: 'related-hw', label: 'Related Homework', value: '', placeholder: 'HW #1, HW #2',
          isInvalid: value => false},
-        {id: 'related-projs', label: 'Related Projects', value: exam.related_projs, placeholder: 'Project #1, Project #2',
+        {id: 'related-projs', label: 'Related Projects', value: '', placeholder: 'Project #1, Project #2',
          isInvalid: () => false},
-        {id: 'related-exams', label: 'Related Exams', value: exam.related_exams, placeholder: 'Exam #1, Exam #2',
+        {id: 'related-exams', label: 'Related Exams', value: '', placeholder: 'Exam #1, Exam #2',
          isInvalid: () => false},
-        {id: 'resources', label: 'Resources', value: exam.resources, placeholder: 'www.youtube.com, linkedin.com/learning',
+        {id: 'resources', label: 'Resources', value: '', placeholder: 'www.youtube.com, linkedin.com/learning',
          isInvalid: () => false}
     ]);
 
@@ -52,14 +66,19 @@ export const EditExam = (editProps: EditExamProps) => {
         newInputs[index] = {...inputs[index], value};
         setInputs(newInputs);
     };
-    
     const handleFormEdit = () => {
-        console.log(examName);
         const validForm = inputs.every(input => !input.isInvalid(input.value));
         if(!validForm) {
             setIsInvalidData(true);
             return;
         }
+        const newExamData = [...examData];
+        const examInfo = inputs.map(input => input.value);
+        const examIndex = examData[classIndex].exams.findIndex(exam => exam.title === examName);
+        const editedExam = formatInfo(examInfo);
+        newExamData[classIndex].exams[examIndex] = editedExam;
+        setExamData(newExamData);
+        setOpenEdit(false);
     }
     const handleInvalidDataClose = () => {
         setIsInvalidData(false);
