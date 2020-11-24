@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { create } from "ts-style";
 import { Card } from "react-bootstrap";
-import { DynamicCard } from "../ReusableParts/DynamicCard";
-import { CustomModal } from "../ReusableParts/CustomModal";
 import { CustomTable } from "../ReusableParts/CustomTable";
 import Paper from "@material-ui/core/Paper";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -10,6 +8,8 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import { PRIMARY_COLOR } from "../../Styles/global";
 import { Box } from "@material-ui/core";
 import { CustomButton } from "../ReusableParts/CustomButton";
+import { CustomCardStandard } from "../ReusableParts/CustomCardStandard";
+import { CustomPopup } from "../ReusableParts/CustomPopup";
 
 const classData = [
   {
@@ -287,7 +287,7 @@ export const Home: React.FC = () => {
               size = "small"
             />
 
-            <CustomModal
+            <CustomPopup
               layout={renderGradeSettingsModal()}
               modalState={gradeSettingsModal}
             />
@@ -298,16 +298,16 @@ export const Home: React.FC = () => {
 
         <Card.Body style={styles.cardBody}>
           {classData.map((item) => (
-            <DynamicCard
-              header={item.Name}
-              bodyContents={{
+            <CustomCardStandard
+              title={item.Name}
+              data={{
                 Total: CircularProgressWithLabel(item.Total),
                 Homework: CircularProgressWithLabel(item.Homework),
                 Exams: CircularProgressWithLabel(item.Exams),
                 Projects: CircularProgressWithLabel(item.Projects),
               }}
-              width={"225px"}
-              type="tiny"
+              deleteClick = {() => null}
+              editClick = {() => null}
             />
           ))}
         </Card.Body>
@@ -321,7 +321,7 @@ export const Home: React.FC = () => {
               onClick={() => setAssignmentsSettingsModal(true)}
               size = "small"
             />
-            <CustomModal
+            <CustomPopup
               layout={renderAssignmentSettingsModal()}
               modalState={assignmentsSettingsModal}
             />
