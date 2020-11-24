@@ -117,9 +117,24 @@ export const ProjectTool: React.FC = () => {
     const handleFormOpen = () => {
         setOpenAdd(true);
     }
-    const handleFormEdit = () => {
+    const handleFormEdit = (projectName: string) => {
         const newInputs = [...inputs];
+        const classIndex = tabValue;
+        const projectIndex = projectData[classIndex].projects.findIndex(input => input.title === projectName);
 
+        // TODO set an error saying it no longer exists
+        if(projectIndex === -1) return;
+
+        const oldProject = projectData[classIndex].projects[projectIndex];
+        let i = 0;
+        newInputs[i++].value = oldProject.title;
+        newInputs[i++].value = oldProject.completion;
+        newInputs[i++].value = oldProject.section_weight;
+        newInputs[i++].value = oldProject.overall_weight;
+        newInputs[i++].value = oldProject.requirements;
+        newInputs[i++].value = oldProject.related_homework.join(', ');
+        newInputs[i++].value = oldProject.resources.join(', ');
+        setInputs(newInputs);
         setOpenEdit(true);
     }
     const handleDeleteButton = (projectName: string) => {
