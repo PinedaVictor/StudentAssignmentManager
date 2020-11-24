@@ -12,8 +12,8 @@ export interface Project {
     section_weight: string;
     overall_weight: string;
     requirements: string;
-    related_homework: string;
-    resources: string;
+    related_homework: string[];
+    resources: string[];
 }
 
 export interface Exam {

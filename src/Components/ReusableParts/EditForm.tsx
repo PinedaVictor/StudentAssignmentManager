@@ -39,18 +39,18 @@ export const EditForm = (editFormProps: EditFormProps) => {
                 fullScreen={isSmallDevice}
             >
                 <DialogTitle id='edit-form'>{title}</DialogTitle>
+                <div className={classes.textFields}>
+                    {inputs.map(input => {
+                        const invalid = input.isInvalid(input.value);
+                        return <TextField fullWidth key={input.id} id={input.id} label={input.label} value={input.value}
+                            type="text" /* onChange={onTextChange} */ error={invalid} placeholder={input.placeHolder}/>
+                    })}
+                </div>
+                <DialogActions>
+                    <Button onClick={handleFormCancel} className={classes.cancelButton}>Cancel</Button>
+                    <Button onClick={/* handleCompleteFormAdd */ () => {}} className={classes.addButton}>Add</Button>
+                </DialogActions>
             </Dialog>
-            <div className={classes.textFields}>
-                {inputs.map(input => {
-                    const invalid = input.isInvalid(input.value);
-                    return <TextField fullWidth key={input.id} id={input.id} label={input.label} value={input.value}
-                        type="text" /* onChange={onTextChange} */ error={invalid} placeholder={input.placeHolder}/>
-                })}
-            </div>
-            <DialogActions>
-                <Button onClick={handleFormCancel} className={classes.cancelButton}>Cancel</Button>
-                <Button onClick={/* handleCompleteFormAdd */ () => {}} className={classes.addButton}>Add</Button>
-            </DialogActions>
         </>
     )
 }

@@ -72,8 +72,12 @@ export const ProjectDataJson: ProjectData[] = [
                 section_weight: '33',
                 overall_weight: '10',
                 requirements: 'Do this thing, then that thing do another thing. Blah blah blah',
-                related_homework: 'Homework 1, Homework 2, Homework 3',
-                resources:'' 
+                related_homework:[ 
+                    'Homework 1',
+                    'Homework 2',
+                    'Homework 3',
+                ],
+                resources: []
             }
         ]
     }

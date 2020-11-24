@@ -1,12 +1,13 @@
 import { Button, createStyles, Grid, makeStyles, Theme, useMediaQuery, useTheme } from '@material-ui/core';
 import Box from '@material-ui/core/Box';
 import React, { useState } from 'react';
-import { PRIMARY_COLOR } from '../../Styles/global';
+import { SECONDARY_COLOR } from '../../Styles/global';
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
 import { AddForm } from '../ReusableParts/AddForm';
 import { Project, ProjectData } from '../../Database/utils';
 import { ProjectDataJson } from '../../Database/PlaceHolderData';
 import { CustomCardStandard } from '../ReusableParts/CustomCardStandard';
+import { EditForm } from '../ReusableParts/EditForm';
 
 const fetchProjectData = () => {
     return ProjectDataJson;
@@ -20,8 +21,8 @@ const formatInfo = (info: string[]): Project => {
         section_weight: info[i++],
         overall_weight: info[i++],
         requirements: info[i++],
-        related_homework: info[i++],
-        resources: info[i],
+        related_homework: info[i].length === 0? [] : info[i++].split(','),
+        resources: info[i].length === 0? [] : info[i++].split(','),
     }
     return project;
 }
@@ -63,6 +64,7 @@ const TabPanels = (props: TabPanelProps) => {
                                 data={{
                                     sectionWeight: element.section_weight + '%',
                                     overallWeight: element.overall_weight + '%',
+                                    completion: element.completion + '%',
                                     requirements: element.requirements,
                                     relatedHomework: element.related_homework,
                                     resources: element.resources,
@@ -81,6 +83,7 @@ export const ProjectTool: React.FC = () => {
     // HOOKS
     const [tabValue, setTabValue] = useState(0);
     const [openAdd, setOpenAdd] = useState(false);
+    const [openEdit, setOpenEdit] = useState(false);
     const [projectData, setProjectData] = useState<ProjectData[]>(fetchProjectData());
     const [inputs, setInputs] = useState([
         {id: 'title', label: 'Title', value: '', placeHolder: 'Project #1',
@@ -113,6 +116,9 @@ export const ProjectTool: React.FC = () => {
     }
     const handleFormOpen = () => {
         setOpenAdd(true);
+    }
+    const handleFormEdit = () => {
+        setOpenEdit(true);
     }
     const handleDeleteButton = (projectName: string) => {
         const newProjectData = [...projectData];
@@ -151,7 +157,7 @@ export const ProjectTool: React.FC = () => {
                                     projectInfo={element}
                                     key={element.class}
                                     delete={handleDeleteButton}
-                                    edit={() => {}}
+                                    edit={handleFormEdit}
                                 />
                     })}
                 </Box>
@@ -163,6 +169,13 @@ export const ProjectTool: React.FC = () => {
                     inputs={inputs}
                     setInputs={setInputs}
                 />
+                <EditForm
+                    title='Edit Project'
+                    openEdit={openEdit}
+                    setOpenEdit={setOpenEdit}
+                    inputs={inputs}
+                    setInputs={setInputs}
+                />
             </Box>
         </>
     )
@@ -170,7 +183,7 @@ export const ProjectTool: React.FC = () => {
 const useStyles = makeStyles((theme: Theme) => 
     createStyles({
         tabs: {
-            background: PRIMARY_COLOR,
+            backgroundColor: SECONDARY_COLOR,
             color: 'white',
             borderRadius: 10,
         },

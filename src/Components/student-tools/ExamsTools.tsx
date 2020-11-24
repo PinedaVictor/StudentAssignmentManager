@@ -3,7 +3,7 @@ import { createStyles, makeStyles, Theme, Button, Box,
         useMediaQuery, useTheme, Grid} from "@material-ui/core";
 import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR,
          BUTTON_EDIT_BACKGROUND_COLOR, BUTTON_EDIT_HOVER_BACKGROUND_COLOR,
-         PRIMARY_COLOR } from '../../Styles/global';
+         SECONDARY_COLOR} from '../../Styles/global';
 import { CustomCardStandard } from '../ReusableParts/CustomCardStandard';
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
 import { Exam, ExamData} from '../../Database/utils';
@@ -173,7 +173,7 @@ export const ExamsTools: React.FC = () => {
 const useStyles = makeStyles((theme: Theme) => 
     createStyles({
         tabs: {
-            background: PRIMARY_COLOR,
+            background: SECONDARY_COLOR,
             color: 'white',
             borderRadius: 10,
         },
