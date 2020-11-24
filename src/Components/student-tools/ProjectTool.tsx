@@ -77,7 +77,7 @@ const TabPanels = (props: TabPanelProps) => {
         </div>
     )
 }
-export const ProjectTool = () => {
+export const ProjectTool: React.FC = () => {
     // HOOKS
     const [tabValue, setTabValue] = useState(0);
     const [openAdd, setOpenAdd] = useState(false);

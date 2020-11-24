@@ -67,7 +67,7 @@ export const AddForm = (addFormProps: AddFormProps) => {
                 <div className={classes.textFields}>
                     {inputs.map(input => {
                         const invalid = input.isInvalid(input.value);
-                        return <TextField fullWidth key={input.id} id={input.id} label={input.label} value={input.value}
+                        return <TextField variant='outlined' fullWidth key={input.id} id={input.id} label={input.label} value={input.value}
                             type="text" onChange={onTextChange} error={invalid} placeholder={input.placeHolder}/>
                     })}
                 </div>
