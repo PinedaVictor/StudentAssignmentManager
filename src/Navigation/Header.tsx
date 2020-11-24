@@ -50,7 +50,7 @@ export const Header: React.FC = () => {
               style={{
                 height: "2.3em",
                 width: "2.3em",
-                color: "#04bf7b",
+                color: "#7CDAC0",
               }}
             />
           </div>
@@ -106,7 +106,7 @@ export const Header: React.FC = () => {
               >
                 <ListItemIcon>
                   <item.icon
-                    style={{ height: "2.0em", width: "2.0em", color: "white" }}
+                    style={{ height: "2.0em", width: "2.0em", color: "#7CDAC0" }}
                   />
                 </ListItemIcon>
                 <p
@@ -140,7 +140,7 @@ const useStyles = makeStyles((theme: Theme) =>
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
       }),
-      backgroundColor: "#1c588c",
+      backgroundColor: "#262626",
     },
     appBarShift: {
       width: `calc(100% - ${drawerWidth}px)`,
@@ -162,7 +162,8 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     drawerPaper: {
       width: drawerWidth,
-      backgroundColor: "#04bf7b",
+      backgroundColor: "#131313",
+      boxShadow: "-6px -6px -6px rgba(255,255,255,1)"
     },
     drawerHeader: {
       display: "flex",
