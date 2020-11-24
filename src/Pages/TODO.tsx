@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import IconButton from "@material-ui/core/IconButton";
 import AddIcon from "@material-ui/icons/Add";
+import { AQUA } from "../Styles/global";
 import { Container } from "react-bootstrap";
 import { MainLayout } from "../Components/ReusableParts/Layout";
 import { TodoCard } from "../Components/student-tools/todo-list/List";
@@ -79,7 +80,7 @@ export const TodoList: React.FC = () => {
         {"Click"}
       </button>
       <div style={{ display: "flex", marginTop: "-40px" }}>
-        <h3 style={{ backgroundColor: "", color: "#1c588c", width: "95%" }}>
+        <h3 style={{ backgroundColor: "", color: AQUA, width: "95%" }}>
           TODOs
         </h3>
         <IconButton
@@ -88,13 +89,15 @@ export const TodoList: React.FC = () => {
             marginTop: "10px",
           }}
         >
-          <AddIcon style={{ width: "1.5em", height: "1.5em" }} />
+          <AddIcon
+            style={{ width: "1.5em", height: "1.5em", color: "white" }}
+          />
         </IconButton>
       </div>
       <div
         style={{
           height: "5px",
-          backgroundColor: "#04bf7b",
+          backgroundColor: AQUA,
           marginTop: "-10px",
           marginBottom: "15px",
           borderRadius: "25px",

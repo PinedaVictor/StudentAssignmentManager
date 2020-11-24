@@ -9,6 +9,7 @@ import HighlightOffIcon from "@material-ui/icons/HighlightOff";
 import IconButton from "@material-ui/core/IconButton";
 import AddIcon from "@material-ui/icons/Add";
 import Card from "@material-ui/core/Card";
+import { AQUA } from "../../../Styles/global";
 import { FormControl, InputGroup } from "react-bootstrap";
 import { Editable } from "../../ReusableParts/InlineEdit";
 import { app } from "../../../Database/initFirebase";
@@ -49,35 +50,45 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
     }
   };
 
-  // TODO:
-  // const deleteTodoItem = async (itemIndex: number) => {
-  //   console.log("Calling delele todo item::::", itemIndex);
+  const deleteTodoItem = async (itemIndex: number) => {
+    try {
+      const cardDocument = await cardRef.get();
+      const cardData = cardDocument.data();
+      if (cardData) {
+        const todoList = cardData.todoList;
+        let filteredList = todoList;
+        if (itemIndex + 1 == todoList.length) {
+          filteredList = todoList.slice(0, todoList.length - 1);
+        } else if (itemIndex == 0) {
+          filteredList = todoList.slice(itemIndex + 1, todoList.length);
+        } else {
+          filteredList = todoList
+            .slice(0, itemIndex)
+            .concat(todoList.slice(itemIndex + 1, todoList.length));
+        }
+        cardRef.update({ todoList: filteredList });
+      }
+    } catch (error) {
+      console.log("Could not delete todo item", error);
+    }
+  };
 
-  //   try {
-  //     const cardDocument = await cardRef.get();
-  //     const cardData = cardDocument.data();
-  //     if (cardData) {
-  //       const todoList = cardData.todoList;
-  //       let filteredItems = todoList;
-  //       if (itemIndex == todoList.length) {
-  //         filteredItems = todoList.pop();
-  //         console.log("First case");
-  //       } else if (itemIndex == 0) {
-  //         filteredItems = todoList.shift();
-  //         console.log("Second case");
-  //       } else {
-  //         filteredItems = todoList
-  //           .slice(0, itemIndex)
-  //           .concat(itemIndex, todoList.length);
-  //         console.log("Third case");
-  //       }
-  //       console.log("new items:::", filteredItems);
-  //       cardRef.update({ todoList: filteredItems });
-  //     }
-  //   } catch {
-  //     console.log("Could not delete todo item");
-  //   }
-  // };
+  const setCompleteStatus = async (itemIndex: number) => {
+    try {
+      const cardDocument = await cardRef.get();
+      const cardData = cardDocument.data();
+      if (cardData) {
+        const todoListUpdated = cardData.todoList;
+        todoListUpdated[itemIndex] = {
+          todo: todoListUpdated[itemIndex].todo,
+          complete: !todoListUpdated[itemIndex].complete,
+        };
+        cardRef.update({ todoList: todoListUpdated });
+      }
+    } catch {
+      console.log("Error setting todo item complete status");
+    }
+  };
 
   const deleteTodoCard = () => {
     try {
@@ -163,7 +174,7 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
         </div>
       </div>
       <div
-        style={{ height: "3px", width: "100%", backgroundColor: "#1c588c" }}
+        style={{ height: "3px", width: "100%", backgroundColor: AQUA }}
       ></div>
       <List className={classes.root}>
         {props.listItems.map((item, index) => {
@@ -210,7 +221,7 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
                 </Editable>
               </div>
               <ListItemSecondaryAction style={{ backgroundColor: "" }}>
-                <IconButton edge="end">
+                <IconButton edge="end" onClick={() => setCompleteStatus(index)}>
                   <CheckCircleIcon
                     style={{
                       color: item.complete ? "#04bf7b" : "grey",
@@ -219,7 +230,7 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
                     }}
                   />
                 </IconButton>
-                <IconButton edge="end" onClick={() => console.log("Clicking")}>
+                <IconButton edge="end" onClick={() => deleteTodoItem(index)}>
                   <HighlightOffIcon
                     style={{
                       width: "1.3em",
