@@ -81,6 +81,7 @@ const TabPanels = (props: TabPanelProps) => {
 }
 export const ProjectTool: React.FC = () => {
     // HOOKS
+    const [currentProjectEdit, setCurrentProjectEdit] = useState('');
     const [tabValue, setTabValue] = useState(0);
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
@@ -106,9 +107,8 @@ export const ProjectTool: React.FC = () => {
         const newProjectData =[...projectData];
         // TODO need to make db calls here
         const projectInfo = inputs.map(input => input.value);
-        const newProject = formatInfo(projectInfo);
         if(projectData[tabValue].projects)
-            newProjectData[tabValue].projects= [...newProjectData[tabValue].projects, newProject];
+            newProjectData[tabValue].projects= [...newProjectData[tabValue].projects, formatInfo(projectInfo)];
         setProjectData(newProjectData);
     }
     const handleNavChange = (event: React.ChangeEvent<{}>, newValue: number) => {
@@ -125,6 +125,7 @@ export const ProjectTool: React.FC = () => {
         // TODO set an error saying it no longer exists
         if(projectIndex === -1) return;
 
+        setCurrentProjectEdit(projectName);
         const oldProject = projectData[classIndex].projects[projectIndex];
         let i = 0;
         newInputs[i++].value = oldProject.title;
@@ -136,6 +137,27 @@ export const ProjectTool: React.FC = () => {
         newInputs[i++].value = oldProject.resources.join(', ');
         setInputs(newInputs);
         setOpenEdit(true);
+    }
+    const handleFormEditSubmit = () => {
+        const newProjectData = [...projectData];
+        const projectInfo = inputs.map(input => input.value);
+        const classIndex = tabValue;
+        const projectIndex = projectData[classIndex].projects.findIndex(input => input.title === currentProjectEdit);
+
+        if(projectIndex === -1) return;
+        
+        let i = 0;
+        newProjectData[classIndex].projects[projectIndex].title = projectInfo[i++];
+        newProjectData[classIndex].projects[projectIndex].completion = projectInfo[i++];
+        newProjectData[classIndex].projects[projectIndex].section_weight = projectInfo[i++];
+        newProjectData[classIndex].projects[projectIndex].overall_weight = projectInfo[i++];
+        newProjectData[classIndex].projects[projectIndex].requirements = projectInfo[i++];
+        newProjectData[classIndex].projects[projectIndex].related_homework = projectInfo[i].length === 0 ? [] : projectInfo[i++].split(',');
+        newProjectData[classIndex].projects[projectIndex].resources = projectInfo[i].length === 0 ? [] : projectInfo[i].split(',');
+
+        // DB call right here to update
+        setCurrentProjectEdit('');
+        setProjectData(newProjectData);
     }
     const handleDeleteButton = (projectName: string) => {
         const newProjectData = [...projectData];
@@ -190,6 +212,7 @@ export const ProjectTool: React.FC = () => {
                     title='Edit Project'
                     openEdit={openEdit}
                     setOpenEdit={setOpenEdit}
+                    handleFormEditSubmit={handleFormEditSubmit}
                     inputs={inputs}
                     setInputs={setInputs}
                 />

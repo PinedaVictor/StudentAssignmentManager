@@ -15,6 +15,7 @@ interface EditFormProps {
     title: string;
     openEdit: boolean;
     setOpenEdit: React.Dispatch<React.SetStateAction<boolean>>;
+    handleFormEditSubmit: () => void;
     inputs: Inputs[];
     setInputs: React.Dispatch<React.SetStateAction<Inputs[]>>;
 }
@@ -23,14 +24,38 @@ export const EditForm = (editFormProps: EditFormProps) => {
     // HOOKS
     const [isInvalidData, setIsInvalidData] = useState(false);
     //DATA
-    const { title, openEdit, setOpenEdit, inputs, setInputs } = editFormProps;
+    const { title, openEdit, setOpenEdit, handleFormEditSubmit, inputs, setInputs } = editFormProps;
     const isSmallDevice = useMediaQuery(useTheme().breakpoints.down('xs'));
     const classes = useStyles();
-    // FUNCTIONS
+    // FUNCTIONS    
+    const clearInputs = () => {
+        const newInputs = [...inputs];
+        newInputs.forEach(input => input.value = '');
+        setInputs(newInputs);
+    }
     const handleFormCancel = () => {
+        clearInputs();
         setOpenEdit(false);
     }
-
+    const onTextChange = ({target: {id, value}} : any) => {
+        const newInputs = [...inputs];
+        const index = inputs.findIndex(input => input.id === id);
+        newInputs[index] = {...inputs[index], value};
+        setInputs(newInputs);
+    }
+    const handleCompleteFormEdit = () => {
+        const validForms = inputs.every(input => !input.isInvalid(input.value));
+        if(!validForms) {
+            setIsInvalidData(true);
+            return;
+        }
+        handleFormEditSubmit();
+        clearInputs();
+        setOpenEdit(false);
+    }
+    const handleInvalidDataClose = () => {
+        setIsInvalidData(false);
+    }
     return (
         <>
             <Dialog
@@ -42,13 +67,24 @@ export const EditForm = (editFormProps: EditFormProps) => {
                 <div className={classes.textFields}>
                     {inputs.map(input => {
                         const invalid = input.isInvalid(input.value);
-                        return <TextField fullWidth key={input.id} id={input.id} label={input.label} value={input.value}
-                            type="text" /* onChange={onTextChange} */ error={invalid} placeholder={input.placeHolder}/>
+                        return <TextField margin='normal' variant='outlined' fullWidth key={input.id} id={input.id} label={input.label} value={input.value}
+                            type="text" onChange={onTextChange} error={invalid} placeholder={input.placeHolder}/>
                     })}
                 </div>
                 <DialogActions>
                     <Button onClick={handleFormCancel} className={classes.cancelButton}>Cancel</Button>
-                    <Button onClick={/* handleCompleteFormAdd */ () => {}} className={classes.addButton}>Add</Button>
+                    <Button onClick={handleCompleteFormEdit} className={classes.addButton}>Submit</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog
+                open={isInvalidData}
+                onClose={handleInvalidDataClose}
+            >
+                <DialogTitle id='invalid-data' className={classes.invalid}>
+                    {"One or more data entries are invalid"}
+                </DialogTitle>
+                <DialogActions>
+                    <Button onClick={handleInvalidDataClose} color='primary'>OK</Button>
                 </DialogActions>
             </Dialog>
         </>
