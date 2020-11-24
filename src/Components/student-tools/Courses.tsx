@@ -4,19 +4,57 @@ Look up either React lodash, or React debounce for potential performance improve
 
 import React, { useState } from "react";
 import { CustomCardStandard }  from "../ReusableParts/CustomCardStandard";
-import { Container, createMuiTheme, Grid, makeStyles, responsiveFontSizes, Slider, TextField, Theme } from "@material-ui/core";
+import { Container, Grid, makeStyles, Slider, TextField, Typography} from "@material-ui/core";
 import { CustomButton } from "../ReusableParts/CustomButton";
-import { CustomModal } from "../ReusableParts/CustomModal";
+import { CustomPopup } from "../ReusableParts/CustomPopup";
+import { CustomTextField } from "../ReusableParts/CustomTextField"
 
 import { app } from "../../Database/initFirebase"
+import { NumberInput } from "../ReusableParts/NumberInput";
+import { MenuSelectionBox } from "../ReusableParts/MenuSelectionBox";
+import { Course } from "../../Pages";
+import { SECONDARY_COLOR } from "../../Styles/global";
 
 const courses = [
   {
     id: "gf67hx",
     courseName: "Comp 356",
     email: "some.guy@gmail.com",
-    hours: "Tu/Th 2:00pm - 3:15pm",
+
+    officeHours: [
+      {
+      day: [ "Monday" , "Wednesday" ],
+      start: {
+        hour: 10,
+        minute: 30,
+        setting: "am"
+        },
+
+      end: {
+        hour: 12,
+        minute: 0,
+        setting: "pm"
+        }
+      },
+      {
+        day: [ "Tuesday" ],
+        start: {
+          hour: 8,
+          minute: 30,
+          setting: "am"
+          },
+  
+        end: {
+          hour: 9,
+          minute: 45,
+          setting: "am"
+          }
+        }
+    ],
+
     latePolicy: "No late work allowed",
+    curvingPolicy: "Drop the lowest test score and lowest quiz score.  The grading scale is curved based off the highest grade in the class.",
+    priority: 5,
 
     gradeScale: {
       AMinus: 85,
@@ -33,144 +71,30 @@ const courses = [
     }
   },
 
-  {
-    id: "gf67hx",
-    courseName: "Comp 356",
-    email: "some.guy@gmail.com",
-    hours: "Tu/Th 2:00pm - 3:15pm",
-    latePolicy: "No late work allowed",
-
-    gradeScale: {
-      AMinus: 85,
-      BMinus: 70,
-      CMinus: 55,
-      DMinus: 40
-    },
-
-    gradeWeights: {
-      homework: 20,
-      project: 30,
-      exam: 40,
-      quiz: 10
-    }
-  },
-
-  {
-    id: "gf67hx",
-    courseName: "Comp 356",
-    email: "some.guy@gmail.com",
-    hours: "Tu/Th 2:00pm - 3:15pm",
-    latePolicy: "No late work allowed",
-
-    gradeScale: {
-      AMinus: 85,
-      BMinus: 70,
-      CMinus: 55,
-      DMinus: 40
-    },
-
-    gradeWeights: {
-      homework: 20,
-      project: 30,
-      exam: 40,
-      quiz: 10
-    }
-  },
-
-  {
-    id: "gf67hx",
-    courseName: "Comp 356",
-    email: "some.guy@gmail.com",
-    hours: "Tu/Th 2:00pm - 3:15pm",
-    latePolicy: "No late work allowed",
-
-    gradeScale: {
-      AMinus: 85,
-      BMinus: 70,
-      CMinus: 55,
-      DMinus: 40
-    },
-
-    gradeWeights: {
-      homework: 20,
-      project: 30,
-      exam: 40,
-      quiz: 10
-    }
-  },
-
-  {
-    id: "gf67hx",
-    courseName: "Comp 356",
-    email: "some.guy@gmail.com",
-    hours: "Tu/Th 2:00pm - 3:15pm",
-    latePolicy: "No late work allowed",
-
-    gradeScale: {
-      AMinus: 85,
-      BMinus: 70,
-      CMinus: 55,
-      DMinus: 40
-    },
-
-    gradeWeights: {
-      homework: 20,
-      project: 30,
-      exam: 40,
-      quiz: 10
-    }
-  },
-
-  {
-    id: "gf67hx",
-    courseName: "Comp 356",
-    email: "some.guy@gmail.com",
-    hours: "Tu/Th 2:00pm - 3:15pm",
-    latePolicy: "No late work allowed",
-
-    gradeScale: {
-      AMinus: 85,
-      BMinus: 70,
-      CMinus: 55,
-      DMinus: 40
-    },
-
-    gradeWeights: {
-      homework: 20,
-      project: 30,
-      exam: 40,
-      quiz: 10
-    }
-  },
-
-  {
-    id: "gf67hx",
-    courseName: "Comp 356",
-    email: "some.guy@gmail.com",
-    hours: "Tu/Th 2:00pm - 3:15pm",
-    latePolicy: "No late work allowed",
-
-    gradeScale: {
-      AMinus: 85,
-      BMinus: 70,
-      CMinus: 55,
-      DMinus: 40
-    },
-
-    gradeWeights: {
-      homework: 20,
-      project: 30,
-      exam: 40,
-      quiz: 10
-    }
-  },
+  
 ]
 
 interface ModalFields {
   courseName: string,
   email: string,
-  hours: string,
+
+  officeHours: Array<{
+    day: Array<string>,
+    start: {
+      hour: number,
+      minute: number,
+      setting: string
+      },
+    end: {
+      hour: number,
+      minute: number,
+      setting: string
+      }
+    }>,
+
   latePolicy: string,
+  curvingPolicy: string,
+  priority: number,
   gradeScale: {
     AMinus : number,
     BMinus : number,
@@ -186,20 +110,31 @@ interface ModalFields {
   }
 }
 
-let fontTheme = createMuiTheme();
-fontTheme = responsiveFontSizes(fontTheme);
-
 export const Courses: React.FC = () => {
   const classes = useStyles()
 
   const [cardModal, setCardModal] = useState(false);
   const [modalStage, setModalStage] = useState(0)
 
-  const [EditCourse, setEditCourse] = useState<ModalFields>({
+  const [CourseInfo, setCourseInfo] = useState<ModalFields>({
     courseName: "",
     email: "",
-    hours: "",
+    officeHours: [{
+      day: [""],
+      start: {
+        hour: 0,
+        minute: 0,
+        setting: ""
+        },
+      end: {
+        hour: 0,
+        minute: 0,
+        setting: ""
+        }
+      }],
     latePolicy: "",
+    curvingPolicy: "",
+    priority: 0,
 
     gradeScale: {
       AMinus: 0,
@@ -226,13 +161,27 @@ export const Courses: React.FC = () => {
     {
       courseName: string, 
       email: string, 
-      hours: string, 
-      latePolicy: string, 
+      officeHours: Array<{
+        day: Array<string>,
+        start: {
+          hour: number,
+          minute: number,
+          setting: string
+          },
+        end: {
+          hour: number,
+          minute: number,
+          setting: string
+          }
+        }>, 
+      latePolicy: string,
+      curvingPolicy: string, 
+      priority: number,
       gradeScale: {AMinus: number, BMinus: number, CMinus: number, DMinus: number}
       gradeWeights: {homework: number, project: number, exam: number, quiz: number}
     } ) => {
 
-    setEditCourse(data)
+    setCourseInfo(data)
 
     cycleModalStage(1)
     setCardModal(true)
@@ -251,28 +200,28 @@ export const Courses: React.FC = () => {
     clearModalInputs()
   }
 
-  /*
-  const getModalForm = () => {
-    if (modalStage === 1)
-      return CourseModal_Stage1
-
-    else if (modalStage === 2)
-      return CourseModal_Stage2
-
-    else if (modalStage === 3)
-      return CourseModal_Stage3
-
-    else return (<form></form>)
-  }
-
-  */
-
   const clearModalInputs = () => {
-    setEditCourse({
+    setCourseInfo({
       courseName: "",
       email: "",
+
+      officeHours: [{
+        day: [""],
+        start: {
+          hour: 0,
+          minute: 0,
+          setting: ""
+          },
+        end: {
+          hour: 0,
+          minute: 0,
+          setting: ""
+          }
+        }],
+
       latePolicy: "",
-      hours: "",
+      curvingPolicy: "",
+      priority: 0,
 
       gradeScale: {
         AMinus: 0,
@@ -294,32 +243,38 @@ export const Courses: React.FC = () => {
 
   }
 
-  const setModalInput = (field: "courseName" | "email" | "latePolicy"  | "hours" | "A-" | "B-" | "C-" | "D-" | "hwWeight" | "examWeight" | "projWeight" | "quizWeight", value: string) => {
-   setEditCourse( {
-      courseName: (field === "courseName")  ?   value : EditCourse.courseName,
-      email: (field === "email")            ?   value : EditCourse.email,
-      latePolicy: (field === "latePolicy")  ?   value : EditCourse.latePolicy,
-      hours: (field === "hours")            ?   value : EditCourse.hours,
+  const setGeneralInfo = (field: "courseName" | "email" | "latePolicy" | "curvingPolicy" | "priority", value: string) => {
+   
+    let infoCopy = Object.assign(CourseInfo)
+    infoCopy[field] = value
 
-      gradeScale: (field === "A-" || field === "B-" || field === "C-" || field === "D-")          
-        ? {
-          AMinus: (field === "A-") ? validateNumInput(value) : EditCourse.gradeScale.AMinus,
-          BMinus: (field === "B-") ? validateNumInput(value) : EditCourse.gradeScale.BMinus,
-          CMinus: (field === "C-") ? validateNumInput(value) : EditCourse.gradeScale.CMinus,
-          DMinus: (field === "D-") ? validateNumInput(value) : EditCourse.gradeScale.DMinus
-          } 
-        : EditCourse.gradeScale,
+    setCourseInfo(infoCopy)
+   
+  }
 
-      gradeWeights: (field === "hwWeight" || field === "examWeight" || field === "projWeight" || field === "quizWeight")
-        ? {
-          homework: (field === "hwWeight") ? validateNumInput(value) : EditCourse.gradeWeights.homework,
-          project: (field === "projWeight") ? validateNumInput(value) : EditCourse.gradeWeights.project,
-          exam: (field === "examWeight") ? validateNumInput(value) : EditCourse.gradeWeights.exam,
-          quiz: (field === "quizWeight") ? validateNumInput(value) : EditCourse.gradeWeights.quiz,
-          }
-        : EditCourse.gradeWeights
+  const setGradeScale = (field: "AMinus" | "BMinus" | "CMinus" | "DMinus", value: number) => {
 
-    })
+    let infoCopy = Object.assign({}, CourseInfo)
+    infoCopy["gradeScale"][field] = value
+
+    setCourseInfo(infoCopy)
+  }
+
+  const setGradeWeights = (field: "homework" | "project" | "exam" | "quiz", value: number) => {
+    let infoCopy = Object.assign({}, CourseInfo)
+    infoCopy["gradeWeights"][field] = value
+
+    setCourseInfo(infoCopy)
+  }
+
+  const setOfficeHoursDay = (mainIndex: number, subIndex: number, value: string) => {
+    let infoCopy = Object.assign({}, CourseInfo)
+
+    if (!infoCopy["officeHours"][mainIndex]["day"].includes(value)){
+        infoCopy["officeHours"][mainIndex]["day"][subIndex] = value
+    }
+
+    setCourseInfo(infoCopy)
   }
 
   const validateNumInput = (value: string) => {
@@ -340,296 +295,62 @@ export const Courses: React.FC = () => {
     else return 0;
   }
 
-/*
-  const CourseModal_Stage1 = (
-    
-    <form className={classes.root} noValidate autoComplete="off">
-
-        <div style = {styles.modalHeader}> General Information </div>
-        <div>
-            <TextField 
-            value = {EditCourse.courseName}
-            onChange = {(e) => {setModalInput("courseName", e.target.value)}}
-            label = {"Class Name"}
-            placeholder = "Math 101"
-            variant = "filled"
-            required={true}
-            InputProps = {{ className: classes.textNormal}}
-            InputLabelProps = {{ className: classes.textNormal}}
-            className = {classes.textField}
-            size = "small"
-            />
-        </div>
-
-        <div>
-            <TextField 
-            value = {EditCourse.email}
-            onChange = {(e) => {setModalInput("email", e.target.value)}}
-            label = {"Email"}
-            placeholder = "Dude.Brochacho@gmail.com"
-            variant = "filled"
-            InputProps = {{ className: classes.textNormal}}
-            InputLabelProps = {{ className: classes.textNormal }}
-            className = {classes.textField}
-            size = "small"
-            />
-        </div>
-
-        <div>
-            <TextField 
-            value = {EditCourse.hours}
-            onChange = {(e) => {setModalInput("hours", e.target.value)}}
-            label = {"Office Hours"}
-            placeholder = "Mo/We 2:00pm - 3:45pm"
-            variant = "filled"
-            InputProps = {{ className: classes.textNormal}}
-            InputLabelProps = {{ className: classes.textNormal}}
-            className = {classes.textField}
-            size = "small"
-            />
-        </div>
-
-        <div>
-            <TextField 
-            value = {EditCourse.latePolicy}
-            onChange = {(e) => {setModalInput("latePolicy", e.target.value)}}
-            label = {"Late Work Policy"}
-            placeholder = "No late work allowed!"
-            variant = "filled"
-            InputProps = {{ className: classes.textNormal}}
-            InputLabelProps = {{ className: classes.textNormal}}
-            className = {classes.textField}
-            size = "small"
-            />
-        </div>
-
-        <div style = {{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: "100%",
-          height: 40,
-          paddingTop: 25
-        }}>
-
-          <CustomButton
-          dimensions = {{ width: 70 , height: 40 , margin: 20 }}
-          onClick = {() => cycleModalStage(1)}
-          theme = "edit"
-          title = "Next"
-          />
-
-          <CustomButton
-          dimensions = {{ width: 70 , height: 40 , margin: 20 }}
-          onClick = {() => cycleModalStage(-1)}
-          theme = "delete"
-          title = "Close"
-          />
-        </div>
-
-    </form>
-    
-  )
-
-  const CourseModal_Stage2 = (
-    <form  className={classes.root} noValidate autoComplete="off">
-
-    <div style = {styles.modalHeader}> Grading Scale </div>
-    
-    <div style = {styles.weightSection}>
-      <div style = {styles.labelStyle} >A-</div>
-
-      <div style = {styles.weightRow}>
-        <Slider
-        name = "A-"
-        min = {0}
-        max = {validateScaleValues(EditCourse.gradeScale.BMinus, EditCourse.gradeScale.CMinus, EditCourse.gradeScale.DMinus)}
-        value = {EditCourse.gradeScale.AMinus}
-        onChange = {(event, value) => setModalInput("A-", value.toString())}
-        />
-
-        <text style = {{fontSize: 18}}> {EditCourse.gradeScale.AMinus}%</text>
-      </div>
-    </div>
-
-    <div style = {styles.weightSection}>
-      <div style = {styles.labelStyle} >B-</div>
-
-      <div style = {styles.weightRow}>
-        <Slider
-        name = "B-"
-        min = {0}
-        max = {validateScaleValues(EditCourse.gradeScale.AMinus, EditCourse.gradeScale.CMinus, EditCourse.gradeScale.DMinus)}
-        value = {EditCourse.gradeScale.BMinus}
-        onChange = {(event, value) => setModalInput("B-", value.toString())}
-        />
-
-        <text style = {{fontSize: 18}}> {EditCourse.gradeScale.BMinus}%</text>
-      </div>
-    </div>
-
-    <div style = {styles.weightSection}>
-      <div style = {styles.labelStyle} >C-</div>
-
-      <div style = {styles.weightRow}>
-        <Slider
-        name = "C-"
-        min = {0}
-        max = {validateScaleValues(EditCourse.gradeScale.AMinus, EditCourse.gradeScale.BMinus, EditCourse.gradeScale.DMinus)}
-        value = {EditCourse.gradeScale.CMinus}
-        onChange = {(event, value) => setModalInput("C-", value.toString())}
-        />
-
-        <text style = {{fontSize: 18}}> {EditCourse.gradeScale.CMinus}%</text>
-      </div>
-    </div>
-
-    <div style = {styles.weightSection}>
-      <div style = {styles.labelStyle} >D-</div>
-
-      <div style = {styles.weightRow}>
-        <Slider
-        name = "D-"
-        min = {0}
-        max = {validateScaleValues(EditCourse.gradeScale.AMinus, EditCourse.gradeScale.BMinus, EditCourse.gradeScale.CMinus)}
-        value = {EditCourse.gradeScale.DMinus}
-        onChange = {(event, value) => setModalInput("D-", value.toString())}
-        />
-
-        <text style = {{fontSize: 18}}> {EditCourse.gradeScale.DMinus}%</text>
-      </div>
-    </div>
-
-    <div style = {{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: "100%",
-          height: 40,
-          paddingTop: 25
-        }}>
-
-        <CustomButton
-        dimensions = {{ width: 70 , height: 40 , margin: 20 }}
-        onClick = {() => cycleModalStage(1)}
-        theme = "edit"
-        title = "Next"
-        />
-
-        <CustomButton
-        dimensions = {{ width: 70 , height: 40 , margin: 20 }}
-        onClick = {() => cycleModalStage(-1)}
-        theme = "delete"
-        title = "Back"
-        />
-      </div>
-  </form>
-  )
-
-  const CourseModal_Stage3 = (
-    <form  className={classes.root} noValidate autoComplete="off">
-
-    <div style = {styles.modalHeader}> Grade Weights </div>
-
-    <div style = {styles.weightSection}>
-      <div style = {styles.labelStyle} >Homework</div>
-
-      <div style = {styles.weightRow}>
-        <Slider
-        name = "homework"
-        min = {0}
-        max = {validateScaleValues(EditCourse.gradeWeights.project, EditCourse.gradeWeights.exam, EditCourse.gradeWeights.quiz)}
-        value = {EditCourse.gradeWeights.homework}
-        onChange = {(event, value) => setModalInput("hwWeight", value.toString())}
-        />
-
-        <text style = {{fontSize: 18}}> {EditCourse.gradeWeights.homework}%</text>
-      </div>
-    </div>
-
-    <div style = {styles.weightSection}>
-      <div style = {styles.labelStyle} >Projects</div>
-
-      <div style = {styles.weightRow}>
-        <Slider
-        name = "project"
-        min = {0}
-        max = {validateScaleValues(EditCourse.gradeWeights.homework, EditCourse.gradeWeights.exam, EditCourse.gradeWeights.quiz)}
-        value = {EditCourse.gradeWeights.project}
-        onChange = {(event, value) => setModalInput("projWeight", value.toString())}
-        />
-
-        <text style = {{fontSize: 18}}> {EditCourse.gradeWeights.project}%</text>
-      </div>
-    </div>
-
-    <div style = {styles.weightSection}>
-      <div style = {styles.labelStyle} >Exams</div>
-
-      <div style = {styles.weightRow}>
-        <Slider
-        name = "exam"
-        min = {0}
-        max = {validateScaleValues(EditCourse.gradeWeights.homework, EditCourse.gradeWeights.project, EditCourse.gradeWeights.quiz)}
-        value = {EditCourse.gradeWeights.exam}
-        onChange = {(event, value) => setModalInput("examWeight", value.toString())}
-        />
-
-        <text style = {{fontSize: 18}}> {EditCourse.gradeWeights.exam}%</text>
-      </div>
-    </div>
-
-    <div style = {styles.weightSection}>
-      <div style = {styles.labelStyle} >Quizzes</div>
-
-      <div style = {styles.weightRow}>
-        <Slider
-        name = "quiz"
-        min = {0}
-        max = {validateScaleValues(EditCourse.gradeWeights.homework, EditCourse.gradeWeights.project, EditCourse.gradeWeights.exam)}
-        value = {EditCourse.gradeWeights.quiz}
-        onChange = {(event, value) => setModalInput("quizWeight", value.toString())}
-        />
-
-        <text style = {{fontSize: 18}}> {EditCourse.gradeWeights.quiz}%</text>
-      </div>
-    </div>
-
-    <div style = {{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: "100%",
-          height: 40,
-          paddingTop: 25
-        }}>
-
-        <CustomButton
-        dimensions = {{ width: 70 , height: 40 , margin: 20 }}
-        onClick = {() => submitModal()}
-        theme = "edit"
-        title = "Submit"
-        />
-
-        <CustomButton
-        dimensions = {{ width: 70 , height: 40 , margin: 20 }}
-        onClick = {() => cycleModalStage(-1)}
-        theme = "delete"
-        title = "Back"
-        />
-      </div>
-  </form>
-  )
-*/
-
   const getModalMapping = () => {
 
     let mapping = [
       ModalStage0,
-      ModalStage1
+      ModalStage1,
+      ModalStage2
     ]
 
     return mapping[modalStage]
+  }
+
+  const getModalTitle = () => {
+
+    let titles = [
+      "",
+      "General Information",
+      "Office Hours",
+      "Grading Scale",
+      "Grade Weights"
+    ]
+
+    return titles[modalStage]
+  }
+
+  const getPlaceholderOfficeDay = (days: string[]) => {
+    if (days.length !== 0 && days[days.length - 1] !== "")
+      days.push("")
+
+    return days[days.length - 1]
+  }
+
+  const concatDayToOfficeHours = (mainIndex: number, value: string) => {
+    CourseInfo["officeHours"][mainIndex].day.push(value)
+    CourseInfo["officeHours"][mainIndex].day.push("")
+  }
+
+  const setOfficeTime = (mainIndex: number, value: number, period: "start" | "end", time: "hour" | "minute") => {
+    let infoCopy = Object.assign({}, CourseInfo)
+
+    if(value >= 0 && value <= 12)
+      infoCopy["officeHours"][mainIndex][period][time] = value
+    
+    else if (value === undefined || isNaN(value) || value === null)
+      infoCopy["officeHours"][mainIndex][period][time] = NaN
+
+    else if (infoCopy["officeHours"][mainIndex][period][time] = 0)
+      infoCopy["officeHours"][mainIndex][period][time] = value
+
+    setCourseInfo(infoCopy)
+  }
+
+  const setOfficeTimeMode = (mainIndex: number, value: string, period: "start" | "end") => {
+    let infoCopy = Object.assign({}, CourseInfo)
+    infoCopy["officeHours"][mainIndex][period].setting = value
+
+    setCourseInfo(infoCopy)
   }
 
   const ModalStage0 = (<form></form>)
@@ -637,42 +358,183 @@ export const Courses: React.FC = () => {
   const ModalStage1 = (
 
     <form className = {classes.modalWindow}>
-      <Grid container direction = "column" spacing = {3}>
-        <Grid item xs = {12}>
-          <TextField
-          value = {EditCourse.email}
-          onChange = {(event) => setModalInput("email", event.target.value)}
-          placeholder = {(EditCourse.email !== "") ? EditCourse.email : "example.email@gmail.com"}
-          InputProps = {{ className: classes.modalTextField}}
-          variant = "filled"
-          fullWidth
-          size = "medium"
+      <Grid container direction = "column" spacing = {2}>
+        
+        <Grid item>
+          <NumberInput
+          label="Priority"
+          value = {CourseInfo.priority}
+          onChange = {(event) => setGeneralInfo("priority", event.target.value)}
+          />
+        </Grid>
+
+        <Grid item>
+          <CustomTextField
+          label = "Class Name"
+          onChange = {(event) => setGeneralInfo("courseName", event.target.value)}
+          value = {CourseInfo.courseName}
+          placeholder = {(CourseInfo.courseName !== "") ? CourseInfo.courseName : "Math 101"}
+          />
+        </Grid>
+
+        <Grid item>
+          <CustomTextField
+          label = "Email"
+          onChange = {(event) => setGeneralInfo("email", event.target.value)}
+          value = {CourseInfo.email}
+          placeholder = {(CourseInfo.email !== "") ? CourseInfo.email : "example.email@gmail.com"}
+          />
+        </Grid>
+
+        <Grid item>
+          <CustomTextField
+          label = "Late Work Policy"
+          onChange = {(event) => setGeneralInfo("latePolicy", event.target.value)}
+          value = {CourseInfo.latePolicy}
+          placeholder = {(CourseInfo.latePolicy !== "") ? CourseInfo.latePolicy : "No late work allowed."}
+          multiline = {true}
+          />
+        </Grid>
+
+        <Grid item>
+          <CustomTextField
+          label = "Curving Policy"
+          onChange = {(event) => setGeneralInfo("curvingPolicy", event.target.value)}
+          value = {CourseInfo.curvingPolicy}
+          placeholder = {(CourseInfo.curvingPolicy !== "") ? CourseInfo.curvingPolicy : "Grade is not curved in any way."}
+          multiline = {true}
           />
         </Grid>
         
       </Grid>
 
-      <Grid container direction = "row" spacing = {2} alignContent = "center" justify = "space-between" style = {{paddingBottom: 12}}>
-        <CustomButton
-        title = "Next"
-        size = "small"
-        theme = "edit"
-        onClick = {() => cycleModalStage(1)}
-        />
+      <Grid container direction = "row" spacing = {0} alignContent = "center" justify = "center">
+        
+        <Grid item style = {{margin: 24}}>
+          <CustomButton
+          title = "Next"
+          size = "small"
+          theme = "edit"
+          onClick = {() => cycleModalStage(1)}
+          />
+        </Grid>
+        
+        <Grid item style = {{margin: 24}}>
+          <CustomButton
+          title = "Exit"
+          size = "small"
+          theme = "delete"
+          onClick = {() => closeModal()}
+          />
+        </Grid>
+        
+      </Grid>
+    </form>
+  )
 
-        <CustomButton
-        title = "Exit"
-        size = "small"
-        theme = "delete"
-        onClick = {() => closeModal()}
-        />
+  const ModalStage2 = (
+    <form className = {classes.modalWindow}>
+      <Grid container direction = "column" spacing = {4}>
+        
+          {
+          CourseInfo.officeHours.map((mainDay, mainIndex) => (
+            <Grid container item xl = {12} direction = "row" className = {classes.modalOfficeDays}>
+              <Grid container direction = "row" justify = "flex-start" alignItems = "center">
+
+                {
+                mainDay.day.map((subDay, subIndex) => (
+                  <Grid item xl = {1} style = {{marginBottom: 24, marginRight: 24}}>
+                    <MenuSelectionBox
+                    label = "Day"
+                    onChange = {(e) => setOfficeHoursDay(mainIndex, subIndex, e.target.value)}
+                    options = {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]}
+                    value = {subDay}
+                    />
+                  </Grid>
+                  
+                ))
+                }
+                {(mainDay.day.length > 0 && mainDay.day.length < 6 && mainDay.day[mainDay.day.length - 1] !== "") &&
+                <Grid item xl = {1} style = {{marginBottom: 24}}>
+                    <MenuSelectionBox
+                    label = "Day"
+                    onChange = {(e) => concatDayToOfficeHours(mainIndex, e.target.value)}
+                    options = {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]}
+                    value = {getPlaceholderOfficeDay(mainDay.day)}
+                    />
+                </Grid>
+                }
+              </Grid>
+              <Grid container direction = "row" justify = "flex-start" alignItems = "center">
+                
+                <Grid item xs = {12} style = {{marginBottom: 12}}>
+                  <Typography variant = "h4">
+                    Start Time
+                  </Typography>
+                </Grid>
+                
+                <Grid item style = {{marginRight: 12}}>
+                  <NumberInput
+                  label = "Hour"
+                  onChange = {(e) => setOfficeTime(mainIndex, parseInt(e.target.value), "start", "hour")}
+                  value = {mainDay.start.hour}
+                  />
+                </Grid>
+
+                <Grid item style = {{marginRight: 12}}>
+                  <NumberInput
+                  label = "Minute"
+                  onChange = {(e) => setOfficeTime(mainIndex, parseInt(e.target.value), "start", "minute")}
+                  value = {mainDay.start.minute}
+                  />
+                </Grid>
+
+                <Grid item >
+                  <MenuSelectionBox
+                  label = ""
+                  value = {mainDay.start.setting}
+                  onChange = {(e) => setOfficeTimeMode(mainIndex, e.target.value, "start")}
+                  options = {["am", "pm"]}
+                  width = "7ch"
+                  />
+                </Grid>
+
+              </Grid>
+            </Grid>
+          ))
+          
+          }
+        
+        
+      </Grid>
+
+      <Grid container direction = "row" spacing = {0} alignContent = "center" justify = "center">
+        
+        <Grid item style = {{margin: 24}}>
+          <CustomButton
+          title = "Next"
+          size = "small"
+          theme = "edit"
+          onClick = {() => cycleModalStage(1)}
+          />
+        </Grid>
+        
+        <Grid item style = {{margin: 24}}>
+          <CustomButton
+          title = "Back"
+          size = "small"
+          theme = "delete"
+          onClick = {() => cycleModalStage(-1)}
+          />
+        </Grid>
+        
       </Grid>
     </form>
   )
   
   return (
 
-    <Container style = {{width: "85%"}}>
+    <Container style = {{width: "80%"}}>
       <Grid
       container
       spacing = {8}
@@ -714,9 +576,12 @@ export const Courses: React.FC = () => {
               <CustomCardStandard
               title = {course.courseName}
               data = {{
+                priority: course.priority,
                 email: course.email,
-                officeHours: course.hours,
+                officeHours: course.officeHours,
                 lateWorkPolicy: course.latePolicy,
+                curvingPolicy: course.curvingPolicy,
+                
                 gradingScale: {
                   AMinus: course.gradeScale.AMinus + "%",
                   BMinus: course.gradeScale.BMinus + "%",
@@ -725,10 +590,10 @@ export const Courses: React.FC = () => {
                 },
 
                 gradingWeights: {
-                  AMinus: course.gradeWeights.homework + "%",
-                  BMinus: course.gradeWeights.project + "%",
-                  CMinus: course.gradeWeights.exam + "%",
-                  DMinus: course.gradeWeights.quiz + "%",
+                  homework: course.gradeWeights.homework + "%",
+                  projects: course.gradeWeights.project + "%",
+                  exams: course.gradeWeights.exam + "%",
+                  quizzes: course.gradeWeights.quiz + "%",
                 },
               }}
               editClick = {() => openEditModal(course)}
@@ -740,8 +605,9 @@ export const Courses: React.FC = () => {
         </Grid>
         
       </Grid>
-
-      <CustomModal
+          
+      <CustomPopup
+      title = {getModalTitle()}
       layout = {getModalMapping()}
       modalState = {cardModal}
       />
@@ -752,13 +618,214 @@ export const Courses: React.FC = () => {
 
 const useStyles = makeStyles((theme) => ({
   modalWindow: {
-    '& .MuiTextField-root': {
-      margin: theme.spacing(1),
-      width: '95%'
-    },
+    margin: theme.spacing(2),
+    width: "auto"
+    
   },
 
-  modalTextField: {
-    fontSize: 20
+  modalOfficeDays: {
+    border: "dashed 2px black",
+    borderRadius: 5,
+    marginBottom: 24
+  },
+
+  modalOfficeTimes: {
+    border: "dashed 1px black",
+    borderRadius: 5,
+    padding: 5
   }
 }))
+
+
+
+/*
+  const CourseModal_Stage2 = (
+    <form  className={classes.root} noValidate autoComplete="off">
+
+    <div style = {styles.modalHeader}> Grading Scale </div>
+    
+    <div style = {styles.weightSection}>
+      <div style = {styles.labelStyle} >A-</div>
+
+      <div style = {styles.weightRow}>
+        <Slider
+        name = "A-"
+        min = {0}
+        max = {validateScaleValues(CourseInfo.gradeScale.BMinus, CourseInfo.gradeScale.CMinus, CourseInfo.gradeScale.DMinus)}
+        value = {CourseInfo.gradeScale.AMinus}
+        onChange = {(event, value) => setGeneralInfo("A-", value.toString())}
+        />
+
+        <text style = {{fontSize: 18}}> {CourseInfo.gradeScale.AMinus}%</text>
+      </div>
+    </div>
+
+    <div style = {styles.weightSection}>
+      <div style = {styles.labelStyle} >B-</div>
+
+      <div style = {styles.weightRow}>
+        <Slider
+        name = "B-"
+        min = {0}
+        max = {validateScaleValues(CourseInfo.gradeScale.AMinus, CourseInfo.gradeScale.CMinus, CourseInfo.gradeScale.DMinus)}
+        value = {CourseInfo.gradeScale.BMinus}
+        onChange = {(event, value) => setGeneralInfo("B-", value.toString())}
+        />
+
+        <text style = {{fontSize: 18}}> {CourseInfo.gradeScale.BMinus}%</text>
+      </div>
+    </div>
+
+    <div style = {styles.weightSection}>
+      <div style = {styles.labelStyle} >C-</div>
+
+      <div style = {styles.weightRow}>
+        <Slider
+        name = "C-"
+        min = {0}
+        max = {validateScaleValues(CourseInfo.gradeScale.AMinus, CourseInfo.gradeScale.BMinus, CourseInfo.gradeScale.DMinus)}
+        value = {CourseInfo.gradeScale.CMinus}
+        onChange = {(event, value) => setGeneralInfo("C-", value.toString())}
+        />
+
+        <text style = {{fontSize: 18}}> {CourseInfo.gradeScale.CMinus}%</text>
+      </div>
+    </div>
+
+    <div style = {styles.weightSection}>
+      <div style = {styles.labelStyle} >D-</div>
+
+      <div style = {styles.weightRow}>
+        <Slider
+        name = "D-"
+        min = {0}
+        max = {validateScaleValues(CourseInfo.gradeScale.AMinus, CourseInfo.gradeScale.BMinus, CourseInfo.gradeScale.CMinus)}
+        value = {CourseInfo.gradeScale.DMinus}
+        onChange = {(event, value) => setGeneralInfo("D-", value.toString())}
+        />
+
+        <text style = {{fontSize: 18}}> {CourseInfo.gradeScale.DMinus}%</text>
+      </div>
+    </div>
+
+    <div style = {{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: "100%",
+          height: 40,
+          paddingTop: 25
+        }}>
+
+        <CustomButton
+        dimensions = {{ width: 70 , height: 40 , margin: 20 }}
+        onClick = {() => cycleModalStage(1)}
+        theme = "edit"
+        title = "Next"
+        />
+
+        <CustomButton
+        dimensions = {{ width: 70 , height: 40 , margin: 20 }}
+        onClick = {() => cycleModalStage(-1)}
+        theme = "delete"
+        title = "Back"
+        />
+      </div>
+  </form>
+  )
+
+  const CourseModal_Stage3 = (
+    <form  className={classes.root} noValidate autoComplete="off">
+
+    <div style = {styles.modalHeader}> Grade Weights </div>
+
+    <div style = {styles.weightSection}>
+      <div style = {styles.labelStyle} >Homework</div>
+
+      <div style = {styles.weightRow}>
+        <Slider
+        name = "homework"
+        min = {0}
+        max = {validateScaleValues(CourseInfo.gradeWeights.project, CourseInfo.gradeWeights.exam, CourseInfo.gradeWeights.quiz)}
+        value = {CourseInfo.gradeWeights.homework}
+        onChange = {(event, value) => setGeneralInfo("hwWeight", value.toString())}
+        />
+
+        <text style = {{fontSize: 18}}> {CourseInfo.gradeWeights.homework}%</text>
+      </div>
+    </div>
+
+    <div style = {styles.weightSection}>
+      <div style = {styles.labelStyle} >Projects</div>
+
+      <div style = {styles.weightRow}>
+        <Slider
+        name = "project"
+        min = {0}
+        max = {validateScaleValues(CourseInfo.gradeWeights.homework, CourseInfo.gradeWeights.exam, CourseInfo.gradeWeights.quiz)}
+        value = {CourseInfo.gradeWeights.project}
+        onChange = {(event, value) => setGeneralInfo("projWeight", value.toString())}
+        />
+
+        <text style = {{fontSize: 18}}> {CourseInfo.gradeWeights.project}%</text>
+      </div>
+    </div>
+
+    <div style = {styles.weightSection}>
+      <div style = {styles.labelStyle} >Exams</div>
+
+      <div style = {styles.weightRow}>
+        <Slider
+        name = "exam"
+        min = {0}
+        max = {validateScaleValues(CourseInfo.gradeWeights.homework, CourseInfo.gradeWeights.project, CourseInfo.gradeWeights.quiz)}
+        value = {CourseInfo.gradeWeights.exam}
+        onChange = {(event, value) => setGeneralInfo("examWeight", value.toString())}
+        />
+
+        <text style = {{fontSize: 18}}> {CourseInfo.gradeWeights.exam}%</text>
+      </div>
+    </div>
+
+    <div style = {styles.weightSection}>
+      <div style = {styles.labelStyle} >Quizzes</div>
+
+      <div style = {styles.weightRow}>
+        <Slider
+        name = "quiz"
+        min = {0}
+        max = {validateScaleValues(CourseInfo.gradeWeights.homework, CourseInfo.gradeWeights.project, CourseInfo.gradeWeights.exam)}
+        value = {CourseInfo.gradeWeights.quiz}
+        onChange = {(event, value) => setGeneralInfo("quizWeight", value.toString())}
+        />
+
+        <text style = {{fontSize: 18}}> {CourseInfo.gradeWeights.quiz}%</text>
+      </div>
+    </div>
+
+    <div style = {{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: "100%",
+          height: 40,
+          paddingTop: 25
+        }}>
+
+        <CustomButton
+        dimensions = {{ width: 70 , height: 40 , margin: 20 }}
+        onClick = {() => submitModal()}
+        theme = "edit"
+        title = "Submit"
+        />
+
+        <CustomButton
+        dimensions = {{ width: 70 , height: 40 , margin: 20 }}
+        onClick = {() => cycleModalStage(-1)}
+        theme = "delete"
+        title = "Back"
+        />
+      </div>
+  </form>
+  )
+*/
