@@ -118,6 +118,8 @@ export const ProjectTool: React.FC = () => {
         setOpenAdd(true);
     }
     const handleFormEdit = () => {
+        const newInputs = [...inputs];
+
         setOpenEdit(true);
     }
     const handleDeleteButton = (projectName: string) => {
