@@ -22,6 +22,12 @@ interface TodoListProps {
 
 export const TodoCard: React.FC<TodoListProps> = (props) => {
   const classes = useStyles();
+  const cardRef = app
+    .firestore()
+    .collection("users")
+    .doc("iaswHXNT2MSNXarjGKcs51g64R32")
+    .collection("TODOs")
+    .doc(props.cardID);
 
   const cardTitleRef = useRef() as React.MutableRefObject<HTMLInputElement>;
   const cardDateRef = useRef() as React.MutableRefObject<HTMLInputElement>;
@@ -29,26 +35,49 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
 
   const addTodoItem = async () => {
     try {
-      const card = app
-        .firestore()
-        .collection("users")
-        .doc("iaswHXNT2MSNXarjGKcs51g64R32")
-        .collection("TODOs")
-        .doc(props.cardID);
-
-      const cardDocument = await card.get();
+      const cardDocument = await cardRef.get();
       const cardData = cardDocument.data();
       if (cardData) {
         const todoList = cardData.todoList;
         const addedOneTodo = todoList.concat([
           { todo: "edit", complete: false },
         ]);
-        card.update({ todoList: addedOneTodo });
+        cardRef.update({ todoList: addedOneTodo });
       }
     } catch {
       console.log("Error updating todo card");
     }
   };
+
+  // TODO:
+  // const deleteTodoItem = async (itemIndex: number) => {
+  //   console.log("Calling delele todo item::::", itemIndex);
+
+  //   try {
+  //     const cardDocument = await cardRef.get();
+  //     const cardData = cardDocument.data();
+  //     if (cardData) {
+  //       const todoList = cardData.todoList;
+  //       let filteredItems = todoList;
+  //       if (itemIndex == todoList.length) {
+  //         filteredItems = todoList.pop();
+  //         console.log("First case");
+  //       } else if (itemIndex == 0) {
+  //         filteredItems = todoList.shift();
+  //         console.log("Second case");
+  //       } else {
+  //         filteredItems = todoList
+  //           .slice(0, itemIndex)
+  //           .concat(itemIndex, todoList.length);
+  //         console.log("Third case");
+  //       }
+  //       console.log("new items:::", filteredItems);
+  //       cardRef.update({ todoList: filteredItems });
+  //     }
+  //   } catch {
+  //     console.log("Could not delete todo item");
+  //   }
+  // };
 
   const deleteTodoCard = () => {
     try {
@@ -190,7 +219,7 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
                     }}
                   />
                 </IconButton>
-                <IconButton edge="end">
+                <IconButton edge="end" onClick={() => console.log("Clicking")}>
                   <HighlightOffIcon
                     style={{
                       width: "1.3em",
