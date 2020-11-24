@@ -6,10 +6,10 @@ import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR,
          PRIMARY_COLOR } from '../../Styles/global';
 import { CustomCardStandard } from '../ReusableParts/CustomCardStandard';
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
-import { Exam, ExamData} from './utils';
+import { Exam, ExamData} from '../../Database/utils';
 import { AddExam } from '../NonReusableComponents/AddExamForm';
 import { EditExam } from '../NonReusableComponents/EditExamForm';
-
+import { ExamDataJson } from '../../Database/PlaceHolderData';
 /*********************************************************
  * TODO:
  *      3. Improve fill out form for exams 
@@ -17,70 +17,6 @@ import { EditExam } from '../NonReusableComponents/EditExamForm';
  *              maybe needs an improvement and styling
  *      6. Need validation to find out if exam exists already
 ***********************************************************/
-
-// BELOW IS JUST A PLACE HOLDER FOR DATA
-const ExamDataJson: ExamData[] = [
-    {
-        class: 'Phil 101',
-        exams: [
-            {
-                title: 'Exam #1',
-                section_weight: '10',
-                overall_weight: '10',
-                related_hw: 'HW #1',
-                related_projs: '',
-                related_exams: '',
-                resources: 'youtube.com',
-            },
-            {
-                title: 'Exam #2',
-                section_weight: '10',
-                overall_weight: '10',
-                related_hw: 'HW #1, HW #2',
-                related_projs: 'Project #1',
-                related_exams: 'Exam #1',
-                resources: 'youtube.com',
-            }
-        ]
-    },
-    {
-        class: 'Comp 101',
-        exams: [
-            {
-                title: 'Exam #1',
-                section_weight: '10',
-                overall_weight: '10',
-                related_hw: 'HW #1',
-                related_projs: '',
-                related_exams: '',
-                resources: 'youtube.com',
-            },
-            {
-                title: 'Exam #2',
-                section_weight: '10',
-                overall_weight: '10',
-                related_hw: 'HW #1, HW #2',
-                related_projs: 'Project #1',
-                related_exams: 'Exam #1',
-                resources: 'youtube.com',
-            },
-            {
-                title: 'Exam #3',
-                section_weight: '10',
-                overall_weight: '10',
-                related_hw: 'HW #1, HW #2, HW #3',
-                related_projs: 'Project #1, Project #2',
-                related_exams: '',
-                resources: 'youtube.com',
-            },
-        ]
-    },
-    {
-        class: 'Nap 101',
-        exams: []
-    }
-]
-// END OF PLACEHOLDER DATA
 
 // INTERFACES
 // Needed for tab creation
@@ -156,7 +92,6 @@ const TabPanels = (props: TabPanelProps) => {
 
 export const ExamsTools: React.FC = () => {
     // HOOKS
-;
     const [currentEdit, setCurrentEdit] = useState('');
     const [tabValue, setTabValue] = useState(0);
     const [openAdd, setOpenAdd] = useState(false);
@@ -188,7 +123,7 @@ export const ExamsTools: React.FC = () => {
 
     return(
         <>
-            <Box textAlign='center' m={isSmallDevice ? 0 : 4} > 
+            <Box textAlign='center' m={isSmallDevice ? 0 : 6} > 
                 <CustomScrollableTabs
                     className={classes.tabs}
                     tabValue={tabValue}
