@@ -10,7 +10,6 @@ interface RouterProps {
 
 export const PrivateRoute: React.FC<RouterProps> = (props) => {
   const [currentUser] = useContext(AuthContext);
-  console.log("User in private route:::", currentUser);
 
   return currentUser ? (
     <Route path={props.path} component={props.component} {...props.children} />
