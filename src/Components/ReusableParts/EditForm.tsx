@@ -1,7 +1,7 @@
 import { Button, createStyles, DialogActions, DialogTitle, makeStyles, TextField, Theme, useMediaQuery, useTheme } from '@material-ui/core';
 import Dialog from '@material-ui/core/Dialog';
 import React, { useState } from 'react';
-import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR, BUTTON_EDIT_BACKGROUND_COLOR, BUTTON_EDIT_HOVER_BACKGROUND_COLOR } from '../../Styles/global';
+import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR, BUTTON_EDIT_BACKGROUND_COLOR, BUTTON_EDIT_HOVER_BACKGROUND_COLOR, SECONDARY_COLOR } from '../../Styles/global';
 
 interface Inputs {
     id: string;
@@ -62,12 +62,18 @@ export const EditForm = (editFormProps: EditFormProps) => {
                 open={openEdit}
                 onClose={handleFormCancel}
                 fullScreen={isSmallDevice}
+                PaperProps={{
+                    style: {
+                        backgroundColor: SECONDARY_COLOR,
+                        color:'white'
+                    }
+                }}
             >
                 <DialogTitle id='edit-form'>{title}</DialogTitle>
                 <div className={classes.textFields}>
                     {inputs.map(input => {
                         const invalid = input.isInvalid(input.value);
-                        return <TextField margin='normal' variant='outlined' fullWidth key={input.id} id={input.id} label={input.label} value={input.value}
+                        return <TextField className={classes.singleTextField}  margin='normal' variant='outlined' fullWidth key={input.id} id={input.id} label={input.label} value={input.value}
                             type="text" onChange={onTextChange} error={invalid} placeholder={input.placeHolder}/>
                     })}
                 </div>
@@ -93,10 +99,26 @@ export const EditForm = (editFormProps: EditFormProps) => {
 
 const useStyles = makeStyles((theme: Theme) => 
     createStyles({
+        dialog: {
+            color: SECONDARY_COLOR,
+            backgroundColor: SECONDARY_COLOR,
+        },
         textFields: {
             justify: 'space-between',
             alignItems: 'center',
             margin: '5%',
+        },
+        singleTextField: {
+            "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+                borderColor: '#DEDEDE'
+              },
+            "& .MuiInputLabel-outlined": {
+                color: "#DEDEDE",
+            },
+            "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-input": {
+                color: "white",
+            },
+
         },
         addButton: {
             backgroundColor: BUTTON_EDIT_BACKGROUND_COLOR,
