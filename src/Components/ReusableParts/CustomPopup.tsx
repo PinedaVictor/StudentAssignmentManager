@@ -4,6 +4,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { ThemeProvider} from '@material-ui/core/styles';
 import { createMuiTheme, makeStyles, responsiveFontSizes, Typography } from '@material-ui/core';
+import { BORDER_COLOR, SECONDARY_COLOR } from '../../Styles/global';
 
 interface Props {
     title?: string
@@ -44,6 +45,10 @@ export const CustomPopup: React.FC<Props> = ({title, layout, modalState}) => {
 const useStyles = makeStyles(() => ({
     
     paper: {
-        width: "90%"
+        width: "90%",
+        backgroundColor: SECONDARY_COLOR,
+        color: "white",
+        border: "1px solid",
+        borderColor: BORDER_COLOR
     }
   }))

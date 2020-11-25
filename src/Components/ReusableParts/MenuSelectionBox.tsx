@@ -1,5 +1,6 @@
 import React from 'react';
 import { makeStyles, MenuItem, TextField } from '@material-ui/core';
+import { BORDER_COLOR, BORDER_COLOR_HOVER } from '../../Styles/global';
 
 interface Props {
     label: string,
@@ -22,6 +23,7 @@ export const MenuSelectionBox: React.FC<Props> = ({label, onChange, value, optio
     
     return (
         <TextField
+        className = {classes.root}
         style = {{
             width: getWidth()
         }}
@@ -34,6 +36,7 @@ export const MenuSelectionBox: React.FC<Props> = ({label, onChange, value, optio
         onChange = {onChange}
         InputProps = {{ className: classes.textInput}}
         InputLabelProps = {{className: classes.textLabel}}
+        SelectProps = {{classes: {icon: classes.iconRoot}}}
         fullWidth
         >
             {
@@ -50,12 +53,30 @@ export const MenuSelectionBox: React.FC<Props> = ({label, onChange, value, optio
 }
 
 const useStyles = makeStyles((theme) => ({
+    root: {
+        backgroundColor: "#151515",
+        border: "1px solid",
+        borderColor: BORDER_COLOR,
+        borderRadius: 5,
+  
+        '&:hover': {
+          border: "1px solid",
+          borderColor: BORDER_COLOR_HOVER
+        }
+    },
+    
     textInput: {
-      fontSize: "1.2em"
+      fontSize: "1.2em",
+      color: "white"
     },
   
     textLabel: {
       fontSize: "1.4em",
-      fontWeight: "bold"
+      fontWeight: "bold",
+      color: "white"
+    },
+
+    iconRoot: {
+        fill: "white"
     }
   }))

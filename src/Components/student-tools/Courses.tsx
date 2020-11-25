@@ -13,7 +13,7 @@ import { app } from "../../Database/initFirebase"
 import { NumberInput } from "../ReusableParts/NumberInput";
 import { MenuSelectionBox } from "../ReusableParts/MenuSelectionBox";
 import { Course } from "../../Pages";
-import { SECONDARY_COLOR } from "../../Styles/global";
+import { BORDER_COLOR, SECONDARY_COLOR } from "../../Styles/global";
 
 const courses = [
   {
@@ -932,18 +932,20 @@ export const Courses: React.FC = () => {
 const useStyles = makeStyles((theme) => ({
   modalWindow: {
     margin: theme.spacing(2),
-    width: "auto"
-    
+    width: "auto",
+    color: "white"
   },
 
   modalOfficeDays: {
     border: "dashed 2px black",
+    borderColor: BORDER_COLOR,
     borderRadius: 5,
     marginBottom: 24
   },
 
   modalOfficeTimes: {
-    border: "dashed 1px black",
+    border: "dashed 1px",
+    borderColor: BORDER_COLOR,
     borderRadius: 5,
     padding: 5
   }
