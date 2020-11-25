@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -13,7 +13,6 @@ import { AQUA } from "../../../Styles/global";
 import { FormControl, InputGroup } from "react-bootstrap";
 import { Editable } from "../../ReusableParts/InlineEdit";
 import { app } from "../../../Database/initFirebase";
-
 interface TodoListProps {
   title: string;
   date: string;
@@ -22,6 +21,9 @@ interface TodoListProps {
 }
 
 export const TodoCard: React.FC<TodoListProps> = (props) => {
+  const [userInput, setUserInput] = useState("");
+  const [todoItemIndex, setTodoItemIndex] = useState(0);
+
   const classes = useStyles();
   const cardRef = app
     .firestore()
@@ -90,6 +92,56 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
     }
   };
 
+  const editCardTitle = async () => {
+    try {
+      const cardDocument = await cardRef.get();
+      const cardData = cardDocument.data();
+      if (cardData) {
+        console.log("THe current title:::", cardData.title);
+        cardRef.update({ title: userInput });
+      }
+    } catch {
+      console.log("Could not updating title");
+    }
+  };
+
+  const editCardDate = async () => {
+    try {
+      const cardDocument = await cardRef.get();
+      const cardData = cardDocument.data();
+      if (cardData) {
+        console.log("THe current title:::", cardData.date);
+        cardRef.update({ date: userInput });
+      }
+    } catch {
+      console.log("Could not updating title");
+    }
+  };
+
+  const editTodoItem = async () => {
+    try {
+      const cardDocument = await cardRef.get();
+      const cardData = cardDocument.data();
+      if (cardData) {
+        const todoList = cardData.todoList;
+        let updatedTodoList = [];
+        for (let i = 0; i < todoList.length; i++) {
+          updatedTodoList.push(todoList[i]);
+          if (i == todoItemIndex) {
+            const tempOBJ = todoList[i];
+            updatedTodoList[i] = {
+              todo: userInput,
+              complete: tempOBJ.complete,
+            };
+          }
+        }
+        cardRef.update({ todoList: updatedTodoList });
+      }
+    } catch {
+      console.log("Could not update todo item");
+    }
+  };
+
   const deleteTodoCard = () => {
     try {
       app
@@ -120,7 +172,7 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
               placeholder="Title"
               childref={cardTitleRef}
               type="input"
-              saveText={() => console.log("The")}
+              saveText={editCardTitle}
             >
               <div>
                 <InputGroup>
@@ -130,8 +182,7 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
                     minLength={8}
                     defaultValue={props.title}
                     onChange={(e) => {
-                      // setUserNameInput(e.target.value);
-                      console.log("The form event:::", e);
+                      setUserInput(e.target.value);
                     }}
                   ></FormControl>
                 </InputGroup>
@@ -146,7 +197,7 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
               placeholder="Date"
               childref={cardDateRef}
               type="input"
-              saveText={() => console.log("The")}
+              saveText={editCardDate}
             >
               <div>
                 <InputGroup>
@@ -156,8 +207,7 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
                     minLength={8}
                     defaultValue={props.date}
                     onChange={(e) => {
-                      // setUserNameInput(e.target.value);
-                      console.log("The form event:::", e);
+                      setUserInput(e.target.value);
                     }}
                   ></FormControl>
                 </InputGroup>
@@ -178,7 +228,6 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
       ></div>
       <List className={classes.root}>
         {props.listItems.map((item, index) => {
-          // const labelId = `checkbox-list-label-${item}`;
           return (
             <ListItem
               key={index}
@@ -202,7 +251,7 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
                   placeholder="Todo"
                   childref={todoItemRef}
                   type="input"
-                  saveText={() => console.log("The")}
+                  saveText={editTodoItem}
                 >
                   <div>
                     <InputGroup>
@@ -212,8 +261,8 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
                         minLength={1}
                         defaultValue={item.todo}
                         onChange={(e) => {
-                          // setUserNameInput(e.target.value);
-                          console.log("The form event:::", e);
+                          setTodoItemIndex(index);
+                          setUserInput(e.target.value);
                         }}
                       ></FormControl>
                     </InputGroup>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import IconButton from "@material-ui/core/IconButton";
 import AddIcon from "@material-ui/icons/Add";
 import { AQUA } from "../Styles/global";
@@ -8,8 +8,9 @@ import { TodoCard } from "../Components/student-tools/todo-list/List";
 import { app } from "../Database/initFirebase";
 
 // TODO:
-// Setup firebase listener
-// Implement card editing - remove todo items
+// Update card UI to fit color theme
+// Add error handling
+// Add a toast once item has been marked completed
 
 interface TodoCard {
   title: string;
@@ -21,35 +22,32 @@ interface TodoCard {
 export const TodoList: React.FC = () => {
   const [todoCards, setTodoCards] = useState<TodoCard[]>([]);
 
-  const setToDoList = async () => {
-    try {
-      const toDoList = await app
-        .firestore()
-        .collection("users")
-        .doc("iaswHXNT2MSNXarjGKcs51g64R32") //TODO: update with current user ID
-        .collection("TODOs")
-        .orderBy("dateCreated", "desc")
-        .get();
-
-      const tempTodoList: TodoCard[] = [];
-      toDoList.forEach((document) => {
-        const todoData = document.data();
-        if (todoData) {
-          const listData = {
-            title: todoData.title,
-            date: todoData.date,
-            todoList: todoData.todoList,
-            cardID: document.id,
-          };
-          tempTodoList.push(listData);
-        }
+  useEffect(() => {
+    const todoList = app
+      .firestore()
+      .collection("users")
+      .doc("iaswHXNT2MSNXarjGKcs51g64R32")
+      .collection("TODOs")
+      .orderBy("dateCreated", "desc")
+      .onSnapshot((querySnapshot) => {
+        const clintList: TodoCard[] = [];
+        querySnapshot.forEach((document) => {
+          console.log("The doc::", document.data());
+          const cardData = document.data();
+          if (cardData) {
+            const temppCardData = {
+              title: cardData.title,
+              date: cardData.data,
+              todoList: cardData.todoList,
+              cardID: document.id,
+            };
+            clintList.push(temppCardData);
+          }
+        });
+        setTodoCards(clintList);
       });
-      console.log("Temp list::::", tempTodoList);
-      setTodoCards(tempTodoList);
-    } catch {
-      console.log("Error loading TODOs");
-    }
-  };
+    return () => todoList();
+  }, []);
 
   const addTodoCard = async () => {
     const date = Date();
@@ -76,9 +74,6 @@ export const TodoList: React.FC = () => {
   return (
     <Container>
       <MainLayout />
-      <button style={{ marginBottom: "10px" }} onClick={setToDoList}>
-        {"Click"}
-      </button>
       <div style={{ display: "flex", marginTop: "-40px" }}>
         <h3 style={{ backgroundColor: "", color: AQUA, width: "95%" }}>
           TODOs
