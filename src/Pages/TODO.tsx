@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from "react";
 import IconButton from "@material-ui/core/IconButton";
 import AddIcon from "@material-ui/icons/Add";
-import { AQUA } from "../Styles/global";
+import { AQUA, SECONDARY_COLOR } from "../Styles/global";
 import { Container } from "react-bootstrap";
 import { MainLayout } from "../Components/ReusableParts/Layout";
 import { TodoCard } from "../Components/student-tools/todo-list/List";
 import { app } from "../Database/initFirebase";
 
 // TODO:
-// Update card UI to fit color theme
 // Add error handling
-// Add a toast once item has been marked completed
 
 interface TodoCard {
   title: string;
@@ -32,7 +30,6 @@ export const TodoList: React.FC = () => {
       .onSnapshot((querySnapshot) => {
         const clintList: TodoCard[] = [];
         querySnapshot.forEach((document) => {
-          console.log("The doc::", document.data());
           const cardData = document.data();
           if (cardData) {
             const temppCardData = {
@@ -85,7 +82,13 @@ export const TodoList: React.FC = () => {
           }}
         >
           <AddIcon
-            style={{ width: "1.5em", height: "1.5em", color: "white" }}
+            style={{
+              width: "1.5em",
+              height: "1.5em",
+              color: "white",
+              borderRadius: "50px",
+              backgroundColor: SECONDARY_COLOR,
+            }}
           />
         </IconButton>
       </div>
@@ -93,7 +96,7 @@ export const TodoList: React.FC = () => {
         style={{
           height: "5px",
           backgroundColor: AQUA,
-          marginTop: "-10px",
+          marginTop: "-5px",
           marginBottom: "15px",
           borderRadius: "25px",
         }}

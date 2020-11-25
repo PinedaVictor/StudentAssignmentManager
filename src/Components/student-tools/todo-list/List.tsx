@@ -4,12 +4,12 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import DeleteIcon from "@material-ui/icons/Delete";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
-import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import HighlightOffIcon from "@material-ui/icons/HighlightOff";
 import IconButton from "@material-ui/core/IconButton";
 import AddIcon from "@material-ui/icons/Add";
+import ClearIcon from "@material-ui/icons/Clear";
+import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
 import Card from "@material-ui/core/Card";
-import { AQUA } from "../../../Styles/global";
+import { AQUA, SECONDARY_COLOR } from "../../../Styles/global";
 import { FormControl, InputGroup } from "react-bootstrap";
 import { Editable } from "../../ReusableParts/InlineEdit";
 import { app } from "../../../Database/initFirebase";
@@ -158,7 +158,13 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
   };
 
   return (
-    <Card style={{ marginBottom: "15px" }}>
+    <Card
+      style={{
+        marginBottom: "15px",
+        backgroundColor: SECONDARY_COLOR,
+        color: "white",
+      }}
+    >
       <div style={{ display: "flex" }}>
         <div
           className={classes.cardHeader}
@@ -218,7 +224,12 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
         <div>
           <IconButton onClick={deleteTodoCard}>
             <DeleteIcon
-              style={{ width: "1.5em", height: "1.5em", color: "#D9042B" }}
+              style={{
+                width: "1.5em",
+                height: "1.5em",
+                borderRadius: "50px",
+                color: "white",
+              }}
             />
           </IconButton>
         </div>
@@ -235,18 +246,22 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
               dense
               style={{ backgroundColor: "" }}
             >
-              <div>{`${index + 1}.`}</div>
+              <div style={{ fontSize: "17px" }}>{`${index + 1}.`}</div>
               <div
                 style={{
-                  backgroundColor: item.complete ? "#04bf7b" : "white",
-                  color: item.complete ? "white" : "black",
+                  backgroundColor: item.complete ? "#04bf7b" : SECONDARY_COLOR,
+                  color: item.complete ? SECONDARY_COLOR : "white",
                   width: "87%",
                   height: "100%",
                   borderRadius: "10px",
+                  fontSize: "17px",
                 }}
               >
                 <Editable
-                  style={{ backgroundColor: "", marginLeft: "5px" }}
+                  style={{
+                    backgroundColor: "",
+                    marginLeft: "5px",
+                  }}
                   text={item.todo}
                   placeholder="Todo"
                   childref={todoItemRef}
@@ -269,21 +284,24 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
                   </div>
                 </Editable>
               </div>
-              <ListItemSecondaryAction style={{ backgroundColor: "" }}>
+              <ListItemSecondaryAction>
                 <IconButton edge="end" onClick={() => setCompleteStatus(index)}>
-                  <CheckCircleIcon
+                  <CheckCircleOutlineIcon
                     style={{
-                      color: item.complete ? "#04bf7b" : "grey",
+                      color: item.complete ? "#04bf7b" : "white",
                       width: "1.3em",
                       height: "1.3em",
+                      borderRadius: "50px",
                     }}
                   />
                 </IconButton>
                 <IconButton edge="end" onClick={() => deleteTodoItem(index)}>
-                  <HighlightOffIcon
+                  <ClearIcon
                     style={{
                       width: "1.3em",
                       height: "1.3em",
+                      borderRadius: "50px",
+                      color: "white",
                     }}
                   />
                 </IconButton>
@@ -293,9 +311,7 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
         })}
       </List>
       <IconButton onClick={addTodoItem}>
-        <AddIcon
-          style={{ width: "1.5em", height: "1.5em", color: "#04bf7b" }}
-        />
+        <AddIcon style={{ width: "1.5em", height: "1.5em", color: AQUA }} />
       </IconButton>
     </Card>
   );
