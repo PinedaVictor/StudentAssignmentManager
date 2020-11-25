@@ -71,7 +71,280 @@ const courses = [
     }
   },
 
+  {
+    id: "gf67hx",
+    courseName: "Comp 356",
+    email: "some.guy@gmail.com",
+
+    officeHours: [
+      {
+      day: [ "Monday" , "Wednesday" ],
+      start: {
+        hour: 10,
+        minute: 30,
+        setting: "am"
+        },
+
+      end: {
+        hour: 12,
+        minute: 0,
+        setting: "pm"
+        }
+      },
+      {
+        day: [ "Tuesday" ],
+        start: {
+          hour: 8,
+          minute: 30,
+          setting: "am"
+          },
   
+        end: {
+          hour: 9,
+          minute: 45,
+          setting: "am"
+          }
+        }
+    ],
+
+    latePolicy: "No late work allowed",
+    curvingPolicy: "Drop the lowest test score and lowest quiz score.  The grading scale is curved based off the highest grade in the class.",
+    priority: 5,
+
+    gradeScale: {
+      AMinus: 85,
+      BMinus: 70,
+      CMinus: 55,
+      DMinus: 40
+    },
+
+    gradeWeights: {
+      homework: 20,
+      project: 30,
+      exam: 40,
+      quiz: 10
+    }
+  },
+
+  {
+    id: "gf67hx",
+    courseName: "Comp 356",
+    email: "some.guy@gmail.com",
+
+    officeHours: [
+      {
+      day: [ "Monday" , "Wednesday" ],
+      start: {
+        hour: 10,
+        minute: 30,
+        setting: "am"
+        },
+
+      end: {
+        hour: 12,
+        minute: 0,
+        setting: "pm"
+        }
+      },
+      {
+        day: [ "Tuesday" ],
+        start: {
+          hour: 8,
+          minute: 30,
+          setting: "am"
+          },
+  
+        end: {
+          hour: 9,
+          minute: 45,
+          setting: "am"
+          }
+        }
+    ],
+
+    latePolicy: "No late work allowed",
+    curvingPolicy: "Drop the lowest test score and lowest quiz score.  The grading scale is curved based off the highest grade in the class.",
+    priority: 5,
+
+    gradeScale: {
+      AMinus: 85,
+      BMinus: 70,
+      CMinus: 55,
+      DMinus: 40
+    },
+
+    gradeWeights: {
+      homework: 20,
+      project: 30,
+      exam: 40,
+      quiz: 10
+    }
+  },
+
+  {
+    id: "gf67hx",
+    courseName: "Comp 356",
+    email: "some.guy@gmail.com",
+
+    officeHours: [
+      {
+      day: [ "Monday" , "Wednesday" ],
+      start: {
+        hour: 10,
+        minute: 30,
+        setting: "am"
+        },
+
+      end: {
+        hour: 12,
+        minute: 0,
+        setting: "pm"
+        }
+      },
+      {
+        day: [ "Tuesday" ],
+        start: {
+          hour: 8,
+          minute: 30,
+          setting: "am"
+          },
+  
+        end: {
+          hour: 9,
+          minute: 45,
+          setting: "am"
+          }
+        }
+    ],
+
+    latePolicy: "No late work allowed",
+    curvingPolicy: "Drop the lowest test score and lowest quiz score.  The grading scale is curved based off the highest grade in the class.",
+    priority: 5,
+
+    gradeScale: {
+      AMinus: 85,
+      BMinus: 70,
+      CMinus: 55,
+      DMinus: 40
+    },
+
+    gradeWeights: {
+      homework: 20,
+      project: 30,
+      exam: 40,
+      quiz: 10
+    }
+  },
+
+  {
+    id: "gf67hx",
+    courseName: "Comp 356",
+    email: "some.guy@gmail.com",
+
+    officeHours: [
+      {
+      day: [ "Monday" , "Wednesday" ],
+      start: {
+        hour: 10,
+        minute: 30,
+        setting: "am"
+        },
+
+      end: {
+        hour: 12,
+        minute: 0,
+        setting: "pm"
+        }
+      },
+      {
+        day: [ "Tuesday" ],
+        start: {
+          hour: 8,
+          minute: 30,
+          setting: "am"
+          },
+  
+        end: {
+          hour: 9,
+          minute: 45,
+          setting: "am"
+          }
+        }
+    ],
+
+    latePolicy: "No late work allowed",
+    curvingPolicy: "Drop the lowest test score and lowest quiz score.  The grading scale is curved based off the highest grade in the class.",
+    priority: 5,
+
+    gradeScale: {
+      AMinus: 85,
+      BMinus: 70,
+      CMinus: 55,
+      DMinus: 40
+    },
+
+    gradeWeights: {
+      homework: 20,
+      project: 30,
+      exam: 40,
+      quiz: 10
+    }
+  },
+
+  {
+    id: "gf67hx",
+    courseName: "Comp 356",
+    email: "some.guy@gmail.com",
+
+    officeHours: [
+      {
+      day: [ "Monday" , "Wednesday" ],
+      start: {
+        hour: 10,
+        minute: 30,
+        setting: "am"
+        },
+
+      end: {
+        hour: 12,
+        minute: 0,
+        setting: "pm"
+        }
+      },
+      {
+        day: [ "Tuesday" ],
+        start: {
+          hour: 8,
+          minute: 30,
+          setting: "am"
+          },
+  
+        end: {
+          hour: 9,
+          minute: 45,
+          setting: "am"
+          }
+        }
+    ],
+
+    latePolicy: "No late work allowed",
+    curvingPolicy: "Drop the lowest test score and lowest quiz score.  The grading scale is curved based off the highest grade in the class.",
+    priority: 5,
+
+    gradeScale: {
+      AMinus: 85,
+      BMinus: 70,
+      CMinus: 55,
+      DMinus: 40
+    },
+
+    gradeWeights: {
+      homework: 20,
+      project: 30,
+      exam: 40,
+      quiz: 10
+    }
+  },
 ]
 
 interface ModalFields {
@@ -353,6 +626,42 @@ export const Courses: React.FC = () => {
     setCourseInfo(infoCopy)
   }
 
+  const getOfficeOutput = (officeHours: Array<{
+    day: Array<string>,
+    start: {
+      hour: number,
+      minute: number,
+      setting: string
+      },
+    end: {
+      hour: number,
+      minute: number,
+      setting: string
+      }
+    }>) => {
+    
+    var result = ""
+
+    officeHours.map((mainDay, mainIndex) => {
+      mainDay.day.map((subDay, subIndex) => {
+        result = result.concat(subDay.substring(0, 2))
+
+        if (subIndex < mainDay.day.length - 1)
+          result = result.concat("/")
+
+        
+      })
+
+      result = result.concat(" " + mainDay.start.hour.toString() + ":" + mainDay.start.minute.toString() + mainDay.start.setting + " - " + 
+                                   mainDay.end.hour.toString() + ":" + mainDay.end.minute.toString() + mainDay.end.setting + ".")
+
+      if (mainIndex < officeHours.length)
+        result = result.concat("  ")
+    })
+
+    return result
+  }
+
   const ModalStage0 = (<form></form>)
 
   const ModalStage1 = (
@@ -558,7 +867,7 @@ export const Courses: React.FC = () => {
         container
         spacing = {3}
         justify = "center"
-        alignItems = "stretch"
+        alignItems = "flex-start"
         direction = "row"
         >
           {
@@ -577,10 +886,6 @@ export const Courses: React.FC = () => {
               title = {course.courseName}
               data = {{
                 priority: course.priority,
-                email: course.email,
-                officeHours: course.officeHours,
-                lateWorkPolicy: course.latePolicy,
-                curvingPolicy: course.curvingPolicy,
                 
                 gradingScale: {
                   AMinus: course.gradeScale.AMinus + "%",
@@ -596,6 +901,14 @@ export const Courses: React.FC = () => {
                   quizzes: course.gradeWeights.quiz + "%",
                 },
               }}
+
+              expandingData = {{
+                officeHours: getOfficeOutput(course.officeHours),
+                email: course.email,
+                lateWorkPolicy: course.latePolicy,
+                curvingPolicy: course.curvingPolicy,
+              }}
+
               editClick = {() => openEditModal(course)}
               deleteClick = {() => deleteCourse(course.id)}
               />

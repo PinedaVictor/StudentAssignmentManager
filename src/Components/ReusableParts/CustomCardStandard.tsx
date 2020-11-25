@@ -1,18 +1,21 @@
-import React from "react";
-import { create } from "ts-style";
-import { Button, Card, CardActions, CardContent, CardHeader, createMuiTheme, Grid, makeStyles, responsiveFontSizes, ThemeProvider, Typography } from "@material-ui/core";
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, createMuiTheme, Grid, Icon, IconButton, makeStyles, responsiveFontSizes, ThemeProvider, Typography } from "@material-ui/core";
 import {
-  PRIMARY_COLOR,
   SECONDARY_COLOR,
   BORDER_COLOR,
+  BORDER_COLOR_HOVER,
   BUTTON_DELETE_BACKGROUND_COLOR,
   BUTTON_EDIT_BACKGROUND_COLOR,
 } from "../../Styles/global";
-import { CustomButton } from "./CustomButton";
+import DeleteIcon from "@material-ui/icons/Delete";
+import EditIcon from '@material-ui/icons/Edit';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 
 interface Props {
     title: string;
     data: Object;
+    expandingData?: Object;
     editClick: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
     deleteClick: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   }
@@ -23,11 +26,13 @@ theme = responsiveFontSizes(theme);
 export const CustomCardStandard: React.FC<Props> = ({
     title,
     data,
+    expandingData,
     editClick,
     deleteClick,
   }) => {
 
     const classes = useStyles()
+    const [expandState, setExpandState] = useState(false);
 
     const formatTitle = (title: string) => {
       if (title !== null && title !== undefined) {
@@ -78,6 +83,7 @@ export const CustomCardStandard: React.FC<Props> = ({
                   {
                     Object.entries(value).map(([fieldKey, fieldVal]) => (
                       <Grid
+                      item
                       xs = {6}
                       style = {{paddingTop: 8}}
                       >
@@ -102,23 +108,44 @@ export const CustomCardStandard: React.FC<Props> = ({
         <Card className = {classes.cardMain}>
           <Grid
           container
-          direction = "row"
+          direction = "column"
           justify = "center"
           alignItems = "center"
-          style = {{height: "100%"}}
           >
-            <Grid item alignItems = "center" justify = "center">
-              <CardHeader
-              className = {classes.cardMainHeader}
-              title = {
-                <ThemeProvider theme = {theme}>
-                  <Typography variant = "h3">{title}</Typography>
-                </ThemeProvider>
-              }
-              />
+            <Grid container direction = "row" alignItems = "center" justify = "center" style = {{padding: 18}}>
+              
+              <Grid item xs = {1}>
+                <IconButton className = {classes.iconButtonRoot} onClick = {editClick}>
+                  <EditIcon
+                  className = {classes.iconRoot}
+                  style={{color: BUTTON_EDIT_BACKGROUND_COLOR }}
+                  />
+                </IconButton>
+              </Grid>
+              
+              <Grid item xs = {10}>
+                <CardHeader
+                className = {classes.cardMainHeader}
+                title = {
+                  <ThemeProvider theme = {theme}>
+                    <Typography variant = "h3">{title}</Typography>
+                  </ThemeProvider>
+                }
+                />
+              </Grid>
+              
+              <Grid item xs = {1}>
+                <IconButton className = {classes.iconButtonRoot} onClick = {deleteClick}>
+                  <DeleteIcon
+                  className = {classes.iconRoot}
+                  style={{color: BUTTON_DELETE_BACKGROUND_COLOR }}
+                  />
+                </IconButton>
+              </Grid>
+
             </Grid>
             
-            <Grid item>
+            <Grid container direction = "column">
               <CardContent>
                 {
                   <Grid
@@ -131,6 +158,7 @@ export const CustomCardStandard: React.FC<Props> = ({
                     {
                       Object.entries(data).map(([key, value], index) => (
                         <Grid
+                        item
                         xs = {12}
                         className = {classes.cardContentsInner}
                         >
@@ -141,23 +169,51 @@ export const CustomCardStandard: React.FC<Props> = ({
                   </Grid>
                   
                 }
+
+                {((expandingData !== undefined && expandingData !== null) && expandState === true) &&
+                  <Grid
+                  container
+                  direction = "row"
+                  spacing = {1}
+                  justify = "center"
+                  alignItems = "center"
+                  >
+                    {
+                      Object.entries(expandingData).map(([key, value], index) => (
+                        <Grid
+                        item
+                        xs = {12}
+                        className = {classes.cardContentsInner}
+                        >
+                          {checkDataType(key, value)}
+                        </Grid>
+                      ))
+                    }
+                  </Grid>
+                }
               </CardContent>
             </Grid>
-            
-            <Grid container direction = "row" alignContent = "center" justify = "space-evenly" style = {{paddingBottom: 12}}>
-                <CustomButton
-                title = "Edit"
-                onClick = {editClick}
-                theme = "edit"
-                />
 
-                <CustomButton
-                title = "Delete"
-                onClick = {deleteClick}
-                theme = "delete"
-                />
+            <Grid item xs = {12}>
+            {(expandingData !== undefined) && (
+              (expandState === false) ? 
+              
+              <IconButton  className = {classes.iconButtonRoot} onClick = {() => setExpandState(true)}>
+                <ExpandMoreIcon 
+                className = {classes.expandIconRoot}
+                style={{color: BUTTON_EDIT_BACKGROUND_COLOR }}/>
+              </IconButton>
+              
+              :
+              <IconButton  className = {classes.iconButtonRoot} onClick = {() => setExpandState(false)}>
+                <ExpandLessIcon 
+                className = {classes.expandIconRoot}
+                style={{color: BUTTON_EDIT_BACKGROUND_COLOR }}/>
+              </IconButton>
+              )
+            }
             </Grid>
-
+            
           </Grid>
         </Card>
     )
@@ -166,19 +222,16 @@ export const CustomCardStandard: React.FC<Props> = ({
   const useStyles = makeStyles((theme) => ({
     cardMain: {
       backgroundColor: SECONDARY_COLOR,
-      boxShadow: "4px 4px 4px rgba(0,0,0,0.3)",
       border: "solid 1px",
-      borderColor: PRIMARY_COLOR,
+      borderColor: BORDER_COLOR,
       height: "100%",
       width: "100%",
       color: "white",
 
       "&:hover": {
-        boxShadow: "6px 6px 6px rgba(0,0,0,0.4)",
         transition: "all .35s ease",
-        backgroundColor: "#add8ff",
         border: "solid 1px",
-        borderColor: "#1da1f0",
+        borderColor: BORDER_COLOR_HOVER,
       }
     },
 
@@ -213,5 +266,42 @@ export const CustomCardStandard: React.FC<Props> = ({
       paddingLeft: 12,
       paddingTop: 8,
       paddingBottom: 0
+    },
+
+    iconButtonRoot: {
+      padding: 0,
+      margin: 0,
+    },
+
+    iconRoot: {
+      width: "1.8em", 
+      height: "1.8em",
+      stroke: BORDER_COLOR,
+      strokeWidth: "1",
+      opacity: 0.75,
+
+      '&:hover': {
+        opacity: 1,
+        width: "1.9em",
+        height: "1.9em",
+        stroke: BORDER_COLOR_HOVER,
+        strokeWidth: "1",
+      }
+    },
+
+    expandIconRoot: {
+      width: "4em", 
+      height: "4em",
+      stroke: BORDER_COLOR,
+      strokeWidth: "0.5",
+      opacity: 0.75,
+
+      '&:hover': {
+        opacity: 1,
+        width: "4.3em",
+        height: "4.3em",
+        stroke: BORDER_COLOR_HOVER,
+        strokeWidth: "0.5",
+      }
     }
   }))
