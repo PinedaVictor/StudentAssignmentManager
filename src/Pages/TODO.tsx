@@ -6,10 +6,6 @@ import { Container } from "react-bootstrap";
 import { MainLayout } from "../Components/ReusableParts/Layout";
 import { TodoCard } from "../Components/student-tools/todo-list/List";
 import { app } from "../Database/initFirebase";
-
-// TODO:
-// Add error handling
-
 interface TodoCard {
   title: string;
   date: string;
@@ -20,11 +16,17 @@ interface TodoCard {
 export const TodoList: React.FC = () => {
   const [todoCards, setTodoCards] = useState<TodoCard[]>([]);
 
+  const firebase_User = app.auth().currentUser;
+  let currentUserID = "";
+  if (firebase_User) {
+    currentUserID = firebase_User.uid;
+  }
+
   useEffect(() => {
     const todoList = app
       .firestore()
       .collection("users")
-      .doc("iaswHXNT2MSNXarjGKcs51g64R32")
+      .doc(currentUserID)
       .collection("TODOs")
       .orderBy("dateCreated", "desc")
       .onSnapshot((querySnapshot) => {
@@ -34,7 +36,7 @@ export const TodoList: React.FC = () => {
           if (cardData) {
             const temppCardData = {
               title: cardData.title,
-              date: cardData.data,
+              date: cardData.date,
               todoList: cardData.todoList,
               cardID: document.id,
             };
@@ -47,18 +49,16 @@ export const TodoList: React.FC = () => {
   }, []);
 
   const addTodoCard = async () => {
-    const date = Date();
-    console.log("Current Date::", date);
     try {
       await app
         .firestore()
         .collection("users")
-        .doc("iaswHXNT2MSNXarjGKcs51g64R32")
+        .doc(currentUserID)
         .collection("TODOs")
         .doc()
         .set({
           title: "Click to edit",
-          date: "^^^^^ :)",
+          date: "-------",
           dateCreated: Date(),
           todoList: [{ todo: "HI :)", complete: false }],
         });

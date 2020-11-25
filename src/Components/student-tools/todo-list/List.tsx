@@ -24,11 +24,17 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
   const [userInput, setUserInput] = useState("");
   const [todoItemIndex, setTodoItemIndex] = useState(0);
 
+  const firebase_User = app.auth().currentUser;
+  let currentUserID = "";
+  if (firebase_User) {
+    currentUserID = firebase_User.uid;
+  }
+
   const classes = useStyles();
   const cardRef = app
     .firestore()
     .collection("users")
-    .doc("iaswHXNT2MSNXarjGKcs51g64R32")
+    .doc(currentUserID)
     .collection("TODOs")
     .doc(props.cardID);
 
@@ -97,7 +103,6 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
       const cardDocument = await cardRef.get();
       const cardData = cardDocument.data();
       if (cardData) {
-        console.log("THe current title:::", cardData.title);
         cardRef.update({ title: userInput });
       }
     } catch {
@@ -106,11 +111,11 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
   };
 
   const editCardDate = async () => {
+    console.log("Card Date");
     try {
       const cardDocument = await cardRef.get();
       const cardData = cardDocument.data();
       if (cardData) {
-        console.log("THe current title:::", cardData.date);
         cardRef.update({ date: userInput });
       }
     } catch {
@@ -147,11 +152,10 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
       app
         .firestore()
         .collection("users")
-        .doc("iaswHXNT2MSNXarjGKcs51g64R32")
+        .doc(currentUserID)
         .collection("TODOs")
         .doc(props.cardID)
         .delete();
-      console.log("Deleted todo card successfully");
     } catch {
       console.log("Did not delete todo card");
     }
@@ -210,7 +214,7 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
                   <FormControl
                     ref={cardDateRef}
                     maxLength={15}
-                    minLength={8}
+                    minLength={1}
                     defaultValue={props.date}
                     onChange={(e) => {
                       setUserInput(e.target.value);
