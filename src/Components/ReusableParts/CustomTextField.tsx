@@ -7,10 +7,11 @@ interface Props {
     onChange: (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void,
     value: string,
     placeholder: string,
-    multiline?: boolean
+    multiline?: boolean,
+    required?: boolean
 }
 
-export const CustomTextField: React.FC<Props> = ({label, onChange, value, placeholder, multiline}) => {
+export const CustomTextField: React.FC<Props> = ({label, onChange, value, placeholder, multiline, required}) => {
 
     const classes = useStyles();
 
@@ -18,6 +19,7 @@ export const CustomTextField: React.FC<Props> = ({label, onChange, value, placeh
         <TextField
         className = {classes.root}
         id = "outlined-text"
+        name = {label}
         label = {label}
         variant = "outlined"
         size = "medium"
@@ -28,6 +30,7 @@ export const CustomTextField: React.FC<Props> = ({label, onChange, value, placeh
         InputLabelProps = {{className: classes.textLabel}}
         fullWidth
         multiline = {(multiline !== undefined && multiline !== null) ? true : false}
+        required = {(required !== undefined) ? true : false}
         />
     )
 }

@@ -6,6 +6,8 @@ import {
   BORDER_COLOR_HOVER,
   BUTTON_DELETE_BACKGROUND_COLOR,
   BUTTON_EDIT_BACKGROUND_COLOR,
+  ICON_BORDER,
+  ICON_BORDER_HOVER,
 } from "../../Styles/global";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from '@material-ui/icons/Edit';
@@ -276,32 +278,32 @@ export const CustomCardStandard: React.FC<Props> = ({
     iconRoot: {
       width: "1.8em", 
       height: "1.8em",
-      stroke: BORDER_COLOR,
-      strokeWidth: "1",
+      stroke: ICON_BORDER,
+      strokeWidth: "0.75",
       opacity: 0.75,
 
       '&:hover': {
         opacity: 1,
-        width: "1.9em",
-        height: "1.9em",
-        stroke: BORDER_COLOR_HOVER,
-        strokeWidth: "1",
+        width: "2em",
+        height: "2em",
+        stroke: ICON_BORDER_HOVER,
+        strokeWidth: "0.75",
       }
     },
 
     expandIconRoot: {
       width: "4em", 
       height: "4em",
-      stroke: BORDER_COLOR,
-      strokeWidth: "0.5",
+      stroke: ICON_BORDER,
+      strokeWidth: "0.75",
       opacity: 0.75,
 
       '&:hover': {
         opacity: 1,
         width: "4.3em",
         height: "4.3em",
-        stroke: BORDER_COLOR_HOVER,
-        strokeWidth: "0.5",
+        stroke: ICON_BORDER_HOVER,
+        strokeWidth: "0.75",
       }
     }
   }))
