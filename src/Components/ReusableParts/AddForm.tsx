@@ -1,7 +1,7 @@
 import { Button, createStyles, Dialog, DialogActions, DialogTitle, makeStyles, TextField, Theme, useMediaQuery, useTheme } from '@material-ui/core';
 import React, { useState } from 'react';
 import { BUTTON_DELETE_HOVER_BACKGROUND_COLOR, BUTTON_DELETE_BACKGROUND_COLOR,
-        BUTTON_EDIT_BACKGROUND_COLOR, BUTTON_EDIT_HOVER_BACKGROUND_COLOR } from '../../Styles/global';
+        BUTTON_EDIT_BACKGROUND_COLOR, BUTTON_EDIT_HOVER_BACKGROUND_COLOR, SECONDARY_COLOR, DEFAULT_TEXT_COLOR, FILL_OUT_FORM_BACKGROUND_FILL_COLOR } from '../../Styles/global';
 
 interface Inputs {
     id: string;
@@ -62,12 +62,28 @@ export const AddForm = (addFormProps: AddFormProps) => {
                 open={openAdd}
                 onClose={handleFormCancel}
                 fullScreen={isSmallDevice}
+                PaperProps={{
+                    style: {
+                        backgroundColor: SECONDARY_COLOR,
+                        color: DEFAULT_TEXT_COLOR,
+                        alignItems: 'center'
+                    }
+                }}
             >
-                <DialogTitle id="add-form">{title}</DialogTitle>
+                <DialogTitle
+                    id="add-form"
+                    disableTypography={true}
+                    className={classes.title}
+                >
+                    {title}
+                </DialogTitle>
                 <div className={classes.textFields}>
                     {inputs.map(input => {
                         const invalid = input.isInvalid(input.value);
-                        return <TextField margin='normal' variant='outlined' fullWidth key={input.id} id={input.id} label={input.label} value={input.value}
+                        return <TextField 
+                            InputProps={{classes: {root: classes.textFieldRoot, focused: classes.focus}}}
+                            InputLabelProps={{classes: {root: classes.labelRoot}}}
+                            margin='normal' variant='filled' fullWidth key={input.id} id={input.id} label={input.label} value={input.value}
                             type="text" onChange={onTextChange} error={invalid} placeholder={input.placeHolder}/>
                     })}
                 </div>
@@ -79,6 +95,13 @@ export const AddForm = (addFormProps: AddFormProps) => {
             <Dialog
                 open={isInvalidData}
                 onClose={handleInvalidDataClose}
+                PaperProps={{
+                    style: {
+                        backgroundColor: SECONDARY_COLOR,
+                        color: DEFAULT_TEXT_COLOR,
+                        alignItems: 'center'
+                    }
+                }}
             >
                 <DialogTitle id='invalid-data' className={classes.invalid}>
                     {"One or more data entries are invalid"}
@@ -97,6 +120,21 @@ const useStyles = makeStyles((theme: Theme) =>
             justify: 'space-between',
             alignItems: 'center',
             margin: '5%',
+        },
+        title: {
+            fontSize: '26px',
+        },
+        labelRoot: {
+            rontSize: '14px',
+        },
+        textFieldRoot : {
+            color: DEFAULT_TEXT_COLOR,
+            backgroundColor: FILL_OUT_FORM_BACKGROUND_FILL_COLOR,
+        },
+        focus: {
+            color: DEFAULT_TEXT_COLOR,
+            fontWeight: 'bolder',
+            fontSize: '14px'
         },
         addButton: {
             backgroundColor: BUTTON_EDIT_BACKGROUND_COLOR,
