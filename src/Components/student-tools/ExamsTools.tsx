@@ -1,22 +1,34 @@
 import React, { useState } from 'react';
 import { createStyles, makeStyles, Theme, Button, Box,
         useMediaQuery, useTheme, Grid} from "@material-ui/core";
-import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR,
-         BUTTON_EDIT_BACKGROUND_COLOR, BUTTON_EDIT_HOVER_BACKGROUND_COLOR,
+import AddCircleIcon from '@material-ui/icons/AddCircle'
+import { DEFAULT_TEXT_COLOR,
          SECONDARY_COLOR} from '../../Styles/global';
 import { CustomCardStandard } from '../ReusableParts/CustomCardStandard';
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
 import { Exam, ExamData} from '../../Database/utils';
-import { AddExam } from '../NonReusableComponents/AddExamForm';
-import { EditExam } from '../NonReusableComponents/EditExamForm';
 import { ExamDataJson } from '../../Database/PlaceHolderData';
-/*********************************************************
- * TODO:
- *      3. Improve fill out form for exams 
- *          a. Currently looks like any fill out form
- *              maybe needs an improvement and styling
- *      6. Need validation to find out if exam exists already
-***********************************************************/
+import { AddForm } from '../ReusableParts/AddForm';
+import { EditForm } from '../ReusableParts/EditForm';
+
+// TODO - add backend data fetch
+const fetchExamData = () => {
+    return ExamDataJson;
+}
+
+const formatInfo = (info: string[]): Exam => {
+    let i = 0;
+    let exam: Exam = {
+        title: info[i++],
+        section_weight: info[i++],
+        overall_weight: info[i++],
+        related_hw: info[i].length === 0? [] : info[i++].split(','),
+        related_projs: info[i].length === 0? [] : info[i++].split(','),
+        related_exams: info[i].length === 0? [] : info[i++].split(','),
+        resources: info[i].length === 0? [] : info[i].split(','),
+    }
+    return exam;
+}
 
 // INTERFACES
 // Needed for tab creation
@@ -30,10 +42,6 @@ interface TabPanelProps {
 }
 // END INTERFACES
 
-// TODO - add backend data fetch
-const fetchExamData = () => {
-    return ExamDataJson;
-}
 
 // TODO - store data on creation
 const storeExamData = (data: ExamData) => {
@@ -92,19 +100,85 @@ const TabPanels = (props: TabPanelProps) => {
 
 export const ExamsTools: React.FC = () => {
     // HOOKS
-    const [currentEdit, setCurrentEdit] = useState('');
+    const [currentExamEdit, setCurrentExamEdit] = useState('');
     const [tabValue, setTabValue] = useState(0);
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [examData, setExamData] = useState<ExamData[]>(fetchExamData());
+    const [inputs, setInputs] = useState([
+        {id: 'title', label: 'Exam Title', value: '', placeHolder: 'Project #1',
+         isInvalid: (value: string) => value === ''},
+        {id: 'section-weight', label: 'Section Weight', value: '', placeHolder: '10',
+         isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
+        {id: 'overall-weight', label: 'Overall Weight', value: '', placeHolder: '10',
+         isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
+        {id: 'related-hw', label: 'Related Homework', value: '', placeHolder: 'HW #1, HW #2',
+         isInvalid: () => false},
+        {id: 'related-projs', label: 'Related Projects', value: '', placeHolder: 'Project #1, Project #2',
+         isInvalid: () => false},
+        {id: 'related-exams', label: 'Related Exams', value: '', placeHolder: 'Exam #1, Exam #2',
+         isInvalid: () => false},
+        {id: 'resources', label: 'Resources', value: '', placeHolder: 'www.youtube.com, linkedin.com/learning',
+         isInvalid: () => false}
+    ]);
+
     // FUNCTIONS
+    const handleFormAdd = () => {
+        const newExamData = [...examData];
+        // TODO DB calls
+        const examInfo = inputs.map(input => input.value);
+        if(examData[tabValue].exams) {
+            newExamData[tabValue].exams = [...newExamData[tabValue].exams, formatInfo(examInfo)];
+            setExamData(newExamData);
+        }
+    }
     const handleNavChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setTabValue(newValue);
     };
     const handleFormOpen = () => {
         setOpenAdd(true);
     };
+    const handleFormEdit = (examName: string) => {
+        const newInputs = [...inputs];
+        const classIndex = tabValue;
+        const examIndex = examData[classIndex].exams.findIndex(input => input.title === examName);
 
+        // TODO set an error saying it no longer exists?
+        if(examIndex === -1) return;
+
+        const oldExam = examData[classIndex].exams[examIndex];
+        let i = 0;
+        newInputs[i++].value = oldExam.title;
+        newInputs[i++].value = oldExam.section_weight;
+        newInputs[i++].value = oldExam.overall_weight;
+        newInputs[i++].value = oldExam.related_hw.join(', ');
+        newInputs[i++].value = oldExam.related_projs.join(', ');
+        newInputs[i++].value = oldExam.related_exams.join(', ');
+        newInputs[i].value = oldExam.resources.join(', ');
+        setInputs(newInputs);
+        setOpenEdit(true);
+    };
+    const handleFormEditSubmit = () => {
+        const newExamData = [...examData];
+        const examInfo = inputs.map(input => input.value);
+        const classIndex = tabValue;
+        const examIndex = examData[classIndex].exams.findIndex(input => input.title === currentExamEdit);
+
+        if(examIndex === -1) return;
+
+        let i = 0;
+        newExamData[classIndex].exams[examIndex].title = examInfo[i++];
+        newExamData[classIndex].exams[examIndex].section_weight = examInfo[i++];
+        newExamData[classIndex].exams[examIndex].overall_weight = examInfo[i++];
+        newExamData[classIndex].exams[examIndex].related_hw = examInfo[i].length === 0 ? [] : examInfo[i++].split(',');
+        newExamData[classIndex].exams[examIndex].related_projs = examInfo[i].length === 0 ? [] : examInfo[i++].split(',');
+        newExamData[classIndex].exams[examIndex].related_exams = examInfo[i].length === 0 ? [] : examInfo[i++].split(',');
+        newExamData[classIndex].exams[examIndex].resources = examInfo[i].length === 0 ? [] : examInfo[i++].split(',');
+
+        // DB call right here to update
+        setCurrentExamEdit('');
+        setExamData(newExamData);
+    }
     const handleDeleteButton = (examName: string) => {
         const newExamData = [...examData];
         const classIndex = tabValue;
@@ -112,10 +186,6 @@ export const ExamsTools: React.FC = () => {
         const examIndex = examData[classIndex].exams.findIndex(exam => exam.title === examName);
         newExamData[classIndex].exams.splice(examIndex, 1);
         setExamData(newExamData);
-    }
-    const handleEditButton = (examName: string) => {
-        setCurrentEdit(examName);
-        setOpenEdit(true);
     }
     // Information needed
     const classes = useStyles();
@@ -132,8 +202,9 @@ export const ExamsTools: React.FC = () => {
                 />
                 <Box m={6}>
                     <Button
-                        className={classes.examButton}
+                        className={classes.addExam}
                         variant="contained"
+                        startIcon={<AddCircleIcon />}
                         onClick={handleFormOpen}
                     >
                         Add Exams
@@ -147,24 +218,25 @@ export const ExamsTools: React.FC = () => {
                                     examInfo={element}
                                     key={element.class}
                                     delete={handleDeleteButton}
-                                    edit={handleEditButton}/>
+                                    edit={handleFormEdit}/>
                     })}
                 </Box>
-                <AddExam
+                <AddForm
+                    title='Add Exam'
                     openAdd={openAdd}
                     setOpenAdd={setOpenAdd}
-                    examData={examData}
-                    setExamData={setExamData}
-                    classIndex={tabValue}/>
-                <EditExam
+                    handleFormAdd={handleFormAdd}
+                    inputs={inputs}
+                    setInputs={setInputs}
+                />
+                <EditForm
+                    title='Edit Exam'
                     openEdit={openEdit}
                     setOpenEdit={setOpenEdit}
-                    examData={examData}
-                    setExamData={setExamData}
-                    classIndex={tabValue}
-                    examName={currentEdit}
+                    handleFormEditSubmit={handleFormEditSubmit}
+                    inputs={inputs}
+                    setInputs={setInputs}
                 />
-
             </Box>
         </>
     );
@@ -174,32 +246,12 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         tabs: {
             background: SECONDARY_COLOR,
-            color: 'white',
+            color: DEFAULT_TEXT_COLOR,
             borderRadius: 10,
         },
-        textFields:
-        {
-            justify:'space-between',
-            alignItems: 'center',
-        },
-        examButton: {
-            backgroundColor: '#1c588c',
-            color: 'white'
-        },
-        addButton: {
-            backgroundColor: BUTTON_EDIT_BACKGROUND_COLOR,
-            '&:hover': {
-                backgroundColor: BUTTON_EDIT_HOVER_BACKGROUND_COLOR,
-            }
-        },
-        cancelButton: {
-            backgroundColor: BUTTON_DELETE_BACKGROUND_COLOR,
-            '&:hover': {
-                backgroundColor: BUTTON_DELETE_HOVER_BACKGROUND_COLOR,
-            }
-        },
-        invalid: {
-            color: 'red',
+        addExam: {
+            backgroundColor: SECONDARY_COLOR,
+            color: DEFAULT_TEXT_COLOR,
         }
     })
 );

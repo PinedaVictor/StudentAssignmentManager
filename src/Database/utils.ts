@@ -20,10 +20,10 @@ export interface Exam {
     title: string;
     section_weight: string; 
     overall_weight: string; 
-    related_hw: string/* [] */;     
-    related_projs: string/* [] */;
-    related_exams: string/* [] */; 
-    resources: string/* [] */;      
+    related_hw: string[];     
+    related_projs: string[];
+    related_exams: string[]; 
+    resources: string[];      
 }
 
 export interface ExamData {
