@@ -6,6 +6,16 @@ export const RELATEDTABS = [
     'Resources',
 ]
 
+export interface Project {
+    title: string;
+    completion: string;
+    section_weight: string;
+    overall_weight: string;
+    requirements: string;
+    related_homework: string[];
+    resources: string[];
+}
+
 export interface Exam {
     title: string;
     section_weight: string; 
@@ -19,4 +29,9 @@ export interface Exam {
 export interface ExamData {
     class: string;
     exams: Exam[];
+}
+
+export interface ProjectData {
+    class: string;
+    projects: Project[];
 }

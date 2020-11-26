@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR,
          BUTTON_EDIT_BACKGROUND_COLOR, BUTTON_EDIT_HOVER_BACKGROUND_COLOR
        } from '../../Styles/global';
-import {Exam, ExamData} from '../student-tools/utils';
+import {Exam, ExamData} from '../../Database/utils';
 
 interface EditExamProps {
     openEdit: boolean;

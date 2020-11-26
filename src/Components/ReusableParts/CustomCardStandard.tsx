@@ -50,8 +50,8 @@ export const CustomCardStandard: React.FC<Props> = ({
         return (
           <div>
             <ThemeProvider theme = {theme}>
-              <Typography display = "inline" variant = "h4">{formatTitle(key) + ":"}</Typography>
-              <Typography display = "inline" variant = "h5">{"  " + value}</Typography>
+              <Typography display = "inline" variant = "h4" style = {{fontWeight: "bold", textDecoration: "underline"}}>{formatTitle(key) + ":"}</Typography>
+              <Typography display = "inline" variant = "h4">{"  " + value}</Typography>
             </ThemeProvider>
           </div>
         )
@@ -83,8 +83,8 @@ export const CustomCardStandard: React.FC<Props> = ({
                       >
                         {
                           <ThemeProvider theme = {theme}>
-                            <Typography display = "inline" variant = "h5">{formatTitle(fieldKey) + ":"}</Typography>
-                            <Typography display = "inline" variant = "h5">{"  " + fieldVal}</Typography>
+                            <Typography display = "inline" variant = "h5" style = {{fontWeight: "bold"}}>{formatTitle(fieldKey) + ":"}</Typography>
+                            <Typography display = "inline" variant = "h5" style = {{fontWeight: "bold"}}>{"  " + fieldVal}</Typography>
                           </ThemeProvider>
                         }
                       </Grid>
@@ -112,7 +112,7 @@ export const CustomCardStandard: React.FC<Props> = ({
               className = {classes.cardMainHeader}
               title = {
                 <ThemeProvider theme = {theme}>
-                  <Typography variant = "h3" >{title}</Typography>
+                  <Typography variant = "h3">{title}</Typography>
                 </ThemeProvider>
               }
               />
@@ -171,6 +171,7 @@ export const CustomCardStandard: React.FC<Props> = ({
       borderColor: PRIMARY_COLOR,
       height: "100%",
       width: "100%",
+      color: "white",
 
       "&:hover": {
         boxShadow: "6px 6px 6px rgba(0,0,0,0.4)",
@@ -194,8 +195,9 @@ export const CustomCardStandard: React.FC<Props> = ({
     cardInner: {
       marginTop: 15,
       marginBotton: 15,
-      backgroundColor: "#c2e2ff",
-      boxShadow: "none"
+      backgroundColor: "#454545",
+      boxShadow: "none",
+      color: "white"
     },
 
     cardContentsInner: {
