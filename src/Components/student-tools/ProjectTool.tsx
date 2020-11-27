@@ -1,7 +1,7 @@
 import { Button, createStyles, Grid, makeStyles, Theme, useMediaQuery, useTheme } from '@material-ui/core';
 import Box from '@material-ui/core/Box';
 import React, { useState } from 'react';
-import AddCircleIcon from '@material-ui/icons/AddCircle'
+import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { SECONDARY_COLOR } from '../../Styles/global';
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
 import { AddForm } from '../ReusableParts/AddForm';
@@ -182,6 +182,7 @@ export const ProjectTool: React.FC = () => {
                 />
                 <Box m={6}>
                     <Button
+                        disabled={ projectData.length === 0 }
                         className={classes.addProjectExam}
                         variant='contained'
                         startIcon={<AddCircleIcon />}
