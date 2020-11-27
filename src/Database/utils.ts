@@ -6,6 +6,8 @@ export const RELATEDTABS = [
     'Resources',
 ]
 
+
+// TODO remove Exam interfaces since they're back in the ExamsTools.tsx file
 export interface Project {
     title: string;
     completion: string;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createStyles, makeStyles, Theme, Button, Box,
         useMediaQuery, useTheme, Grid} from "@material-ui/core";
 import AddCircleIcon from '@material-ui/icons/AddCircle'
@@ -6,14 +6,42 @@ import { DEFAULT_TEXT_COLOR,
          SECONDARY_COLOR} from '../../Styles/global';
 import { CustomCardStandard } from '../ReusableParts/CustomCardStandard';
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
-import { Exam, ExamData} from '../../Database/utils';
 import { ExamDataJson } from '../../Database/PlaceHolderData';
 import { AddForm } from '../ReusableParts/AddForm';
 import { EditForm } from '../ReusableParts/EditForm';
+import { app } from "../../Database/initFirebase";
+
+interface Exam {
+    title: string;
+    section_weight: string; 
+    overall_weight: string; 
+    related_hw: string[];     
+    related_projs: string[];
+    related_exams: string[]; 
+    resources: string[];      
+    examID?: string;
+}
+
+interface ExamData {
+    class: string;
+    exams: Exam[];
+}
 
 // TODO - add backend data fetch
-const fetchExamData = () => {
-    return ExamDataJson;
+const useExamData = () => {
+/*     const [examData, setExamData] = useState<ExamData[]>([]);
+    
+    useEffect(() => {
+        app
+            .firestore()
+            .collection("Exams")
+            .onSnapshot(snapshot => {
+                const exams: ExamData[] = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }))
+            })
+    }) */
 }
 
 const formatInfo = (info: string[]): Exam => {
@@ -99,6 +127,9 @@ const TabPanels = (props: TabPanelProps) => {
 }
 
 export const ExamsTools: React.FC = () => {
+    const fetchExamData = () => {
+        return ExamDataJson;
+    }
     // HOOKS
     const [currentExamEdit, setCurrentExamEdit] = useState('');
     const [tabValue, setTabValue] = useState(0);
