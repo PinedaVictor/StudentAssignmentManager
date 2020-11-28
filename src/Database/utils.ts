@@ -14,6 +14,7 @@ export interface Project {
     requirements: string;
     related_homework: string[];
     resources: string[];
+    DateCreated: string;
 }
 
 export interface Exam {

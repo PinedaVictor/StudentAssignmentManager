@@ -44,13 +44,13 @@ export const EditForm = (editFormProps: EditFormProps) => {
         newInputs[index] = {...inputs[index], value};
         setInputs(newInputs);
     }
-    const handleCompleteFormEdit = () => {
+    const handleCompleteFormEdit = async () => {
         const validForms = inputs.every(input => !input.isInvalid(input.value));
         if(!validForms) {
             setIsInvalidData(true);
             return;
         }
-        handleFormEditSubmit();
+        await handleFormEditSubmit();
         clearInputs();
         setOpenEdit(false);
     }

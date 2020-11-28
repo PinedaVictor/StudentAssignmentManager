@@ -13,7 +13,7 @@ import firebase from 'firebase';
 
 const formatInfo = (info: string[]): Project => {
     let i = 0;
-    let project: Project= {
+    let project: Project = {
         title: info[i++], 
         completion: parseInt(info[i++]),
         section_weight: parseInt(info[i++]),
@@ -21,6 +21,7 @@ const formatInfo = (info: string[]): Project => {
         requirements: info[i++],
         related_homework: info[i].length === 0? [] : info[i++].split(','),
         resources: info[i].length === 0? [] : info[i++].split(','),
+        DateCreated: Date(),
     }
     return project;
 }
@@ -103,6 +104,7 @@ export const ProjectTool: React.FC = () => {
                             classID: document.id,
                             projects: [...projectData.projects]
                         }
+                        tempProjectData.projects.sort((a, b) => a.DateCreated < b.DateCreated ? 1 : -1)
                         projectList.push(tempProjectData);
                     }
                 });
@@ -138,7 +140,7 @@ export const ProjectTool: React.FC = () => {
             await app
                 .firestore()
                 .collection('users')
-                .doc('hiXZwSW8WGcSgEJMKqrvRJ8HgUt2') // Add current user as doc id
+                .doc(currentUserID) // Add current user as doc id
                 .collection('ProjectData')
                 .doc(classID) // Pass in value to handle which class it will go to
                 .update({
@@ -155,8 +157,8 @@ export const ProjectTool: React.FC = () => {
     const handleFormOpen = () => {
         setOpenAdd(true);
     }
-    const newInputs = [...inputs];
-        const handleFormEdit = (projectName: string) => {
+    const handleFormEdit = async (projectName: string) => {
+        const newInputs = [...inputs];
         const classIndex = tabValue;
         const projectIndex = projectData[classIndex].projects.findIndex(input => input.title === projectName);
 
@@ -176,36 +178,62 @@ export const ProjectTool: React.FC = () => {
         setInputs(newInputs);
         setOpenEdit(true);
     }
-    const handleFormEditSubmit = () => {
-        const newProjectData = [...projectData];
-        const projectInfo = inputs.map(input => input.value);
-        const classIndex = tabValue;
-        const projectIndex = projectData[classIndex].projects.findIndex(input => input.title === currentProjectEdit);
+    const handleFormEditSubmit = async () => {
+        const projectIndex = projectData[tabValue].projects.findIndex(input => input.title === currentProjectEdit);
 
         if(projectIndex === -1) return;
-        
-        let i = 0;
-        newProjectData[classIndex].projects[projectIndex].title = projectInfo[i++];
-        newProjectData[classIndex].projects[projectIndex].completion = parseInt(projectInfo[i++]);
-        newProjectData[classIndex].projects[projectIndex].section_weight = parseInt(projectInfo[i++]);
-        newProjectData[classIndex].projects[projectIndex].overall_weight = parseInt(projectInfo[i++]);
-        newProjectData[classIndex].projects[projectIndex].requirements = projectInfo[i++];
-        newProjectData[classIndex].projects[projectIndex].related_homework = projectInfo[i].length === 0 ? [] : projectInfo[i++].split(',');
-        newProjectData[classIndex].projects[projectIndex].resources = projectInfo[i].length === 0 ? [] : projectInfo[i].split(',');
 
-        // DB call right here to update
-        setCurrentProjectEdit('');
-        setProjectData(newProjectData);
-    }
-    const handleDeleteButton = async (projectName: string) => {
         const classID = projectData[tabValue].classID;
-        const projectIndex = projectData[tabValue].projects.findIndex(project => project.title === projectName);
-        const deletable = projectData[tabValue].projects[projectIndex];
+        const oldProjectDateCreation = projectData[tabValue].projects[projectIndex].DateCreated;
+        const oldProjectName = projectData[tabValue].projects[projectIndex].title;
+
+        // First delete old project
+        try {
+            await handleDeleteButton(oldProjectName);
+        } catch {
+            console.log('Error on editing project');
+        }
+
+        const projectInfo = inputs.map(input => input.value);
+        let i = 0;
+        const newProject: Project = {
+            title: projectInfo[i++],
+            completion: parseInt(projectInfo[i++]),
+            section_weight: parseInt(projectInfo[i++]),
+            overall_weight: parseInt(projectInfo[i++]),
+            requirements: projectInfo[i++],
+            related_homework: projectInfo[i++].split(','),
+            resources: projectInfo[i].split(','),
+            DateCreated: oldProjectDateCreation,
+        }
         try {
             await app
                 .firestore()
                 .collection('users')
-                .doc('hiXZwSW8WGcSgEJMKqrvRJ8HgUt2')
+                .doc(currentUserID)
+                .collection('ProjectData')
+                .doc(classID)
+                .update( {
+                    projects: firebase.firestore.FieldValue.arrayUnion(newProject),
+                });
+        } catch {
+            console.log('Error on editing project');
+        }
+        setCurrentProjectEdit('');
+    }
+    const handleDeleteButton = async (projectName: string) => {
+        const classID = projectData[tabValue].classID;
+        const projectIndex = projectData[tabValue].projects.findIndex(project => project.title === projectName);
+
+        if(projectIndex === -1) return;
+
+        const deletable = projectData[tabValue].projects[projectIndex];
+
+        try {
+            await app
+                .firestore()
+                .collection('users')
+                .doc(currentUserID)
                 .collection('ProjectData')
                 .doc(classID)
                 .update( {
@@ -214,12 +242,6 @@ export const ProjectTool: React.FC = () => {
         } catch {
             console.log('Error on adding project')
         }
-        const newProjectData = [...projectData];
-        const classIndex = tabValue;
-        // TODO make sure deletion updates the DB
-        const examIndex = projectData[classIndex].projects.findIndex(project => project.title === projectName);
-        newProjectData[classIndex].projects.splice(examIndex, 1);
-        setProjectData(newProjectData);
     }
     // DATA
     const isSmallDevice = useMediaQuery(useTheme().breakpoints.down('xs'));
