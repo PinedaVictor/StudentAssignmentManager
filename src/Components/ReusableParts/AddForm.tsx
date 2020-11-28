@@ -43,13 +43,14 @@ export const AddForm = (addFormProps: AddFormProps) => {
         newInputs[index] = {...inputs[index], value};
         setInputs(newInputs);
     }
-    const handleCompleteFormAdd = () => {
+    const handleCompleteFormAdd = async () => {
         const validForms = inputs.every(input => !input.isInvalid(input.value));
         if(!validForms) {
             setIsInvalidData(true);
             return;
         }
-        handleFormAdd();
+
+        await handleFormAdd();
         clearInputs();
         setOpenAdd(false);
     }

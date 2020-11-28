@@ -8,9 +8,9 @@ export const RELATEDTABS = [
 
 export interface Project {
     title: string;
-    completion: string;
-    section_weight: string;
-    overall_weight: string;
+    completion: number;
+    section_weight: number;
+    overall_weight: number;
     requirements: string;
     related_homework: string[];
     resources: string[];
@@ -33,5 +33,6 @@ export interface ExamData {
 
 export interface ProjectData {
     class: string;
+    classID: string;
     projects: Project[];
 }
