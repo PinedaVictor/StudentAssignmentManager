@@ -1,4 +1,4 @@
-import { Button, createStyles, Grid, makeStyles, Theme, useMediaQuery, useTheme } from '@material-ui/core';
+import { Button, createStyles, Dialog, Grid, makeStyles, Theme, useMediaQuery, useTheme } from '@material-ui/core';
 import Box from '@material-ui/core/Box';
 import React, { useEffect, useState } from 'react';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -140,9 +140,9 @@ export const ProjectTool: React.FC = () => {
             await app
                 .firestore()
                 .collection('users')
-                .doc(currentUserID) // Add current user as doc id
+                .doc(currentUserID)
                 .collection('ProjectData')
-                .doc(classID) // Pass in value to handle which class it will go to
+                .doc(classID)
                 .update({
                     projects: firebase.firestore.FieldValue
                         .arrayUnion(formatInfo(inputs.map(input => input.value))),
@@ -202,8 +202,8 @@ export const ProjectTool: React.FC = () => {
             section_weight: parseInt(projectInfo[i++]),
             overall_weight: parseInt(projectInfo[i++]),
             requirements: projectInfo[i++],
-            related_homework: projectInfo[i++].split(','),
-            resources: projectInfo[i].split(','),
+            related_homework: projectInfo[i].length === 0 ? [] : projectInfo[i++].split(','),
+            resources: projectInfo[i].length === 0 ? [] : projectInfo[i].split(','),
             DateCreated: oldProjectDateCreation,
         }
         try {
@@ -229,19 +229,15 @@ export const ProjectTool: React.FC = () => {
 
         const deletable = projectData[tabValue].projects[projectIndex];
 
-        try {
-            await app
-                .firestore()
-                .collection('users')
-                .doc(currentUserID)
-                .collection('ProjectData')
-                .doc(classID)
-                .update( {
-                    projects: firebase.firestore.FieldValue.arrayRemove(deletable),
-                });
-        } catch {
-            console.log('Error on adding project')
-        }
+        await app
+            .firestore()
+            .collection('users')
+            .doc(currentUserID)
+            .collection('ProjectData')
+            .doc(classID)
+            .update( {
+                projects: firebase.firestore.FieldValue.arrayRemove(deletable),
+            });
     }
     // DATA
     const isSmallDevice = useMediaQuery(useTheme().breakpoints.down('xs'));
