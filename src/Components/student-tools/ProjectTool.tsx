@@ -1,7 +1,9 @@
-import { Button, createStyles, Dialog, Grid, makeStyles, Theme, useMediaQuery, useTheme } from '@material-ui/core';
+import { Button, createStyles, Grid, makeStyles, Theme, useMediaQuery, useTheme } from '@material-ui/core';
 import Box from '@material-ui/core/Box';
 import React, { useEffect, useState } from 'react';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
+import firebase from 'firebase';
+
 import { SECONDARY_COLOR } from '../../Styles/global';
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
 import { AddForm } from '../ReusableParts/AddForm';
@@ -9,7 +11,6 @@ import { Project, ProjectData } from '../../Database/utils';
 import { CustomCardStandard } from '../ReusableParts/CustomCardStandard';
 import { EditForm } from '../ReusableParts/EditForm';
 import { app } from '../../Database/initFirebase';
-import firebase from 'firebase';
 
 const formatInfo = (info: string[]): Project => {
     let i = 0;
@@ -136,20 +137,16 @@ export const ProjectTool: React.FC = () => {
     // FUNCTIONS
     const handleFormAdd = async () => {
         const classID = projectData[tabValue].classID;
-        try {
-            await app
-                .firestore()
-                .collection('users')
-                .doc(currentUserID)
-                .collection('ProjectData')
-                .doc(classID)
-                .update({
-                    projects: firebase.firestore.FieldValue
-                        .arrayUnion(formatInfo(inputs.map(input => input.value))),
-                });
-        } catch {
-            console.log('Error on adding project')
-        }
+        await app
+            .firestore()
+            .collection('users')
+            .doc(currentUserID)
+            .collection('ProjectData')
+            .doc(classID)
+            .update({
+                projects: firebase.firestore.FieldValue
+                    .arrayUnion(formatInfo(inputs.map(input => input.value))),
+            });
     }
     const handleNavChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setTabValue(newValue);
@@ -187,12 +184,7 @@ export const ProjectTool: React.FC = () => {
         const oldProjectDateCreation = projectData[tabValue].projects[projectIndex].DateCreated;
         const oldProjectName = projectData[tabValue].projects[projectIndex].title;
 
-        // First delete old project
-        try {
-            await handleDeleteButton(oldProjectName);
-        } catch {
-            console.log('Error on editing project');
-        }
+        await handleDeleteButton(oldProjectName);
 
         const projectInfo = inputs.map(input => input.value);
         let i = 0;
@@ -206,19 +198,16 @@ export const ProjectTool: React.FC = () => {
             resources: projectInfo[i].length === 0 ? [] : projectInfo[i].split(','),
             DateCreated: oldProjectDateCreation,
         }
-        try {
-            await app
-                .firestore()
-                .collection('users')
-                .doc(currentUserID)
-                .collection('ProjectData')
-                .doc(classID)
-                .update( {
-                    projects: firebase.firestore.FieldValue.arrayUnion(newProject),
-                });
-        } catch {
-            console.log('Error on editing project');
-        }
+        await app
+            .firestore()
+            .collection('users')
+            .doc(currentUserID)
+            .collection('ProjectData')
+            .doc(classID)
+            .update( {
+                projects: firebase.firestore.FieldValue.arrayUnion(newProject),
+            });
+
         setCurrentProjectEdit('');
     }
     const handleDeleteButton = async (projectName: string) => {
