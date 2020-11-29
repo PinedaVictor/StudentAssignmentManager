@@ -6,35 +6,7 @@ import TableCell from "@material-ui/core/TableCell";
 import TableRow from "@material-ui/core/TableRow";
 import TableHead from "@material-ui/core/TableHead";
 import { create } from "ts-style";
-import { SECONDARY_COLOR } from "../../Styles/global";
-
-const StyledTableRow = withStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      "&:nth-of-type(even)": {
-        backgroundColor: "#C0E1FF",
-      },
-      "&:nth-of-type(odd)": {
-        backgroundColor: "#DEEFFF",
-      },
-    },
-  })
-)(TableRow);
-
-const StyledTableCell = withStyles((theme: Theme) =>
-  createStyles({
-    body: {
-      height: "auto",
-      paddingTop: 5,
-      paddingBottom: 5,
-      paddingLeft: 10,
-      paddingRight: 10,
-      fontSize: 14,
-      border: "1px solid",
-      borderColor: "rgba(0, 0, 0, .25)",
-    },
-  })
-)(TableCell);
+import { BORDER_COLOR, SECONDARY_COLOR } from "../../Styles/global";
 
 interface Props {
   headerText: Array<string>;
@@ -79,17 +51,39 @@ export const CustomTable: React.FC<Props> = ({ headerText, data }) => {
   );
 };
 
+const StyledTableRow = withStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      "&:nth-of-type(even)": {
+        backgroundColor: SECONDARY_COLOR,
+      },
+      "&:nth-of-type(odd)": {
+        backgroundColor: "#404040",
+      },
+    },
+  })
+)(TableRow);
+
+const StyledTableCell = withStyles((theme: Theme) =>
+  createStyles({
+    body: {
+      height: "100%",
+      fontSize: 18,
+      border: "1px solid",
+      borderColor: BORDER_COLOR,
+      color: "white"
+    },
+  })
+)(TableCell);
+
 const styles = create({
   tableHeader: {
-    height: "auto",
-    paddingTop: 5,
-    paddingBottom: 5,
-    paddingLeft: 10,
-    paddingRight: 10,
+    height: "100%",
     fontWeight: "bold" as "bold",
-    fontSize: 18,
+    fontSize: 20,
+    color: "white",
     border: "1px solid",
-    borderColor: "rgba(0, 0, 0, .25)",
+    borderColor: BORDER_COLOR,
     backgroundColor: SECONDARY_COLOR,
   },
 });

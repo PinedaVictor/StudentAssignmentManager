@@ -18,63 +18,6 @@ import { BORDER_COLOR, SECONDARY_COLOR } from "../../Styles/global";
 
 const courses = Array<ModalFields>()
 
-// const courses = [
-//   {
-//     id: "gf67hx",
-//     courseName: "Comp 356",
-//     email: "some.guy@gmail.com",
-
-//     officeHours: [
-//       {
-//       day: [ "Monday" , "Wednesday" ],
-//       start: {
-//         hour: 10,
-//         minute: 30,
-//         setting: "am"
-//         },
-
-//       end: {
-//         hour: 12,
-//         minute: 0,
-//         setting: "pm"
-//         }
-//       },
-//       {
-//         day: [ "Tuesday" ],
-//         start: {
-//           hour: 8,
-//           minute: 30,
-//           setting: "am"
-//           },
-  
-//         end: {
-//           hour: 9,
-//           minute: 45,
-//           setting: "am"
-//           }
-//         }
-//     ],
-
-//     latePolicy: "No late work allowed",
-//     curvingPolicy: "Drop the lowest test score and lowest quiz score.  The grading scale is curved based off the highest grade in the class.",
-//     priority: 5,
-
-//     gradeScale: {
-//       AMinus: 85,
-//       BMinus: 70,
-//       CMinus: 55,
-//       DMinus: 40
-//     },
-
-//     gradeWeights: {
-//       homework: 20,
-//       project: 30,
-//       exam: 40,
-//       quiz: 10
-//     }
-//   },
-// ]
-
 interface ModalFields {
   id: string,
   courseName: string,
@@ -241,7 +184,10 @@ export const Courses: React.FC = () => {
   }
 
   const submitModal = (action: "edit" | "add") => {
-          
+    
+    if (action === "add")
+      courses.push(CourseInfo)
+
     setModalStage(0)
     setCardModal(false)
     clearModalInputs()
@@ -864,7 +810,7 @@ export const Courses: React.FC = () => {
               title = "Submit"
               size = "small"
               theme = "edit"
-              onClick = {() => submitModal("edit")}
+              onClick = {() => submitModal((CourseInfo.id !== "") ? "edit" : "add")}
               />
             </Grid>
             

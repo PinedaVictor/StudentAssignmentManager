@@ -1,15 +1,13 @@
 import React, { useState } from "react";
-import { create } from "ts-style";
-import { Card } from "react-bootstrap";
-import { CustomTable } from "../ReusableParts/CustomTable";
-import Paper from "@material-ui/core/Paper";
-import CircularProgress from "@material-ui/core/CircularProgress";
 
-import { PRIMARY_COLOR } from "../../Styles/global";
-import { Box } from "@material-ui/core";
+import { BORDER_COLOR, BORDER_COLOR_HOVER, ICON_BORDER, ICON_BORDER_HOVER, PRIMARY_COLOR, SECONDARY_COLOR } from "../../Styles/global";
+import { Container, Grid, IconButton, makeStyles, Slide } from "@material-ui/core";
 import { CustomButton } from "../ReusableParts/CustomButton";
-import { CustomCardStandard } from "../ReusableParts/CustomCardStandard";
+import { CustomCardProgress } from "../ReusableParts/CustomCardProgress";
 import { CustomPopup } from "../ReusableParts/CustomPopup";
+import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
+import SettingsIcon from '@material-ui/icons/Settings';
+import { CustomTable } from "../ReusableParts/CustomTable";
 
 const classData = [
   {
@@ -19,6 +17,7 @@ const classData = [
     Homework: 30,
     Exams: 65,
     Projects: 100,
+    Quizzes: 45
   },
   {
     id: 2,
@@ -27,6 +26,7 @@ const classData = [
     Homework: 30,
     Exams: 65,
     Projects: 100,
+    Quizzes: 45
   },
   {
     id: 3,
@@ -35,6 +35,7 @@ const classData = [
     Homework: 30,
     Exams: 65,
     Projects: 100,
+    Quizzes: 45
   },
   {
     id: 4,
@@ -43,6 +44,7 @@ const classData = [
     Homework: 30,
     Exams: 65,
     Projects: 100,
+    Quizzes: 45
   },
   {
     id: 5,
@@ -51,6 +53,7 @@ const classData = [
     Homework: 30,
     Exams: 65,
     Projects: 100,
+    Quizzes: 45
   },
 ];
 
@@ -228,173 +231,163 @@ const tableColumns = [
 ];
 
 export const Home: React.FC = () => {
-  const [gradeSettingsModal, setGradeSettingsModal] = useState(false);
-  const [assignmentsSettingsModal, setAssignmentsSettingsModal] = useState(
-    false
-  );
+  const classes = useStyles()
 
-  function CircularProgressWithLabel(value: number) {
-    return (
-      <Box position="relative" display="inline-flex">
-        <CircularProgress
-          style={{ height: 40, borderRadius: 10 }}
-          variant="determinate"
-          value={value}
-          color="secondary"
-        />
-        <Box
-          top={0}
-          left={0}
-          bottom={0}
-          right={0}
-          position="absolute"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <text style={{ fontSize: 12 }}>{`${Math.round(value)}%`}</text>
-        </Box>
-      </Box>
-    );
+  const [toolbarSelection, setToolbarSelection] = useState(0)
+  const [slideStates, setSlideStates] = useState([true, false])
+  const [settingsModal, setSettingsModal] = useState(false);
+
+  const handleToolbarNav = (event: React.ChangeEvent<{}>, newValue: number) => {
+    let slidersTemp = slideStates
+    slidersTemp[newValue] = !slidersTemp[newValue]
+    slidersTemp[toolbarSelection] = !slidersTemp[toolbarSelection]
+    
+    setSlideStates(slidersTemp)
+    setToolbarSelection(newValue);
+  };
+
+  const handleSettingsModal = () => {
+    setSettingsModal(true)
   }
 
-  const renderGradeSettingsModal = () => (
-    <div>
-      <CustomButton
-        title="Close"
-        onClick={() => setGradeSettingsModal(false)}
-      />
-    </div>
-  );
+  const progressSection = (
+    <Grid container direction = "row" spacing = {3}>
+      {classData.map((item) => (
+        <Grid item xs = {12} sm = {6} md = {6} lg = {4} xl = {4}>
+          <CustomCardProgress
+          title = {item.Name}
+          data = {{
+            Total: item.Total,
+            Homework: item.Homework,
+            Projects: item.Projects,
+            Exams: item.Exams,
+            Quizzes: item.Quizzes
+          }}
+          />
+        </Grid>
+      ))}
+    </Grid>
+  )
 
-  const renderAssignmentSettingsModal = () => (
-    <div>
-      <CustomButton
-        title="Close"
-        onClick={() => setAssignmentsSettingsModal(false)}
+  const taskSection = (
+    <Grid item xs = {12} className = {classes.tableRoot}>
+      <CustomTable
+      data = {assignmentsData}
+      headerText = {tableColumns}
       />
-    </div>
-  );
+    </Grid>
+  )
+
+  const progressModal = (
+    <form  className = {classes.modalWindow}>
+
+    </form>
+  )
+
+  const taskModal = (
+    <form  className = {classes.modalWindow}>
+
+    </form>
+  )
 
   return (
-    <div style={styles.pageLayout}>
-      <Card style={styles.cardParent}>
-        <div style={styles.cardHeader}>
-          <div style={styles.buttonContainer}>
-            <CustomButton
-              title="Settings"
-              onClick={() => setGradeSettingsModal(true)}
-              size = "small"
-            />
+    <Container style = {{width: "80%"}}>
+      <Grid container direction = "column" justify = "center" alignItems = "center" spacing = {4}>
 
-            <CustomPopup
-              layout={renderGradeSettingsModal()}
-              modalState={gradeSettingsModal}
-            />
-          </div>
+        <Grid item xs = {12}>
+          <Grid container direction = "row" justify = "center" alignItems = "center">
+                      
+            <Grid item xs = {3}>
+              <IconButton>
+                <SettingsIcon
+                className = {classes.settingsRoot}
+                onClick = {handleSettingsModal}
+                />
+              </IconButton>
+              
+            </Grid>
 
-          <text style={styles.headerTitle}>Grades</text>
-        </div>
+            <Grid item xs = {9}>
+              <CustomScrollableTabs
+              className={classes.toolbarRoot}
+              tabValue={toolbarSelection}
+              onChange={handleToolbarNav}
+              tabNames={["Course Progress", "Task List"]}
+              />
+            </Grid>
+            
+          </Grid>
+        </Grid>
 
-        <Card.Body style={styles.cardBody}>
-          {classData.map((item) => (
-            <CustomCardStandard
-              title={item.Name}
-              data={{
-                Total: CircularProgressWithLabel(item.Total),
-                Homework: CircularProgressWithLabel(item.Homework),
-                Exams: CircularProgressWithLabel(item.Exams),
-                Projects: CircularProgressWithLabel(item.Projects),
-              }}
-              deleteClick = {() => null}
-              editClick = {() => null}
-            />
-          ))}
-        </Card.Body>
-      </Card>
+        <Grid item xs = {12}>
+          <Slide direction = "left" in = {slideStates[0]} timeout = {{enter: 500, exit: 100}} mountOnEnter unmountOnExit>
+            {progressSection}
+          </Slide>
 
-      <Card style={styles.cardParent}>
-        <div style={styles.cardHeader}>
-          <div style={styles.buttonContainer}>
-            <CustomButton
-              title="Settings"
-              onClick={() => setAssignmentsSettingsModal(true)}
-              size = "small"
-            />
-            <CustomPopup
-              layout={renderAssignmentSettingsModal()}
-              modalState={assignmentsSettingsModal}
-            />
-          </div>
+          <Slide direction = "right" in = {slideStates[1]} timeout = {{enter: 500, exit: 100}} mountOnEnter unmountOnExit>
+            {taskSection}
+          </Slide>
+          
+        </Grid>
+        
 
-          <text style={styles.headerTitle}>Assignments</text>
-        </div>
+      </Grid>
+      
+      <CustomPopup
+      modalState = {settingsModal}
+      layout = {(toolbarSelection == 0) ? progressModal : taskModal}
+      />
 
-        <Card.Body style={styles.cardBody}>
-          <Paper
-            style={{
-              maxHeight: 300,
-              width: "100%",
-            }}
-          >
-            <CustomTable headerText={tableColumns} data={assignmentsData} />
-          </Paper>
-        </Card.Body>
-      </Card>
-    </div>
+    </Container>
   );
 };
 
-const styles = create({
-  pageLayout: {
-    display: "grid",
-    paddingTop: 50,
-    justifyContent: "center",
-    alignItems: "center",
+const useStyles = makeStyles((theme) => ({
+  modalWindow: {
+    margin: theme.spacing(2),
+    width: "auto",
+    color: "white"
   },
 
-  cardParent: {
-    display: "grid",
-    gridTemplateRows: "40px auto",
-    minWidth: 400,
-    maxWidth: 1080,
-    height: "auto",
-    marginBottom: 50,
+  toolbarRoot: {
+    background: SECONDARY_COLOR,
+    color: 'white',
+    borderRadius: 10,
+    border: "solid 1px",
+    borderColor: BORDER_COLOR,
+
+    "&:hover": {
+      transition: "all .35s ease",
+      border: "solid 1px",
+      borderColor: BORDER_COLOR_HOVER,
+    }
   },
 
-  cardHeader: {
-    display: "grid",
-    gridTemplateColumns: "auto 1fr 85px",
-    justifyContent: "center",
-    alignItems: "center",
-    height: 40,
-    paddingBottom: 15,
-    backgroundColor: PRIMARY_COLOR,
-    fontWeight: "bold" as "bold",
-    fontSize: 24,
-    color: "black",
+  linearBarRoot: {
+    width: "100%",
+    height: "100%"
   },
 
-  headerTitle: {
+  settingsRoot: {
+    width: "2.75em", 
+    height: "2.75em",
+    stroke: ICON_BORDER,
+    strokeWidth: "0.75",
+    opacity: 0.75,
+    fill: SECONDARY_COLOR,
+
+    '&:hover': {
+      opacity: 1,
+      width: "3em",
+      height: "3em",
+      stroke: ICON_BORDER_HOVER,
+      strokeWidth: "0.75",
+    }
+  },
+
+  tableRoot: {
     display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  cardBody: {
-    display: "flex",
-    flexDirection: "row" as "row",
-    overflowX: "scroll" as "scroll",
-    marginTop: 25,
-    paddingBottom: 10,
-  },
-
-  buttonContainer: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    width: 85,
-    height: 35,
-    paddingLeft: 10,
-  },
-});
+    height: "70vh",
+    overflowY: "scroll"
+  }
+}));
