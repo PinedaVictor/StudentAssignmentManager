@@ -20,17 +20,19 @@ export interface Project {
 
 export interface Exam {
     title: string;
-    section_weight: string; 
-    overall_weight: string; 
+    section_weight: number; 
+    overall_weight: number; 
     related_hw: string[];     
     related_projs: string[];
     related_exams: string[]; 
-    resources: string[];      
+    resources: string[];
+    DateCreated: string;
 }
 
 export interface ExamData {
     class: string;
     exams: Exam[];
+    ClassID: string;
 }
 
 export interface ProjectData {

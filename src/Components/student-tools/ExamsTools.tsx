@@ -10,50 +10,20 @@ import { ExamDataJson } from '../../Database/PlaceHolderData';
 import { AddForm } from '../ReusableParts/AddForm';
 import { EditForm } from '../ReusableParts/EditForm';
 import { app } from "../../Database/initFirebase";
-
-interface Exam {
-    title: string;
-    section_weight: string; 
-    overall_weight: string; 
-    related_hw: string[];     
-    related_projs: string[];
-    related_exams: string[]; 
-    resources: string[];      
-    examID?: string;
-}
-
-interface ExamData {
-    class: string;
-    exams: Exam[];
-}
-
-// TODO - add backend data fetch
-const useExamData = () => {
-/*     const [examData, setExamData] = useState<ExamData[]>([]);
-    
-    useEffect(() => {
-        app
-            .firestore()
-            .collection("Exams")
-            .onSnapshot(snapshot => {
-                const exams: ExamData[] = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }))
-            })
-    }) */
-}
+import { Exam, ExamData } from '../../Database/utils';
+import firebase from 'firebase';
 
 const formatInfo = (info: string[]): Exam => {
     let i = 0;
     let exam: Exam = {
         title: info[i++],
-        section_weight: info[i++],
-        overall_weight: info[i++],
+        section_weight: parseInt(info[i++]),
+        overall_weight: parseInt(info[i++]),
         related_hw: info[i].length === 0? [] : info[i++].split(','),
         related_projs: info[i].length === 0? [] : info[i++].split(','),
         related_exams: info[i].length === 0? [] : info[i++].split(','),
         resources: info[i].length === 0? [] : info[i].split(','),
+        DateCreated: Date(),
     }
     return exam;
 }
@@ -69,16 +39,6 @@ interface TabPanelProps {
     edit: (examName: string) => void;
 }
 // END INTERFACES
-
-
-// TODO - store data on creation
-const storeExamData = (data: ExamData) => {
-}
-
-// TODO - delete a value from the db
-const deleteExamData = () => {
-
-}
 
 const TabPanels = (props: TabPanelProps) => {
     const {children, value, index, examInfo, ...func} = props;
@@ -127,15 +87,42 @@ const TabPanels = (props: TabPanelProps) => {
 }
 
 export const ExamsTools: React.FC = () => {
-    const fetchExamData = () => {
-        return ExamDataJson;
-    }
+    const [examData, setExamData] = useState<ExamData[]>([]);
+
+    const firebaseUser = app.auth().currentUser;
+    let currentUserID = "";
+    if(firebaseUser) currentUserID = firebaseUser.uid
+
+    useEffect(() => {
+        const examList = app
+            .firestore()
+            .collection('users')
+            .doc(currentUserID)
+            .collection('ExamData')
+            .onSnapshot(querySnapshot => {
+                const examList: ExamData[] = [];
+                querySnapshot.forEach(document => {
+                    const examData = document.data();
+                    if(examData) {
+                        const tempExamData = {
+                            class: examData.Class,
+                            ClassID: document.id,
+                            exams: [...examData.exams]
+                        }
+                        tempExamData.exams.sort((a, b) => a.DateCreated < b.DateCreated? 1 : -1);
+                        examList.push(tempExamData);
+                    }
+                });
+                setExamData(examList);
+            });
+        return () => examList();
+    }, []);
+
     // HOOKS
     const [currentExamEdit, setCurrentExamEdit] = useState('');
     const [tabValue, setTabValue] = useState(0);
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
-    const [examData, setExamData] = useState<ExamData[]>(fetchExamData());
     const [inputs, setInputs] = useState([
         {id: 'title', label: 'Exam Title', value: '', placeHolder: 'Project #1',
          isInvalid: (value: string) => value === ''},
@@ -154,14 +141,18 @@ export const ExamsTools: React.FC = () => {
     ]);
 
     // FUNCTIONS
-    const handleFormAdd = () => {
-        const newExamData = [...examData];
-        // TODO DB calls
-        const examInfo = inputs.map(input => input.value);
-        if(examData[tabValue].exams) {
-            newExamData[tabValue].exams = [...newExamData[tabValue].exams, formatInfo(examInfo)];
-            setExamData(newExamData);
-        }
+    const handleFormAdd = async () => {
+        const classID = examData[tabValue].ClassID;
+        await app
+            .firestore()
+            .collection('users')
+            .doc(currentUserID)
+            .collection('ExamData')
+            .doc(classID)
+            .update({
+                exams: firebase.firestore.FieldValue
+                    .arrayUnion(formatInfo(inputs.map(input => input.value))),
+            });
     }
     const handleNavChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setTabValue(newValue);
@@ -180,8 +171,8 @@ export const ExamsTools: React.FC = () => {
         const oldExam = examData[classIndex].exams[examIndex];
         let i = 0;
         newInputs[i++].value = oldExam.title;
-        newInputs[i++].value = oldExam.section_weight;
-        newInputs[i++].value = oldExam.overall_weight;
+        newInputs[i++].value = oldExam.section_weight.toString();
+        newInputs[i++].value = oldExam.overall_weight.toString();
         newInputs[i++].value = oldExam.related_hw.join(', ');
         newInputs[i++].value = oldExam.related_projs.join(', ');
         newInputs[i++].value = oldExam.related_exams.join(', ');
@@ -189,34 +180,56 @@ export const ExamsTools: React.FC = () => {
         setInputs(newInputs);
         setOpenEdit(true);
     };
-    const handleFormEditSubmit = () => {
-        const newExamData = [...examData];
-        const examInfo = inputs.map(input => input.value);
-        const classIndex = tabValue;
-        const examIndex = examData[classIndex].exams.findIndex(input => input.title === currentExamEdit);
+    const handleFormEditSubmit = async () => {
+        const examIndex = examData[tabValue].exams.findIndex(input => input.title === currentExamEdit);
 
         if(examIndex === -1) return;
 
-        let i = 0;
-        newExamData[classIndex].exams[examIndex].title = examInfo[i++];
-        newExamData[classIndex].exams[examIndex].section_weight = examInfo[i++];
-        newExamData[classIndex].exams[examIndex].overall_weight = examInfo[i++];
-        newExamData[classIndex].exams[examIndex].related_hw = examInfo[i].length === 0 ? [] : examInfo[i++].split(',');
-        newExamData[classIndex].exams[examIndex].related_projs = examInfo[i].length === 0 ? [] : examInfo[i++].split(',');
-        newExamData[classIndex].exams[examIndex].related_exams = examInfo[i].length === 0 ? [] : examInfo[i++].split(',');
-        newExamData[classIndex].exams[examIndex].resources = examInfo[i].length === 0 ? [] : examInfo[i++].split(',');
+        const classID = examData[tabValue].ClassID;
+        const oldExamDateCreation = examData[tabValue].exams[examIndex].DateCreated;
+        
+        await handleDeleteButton(currentExamEdit);
 
-        // DB call right here to update
-        setCurrentExamEdit('');
-        setExamData(newExamData);
+        const examInfo = inputs.map(input => input.value);
+        let i = 0;
+        const newExam: Exam = {
+            title: examInfo[i++],
+            section_weight: parseInt(examInfo[i++]),
+            overall_weight: parseInt(examInfo[i++]),
+            related_hw: examInfo[i].length === 0 ? [] : examInfo[i++].split(','),
+            related_projs: examInfo[i].length === 0 ? [] : examInfo[i++].split(','),
+            related_exams: examInfo[i].length === 0 ? [] : examInfo[i++].split(','),
+            resources: examInfo[i].length === 0 ? [] : examInfo[i++].split(','),
+            DateCreated: oldExamDateCreation,
+        }
+
+        await app
+            .firestore()
+            .collection('users')
+            .doc(currentUserID)
+            .collection('ExamData')
+            .doc(classID)
+            .update({
+                exams: firebase.firestore.FieldValue.arrayUnion(newExam)
+            })
     }
-    const handleDeleteButton = (examName: string) => {
-        const newExamData = [...examData];
-        const classIndex = tabValue;
-        // TODO make sure deletion updates the DB
-        const examIndex = examData[classIndex].exams.findIndex(exam => exam.title === examName);
-        newExamData[classIndex].exams.splice(examIndex, 1);
-        setExamData(newExamData);
+    const handleDeleteButton = async (examName: string) => {
+        const classID = examData[tabValue].ClassID;
+        const examIndex = examData[tabValue].exams.findIndex(exam => exam.title === examName);
+
+        if(examIndex === -1) return;
+        
+        const deletable = examData[tabValue].exams[examIndex];
+
+        await app
+            .firestore()
+            .collection('users')
+            .doc(currentUserID)
+            .collection('ExamData')
+            .doc(classID)
+            .update({
+                exams: firebase.firestore.FieldValue.arrayRemove(deletable);
+            })
     }
     // Information needed
     const classes = useStyles();
