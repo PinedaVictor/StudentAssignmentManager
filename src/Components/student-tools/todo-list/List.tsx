@@ -65,9 +65,9 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
       if (cardData) {
         const todoList = cardData.todoList;
         let filteredList = todoList;
-        if (itemIndex + 1 == todoList.length) {
+        if (itemIndex + 1 === todoList.length) {
           filteredList = todoList.slice(0, todoList.length - 1);
-        } else if (itemIndex == 0) {
+        } else if (itemIndex === 0) {
           filteredList = todoList.slice(itemIndex + 1, todoList.length);
         } else {
           filteredList = todoList
@@ -132,7 +132,7 @@ export const TodoCard: React.FC<TodoListProps> = (props) => {
         let updatedTodoList = [];
         for (let i = 0; i < todoList.length; i++) {
           updatedTodoList.push(todoList[i]);
-          if (i == todoItemIndex) {
+          if (i === todoItemIndex) {
             const tempOBJ = todoList[i];
             updatedTodoList[i] = {
               todo: userInput,

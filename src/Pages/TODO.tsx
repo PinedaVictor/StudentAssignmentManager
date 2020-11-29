@@ -46,7 +46,8 @@ export const TodoList: React.FC = () => {
         setTodoCards(clintList);
       });
     return () => todoList();
-  }, []);
+    // eslint-disable-next-line
+  }, [currentUserID]);
 
   const addTodoCard = async () => {
     try {
