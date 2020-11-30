@@ -10,12 +10,13 @@ export const RELATEDTABS = [
 // TODO remove Exam interfaces since they're back in the ExamsTools.tsx file
 export interface Project {
     title: string;
-    completion: string;
-    section_weight: string;
-    overall_weight: string;
+    completion: number;
+    section_weight: number;
+    overall_weight: number;
     requirements: string;
     related_homework: string[];
     resources: string[];
+    DateCreated: string;
 }
 
 export interface Exam {
@@ -37,5 +38,6 @@ export interface ExamData {
 
 export interface ProjectData {
     class: string;
+    classID: string;
     projects: Project[];
 }

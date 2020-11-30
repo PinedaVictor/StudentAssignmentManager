@@ -1,15 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import IconButton from "@material-ui/core/IconButton";
 import AddIcon from "@material-ui/icons/Add";
+import { AQUA, SECONDARY_COLOR } from "../Styles/global";
 import { Container } from "react-bootstrap";
 import { MainLayout } from "../Components/ReusableParts/Layout";
 import { TodoCard } from "../Components/student-tools/todo-list/List";
 import { app } from "../Database/initFirebase";
-
-// TODO:
-// Setup firebase listener
-// Implement card editing - remove todo items
-
 interface TodoCard {
   title: string;
   date: string;
@@ -20,49 +16,50 @@ interface TodoCard {
 export const TodoList: React.FC = () => {
   const [todoCards, setTodoCards] = useState<TodoCard[]>([]);
 
-  const setToDoList = async () => {
-    try {
-      const toDoList = await app
-        .firestore()
-        .collection("users")
-        .doc("iaswHXNT2MSNXarjGKcs51g64R32") //TODO: update with current user ID
-        .collection("TODOs")
-        .orderBy("dateCreated", "desc")
-        .get();
+  const firebase_User = app.auth().currentUser;
+  let currentUserID = "";
+  if (firebase_User) {
+    currentUserID = firebase_User.uid;
+  }
 
-      const tempTodoList: TodoCard[] = [];
-      toDoList.forEach((document) => {
-        const todoData = document.data();
-        if (todoData) {
-          const listData = {
-            title: todoData.title,
-            date: todoData.date,
-            todoList: todoData.todoList,
-            cardID: document.id,
-          };
-          tempTodoList.push(listData);
-        }
+  useEffect(() => {
+    const todoList = app
+      .firestore()
+      .collection("users")
+      .doc(currentUserID)
+      .collection("TODOs")
+      .orderBy("dateCreated", "desc")
+      .onSnapshot((querySnapshot) => {
+        const clintList: TodoCard[] = [];
+        querySnapshot.forEach((document) => {
+          const cardData = document.data();
+          if (cardData) {
+            const temppCardData = {
+              title: cardData.title,
+              date: cardData.date,
+              todoList: cardData.todoList,
+              cardID: document.id,
+            };
+            clintList.push(temppCardData);
+          }
+        });
+        setTodoCards(clintList);
       });
-      console.log("Temp list::::", tempTodoList);
-      setTodoCards(tempTodoList);
-    } catch {
-      console.log("Error loading TODOs");
-    }
-  };
+    return () => todoList();
+    // eslint-disable-next-line
+  }, [currentUserID]);
 
   const addTodoCard = async () => {
-    const date = Date();
-    console.log("Current Date::", date);
     try {
       await app
         .firestore()
         .collection("users")
-        .doc("iaswHXNT2MSNXarjGKcs51g64R32")
+        .doc(currentUserID)
         .collection("TODOs")
         .doc()
         .set({
           title: "Click to edit",
-          date: "^^^^^ :)",
+          date: "-------",
           dateCreated: Date(),
           todoList: [{ todo: "HI :)", complete: false }],
         });
@@ -75,11 +72,8 @@ export const TodoList: React.FC = () => {
   return (
     <Container>
       <MainLayout />
-      <button style={{ marginBottom: "10px" }} onClick={setToDoList}>
-        {"Click"}
-      </button>
       <div style={{ display: "flex", marginTop: "-40px" }}>
-        <h3 style={{ backgroundColor: "", color: "#1c588c", width: "95%" }}>
+        <h3 style={{ backgroundColor: "", color: AQUA, width: "95%" }}>
           TODOs
         </h3>
         <IconButton
@@ -88,14 +82,22 @@ export const TodoList: React.FC = () => {
             marginTop: "10px",
           }}
         >
-          <AddIcon style={{ width: "1.5em", height: "1.5em" }} />
+          <AddIcon
+            style={{
+              width: "1.5em",
+              height: "1.5em",
+              color: "white",
+              borderRadius: "50px",
+              backgroundColor: SECONDARY_COLOR,
+            }}
+          />
         </IconButton>
       </div>
       <div
         style={{
           height: "5px",
-          backgroundColor: "#04bf7b",
-          marginTop: "-10px",
+          backgroundColor: AQUA,
+          marginTop: "-5px",
           marginBottom: "15px",
           borderRadius: "25px",
         }}

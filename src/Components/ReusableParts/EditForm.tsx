@@ -24,6 +24,10 @@ interface EditFormProps {
 export const EditForm = (editFormProps: EditFormProps) => {
     // HOOKS
     const [isInvalidData, setIsInvalidData] = useState(false);
+    const [dbError, setDBError] = useState({
+        error: false,
+        errorText: '',
+    });
     //DATA
     const { title, openEdit, setOpenEdit, handleFormEditSubmit, inputs, setInputs } = editFormProps;
     const isSmallDevice = useMediaQuery(useTheme().breakpoints.down('xs'));
@@ -44,19 +48,32 @@ export const EditForm = (editFormProps: EditFormProps) => {
         newInputs[index] = {...inputs[index], value};
         setInputs(newInputs);
     }
-    const handleCompleteFormEdit = () => {
+    const handleCompleteFormEdit = async () => {
         const validForms = inputs.every(input => !input.isInvalid(input.value));
         if(!validForms) {
             setIsInvalidData(true);
             return;
         }
-        handleFormEditSubmit();
+        try{
+            await handleFormEditSubmit();
+        } catch(error) {
+
+        }
         clearInputs();
         setOpenEdit(false);
     }
+
     const handleInvalidDataClose = () => {
         setIsInvalidData(false);
     }
+
+    const handleDBErrorClose = () => {
+        const newErrorState = dbError;
+        newErrorState.error = false;
+        newErrorState.errorText = '';
+        setDBError(newErrorState);
+    }
+
     return (
         <>
             <Dialog
@@ -109,6 +126,24 @@ export const EditForm = (editFormProps: EditFormProps) => {
                 </DialogTitle>
                 <DialogActions>
                     <Button onClick={handleInvalidDataClose} color='primary'>OK</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog
+                open={dbError.error}
+                onClose={handleDBErrorClose}
+                PaperProps={{
+                    style: {
+                        backgroundColor: SECONDARY_COLOR,
+                        color: DEFAULT_TEXT_COLOR,
+                        alignItems: 'center'
+                    }
+                }}
+            >
+                <DialogTitle id='invalid-data' className={classes.invalid}>
+                    {dbError.errorText}
+                </DialogTitle>
+                <DialogActions>
+                    <Button onClick={handleDBErrorClose} color='primary'>OK</Button>
                 </DialogActions>
             </Dialog>
         </>

@@ -1,29 +1,28 @@
 import { Button, createStyles, Grid, makeStyles, Theme, useMediaQuery, useTheme } from '@material-ui/core';
 import Box from '@material-ui/core/Box';
-import React, { useState } from 'react';
-import AddCircleIcon from '@material-ui/icons/AddCircle'
+import React, { useEffect, useState } from 'react';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import firebase from 'firebase';
+
 import { DEFAULT_TEXT_COLOR, SECONDARY_COLOR } from '../../Styles/global';
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
 import { AddForm } from '../ReusableParts/AddForm';
 import { Project, ProjectData } from '../../Database/utils';
-import { ProjectDataJson } from '../../Database/PlaceHolderData';
 import { CustomCardStandard } from '../ReusableParts/CustomCardStandard';
 import { EditForm } from '../ReusableParts/EditForm';
-
-const fetchProjectData = () => {
-    return ProjectDataJson;
-}
+import { app } from '../../Database/initFirebase';
 
 const formatInfo = (info: string[]): Project => {
     let i = 0;
     let project: Project = {
         title: info[i++], 
-        completion: info[i++],
-        section_weight: info[i++],
-        overall_weight: info[i++],
+        completion: parseInt(info[i++]),
+        section_weight: parseInt(info[i++]),
+        overall_weight: parseInt(info[i++]),
         requirements: info[i++],
         related_homework: info[i].length === 0? [] : info[i++].split(','),
         resources: info[i].length === 0? [] : info[i++].split(','),
+        DateCreated: Date(),
     }
     return project;
 }
@@ -36,6 +35,7 @@ interface TabPanelProps {
     delete: (projectName: string) => void;
     edit: (examName: string) => void;
 }
+
 const TabPanels = (props: TabPanelProps) => {
     const {children, value, index, projectInfo, ...func} = props;
 
@@ -80,13 +80,44 @@ const TabPanels = (props: TabPanelProps) => {
         </div>
     )
 }
+
 export const ProjectTool: React.FC = () => {
+    const [projectData, setProjectData] = useState<ProjectData[]>([]);
+    
+    const firebaseUser = app.auth().currentUser;
+    let currentUserID = "";
+    if(firebaseUser) currentUserID = firebaseUser.uid;
+
+    useEffect(() => {
+        console.log(currentUserID);
+        const projectList = app
+            .firestore()
+            .collection('users')
+            .doc(currentUserID)
+            .collection('ProjectData')
+            .onSnapshot(querySnapshot => {
+                const projectList: ProjectData[] = [];
+                querySnapshot.forEach(document => {
+                    const projectData = document.data();
+                    if(projectData) {
+                        const tempProjectData = {
+                            class: projectData.Class,
+                            classID: document.id,
+                            projects: [...projectData.projects]
+                        }
+                        tempProjectData.projects.sort((a, b) => a.DateCreated < b.DateCreated ? 1 : -1)
+                        projectList.push(tempProjectData);
+                    }
+                });
+                setProjectData(projectList);
+            });
+        return () => projectList();
+    }, []);
     // HOOKS
     const [currentProjectEdit, setCurrentProjectEdit] = useState('');
     const [tabValue, setTabValue] = useState(0);
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
-    const [projectData, setProjectData] = useState<ProjectData[]>(fetchProjectData());
     const [inputs, setInputs] = useState([
         {id: 'title', label: 'Title', value: '', placeHolder: 'Project #1',
          isInvalid: (value: string) => value === ''},
@@ -104,14 +135,18 @@ export const ProjectTool: React.FC = () => {
          isInvalid: () => false}
     ]);
     // FUNCTIONS
-    const handleFormAdd = () => {
-        const newProjectData =[...projectData];
-        // TODO need to make db calls here
-        const projectInfo = inputs.map(input => input.value);
-        if(projectData[tabValue].projects){
-            newProjectData[tabValue].projects = [...newProjectData[tabValue].projects, formatInfo(projectInfo)];
-            setProjectData(newProjectData);
-        }
+    const handleFormAdd = async () => {
+        const classID = projectData[tabValue].classID;
+        await app
+            .firestore()
+            .collection('users')
+            .doc(currentUserID)
+            .collection('ProjectData')
+            .doc(classID)
+            .update({
+                projects: firebase.firestore.FieldValue
+                    .arrayUnion(formatInfo(inputs.map(input => input.value))),
+            });
     }
     const handleNavChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setTabValue(newValue);
@@ -119,7 +154,7 @@ export const ProjectTool: React.FC = () => {
     const handleFormOpen = () => {
         setOpenAdd(true);
     }
-    const handleFormEdit = (projectName: string) => {
+    const handleFormEdit = async (projectName: string) => {
         const newInputs = [...inputs];
         const classIndex = tabValue;
         const projectIndex = projectData[classIndex].projects.findIndex(input => input.title === projectName);
@@ -131,43 +166,67 @@ export const ProjectTool: React.FC = () => {
         const oldProject = projectData[classIndex].projects[projectIndex];
         let i = 0;
         newInputs[i++].value = oldProject.title;
-        newInputs[i++].value = oldProject.completion;
-        newInputs[i++].value = oldProject.section_weight;
-        newInputs[i++].value = oldProject.overall_weight;
+        newInputs[i++].value = oldProject.completion.toString();
+        newInputs[i++].value = oldProject.section_weight.toString();
+        newInputs[i++].value = oldProject.overall_weight.toString();
         newInputs[i++].value = oldProject.requirements;
         newInputs[i++].value = oldProject.related_homework.join(', ');
         newInputs[i++].value = oldProject.resources.join(', ');
         setInputs(newInputs);
         setOpenEdit(true);
     }
-    const handleFormEditSubmit = () => {
-        const newProjectData = [...projectData];
-        const projectInfo = inputs.map(input => input.value);
-        const classIndex = tabValue;
-        const projectIndex = projectData[classIndex].projects.findIndex(input => input.title === currentProjectEdit);
+    const handleFormEditSubmit = async () => {
+        const projectIndex = projectData[tabValue].projects.findIndex(input => input.title === currentProjectEdit);
 
         if(projectIndex === -1) return;
-        
-        let i = 0;
-        newProjectData[classIndex].projects[projectIndex].title = projectInfo[i++];
-        newProjectData[classIndex].projects[projectIndex].completion = projectInfo[i++];
-        newProjectData[classIndex].projects[projectIndex].section_weight = projectInfo[i++];
-        newProjectData[classIndex].projects[projectIndex].overall_weight = projectInfo[i++];
-        newProjectData[classIndex].projects[projectIndex].requirements = projectInfo[i++];
-        newProjectData[classIndex].projects[projectIndex].related_homework = projectInfo[i].length === 0 ? [] : projectInfo[i++].split(',');
-        newProjectData[classIndex].projects[projectIndex].resources = projectInfo[i].length === 0 ? [] : projectInfo[i].split(',');
 
-        // DB call right here to update
+        const classID = projectData[tabValue].classID;
+        const oldProjectDateCreation = projectData[tabValue].projects[projectIndex].DateCreated;
+        const oldProjectName = projectData[tabValue].projects[projectIndex].title;
+
+        await handleDeleteButton(oldProjectName);
+
+        const projectInfo = inputs.map(input => input.value);
+        let i = 0;
+        const newProject: Project = {
+            title: projectInfo[i++],
+            completion: parseInt(projectInfo[i++]),
+            section_weight: parseInt(projectInfo[i++]),
+            overall_weight: parseInt(projectInfo[i++]),
+            requirements: projectInfo[i++],
+            related_homework: projectInfo[i].length === 0 ? [] : projectInfo[i++].split(','),
+            resources: projectInfo[i].length === 0 ? [] : projectInfo[i].split(','),
+            DateCreated: oldProjectDateCreation,
+        }
+        await app
+            .firestore()
+            .collection('users')
+            .doc(currentUserID)
+            .collection('ProjectData')
+            .doc(classID)
+            .update( {
+                projects: firebase.firestore.FieldValue.arrayUnion(newProject),
+            });
+
         setCurrentProjectEdit('');
-        setProjectData(newProjectData);
     }
-    const handleDeleteButton = (projectName: string) => {
-        const newProjectData = [...projectData];
-        const classIndex = tabValue;
-        // TODO make sure deletion updates the DB
-        const examIndex = projectData[classIndex].projects.findIndex(project => project.title === projectName);
-        newProjectData[classIndex].projects.splice(examIndex, 1);
-        setProjectData(newProjectData);
+    const handleDeleteButton = async (projectName: string) => {
+        const classID = projectData[tabValue].classID;
+        const projectIndex = projectData[tabValue].projects.findIndex(project => project.title === projectName);
+
+        if(projectIndex === -1) return;
+
+        const deletable = projectData[tabValue].projects[projectIndex];
+
+        await app
+            .firestore()
+            .collection('users')
+            .doc(currentUserID)
+            .collection('ProjectData')
+            .doc(classID)
+            .update( {
+                projects: firebase.firestore.FieldValue.arrayRemove(deletable),
+            });
     }
     // DATA
     const isSmallDevice = useMediaQuery(useTheme().breakpoints.down('xs'));
@@ -183,6 +242,7 @@ export const ProjectTool: React.FC = () => {
                 />
                 <Box m={6}>
                     <Button
+                        disabled={ projectData.length === 0 }
                         className={classes.addProject}
                         variant='contained'
                         startIcon={<AddCircleIcon />}
