@@ -5,7 +5,7 @@ import { Dialog, DialogActions, DialogTitle,
 import React, { useState } from 'react';
 import { BUTTON_DELETE_BACKGROUND_COLOR, BUTTON_DELETE_HOVER_BACKGROUND_COLOR, BUTTON_EDIT_BACKGROUND_COLOR,
          BUTTON_EDIT_HOVER_BACKGROUND_COLOR } from '../../Styles/global';
-import { ExamData, Exam } from '../student-tools/utils';
+import { ExamData, Exam } from '../../Database/utils';
 
 interface AddExamProps {
     openAdd: boolean,
@@ -85,7 +85,8 @@ export const AddExam = (addExamProps: AddExamProps) => {
         // TODO need to make db calls here
         const examInfo = inputs.map(input => input.value);
         const newExam = formatInfo(examInfo);
-        newExamData[classIndex].exams = [...examData[classIndex].exams, newExam];
+        if(examData[classIndex].exams)
+            newExamData[classIndex].exams = [...examData[classIndex].exams, newExam];
         clearInputs();
         setExamData(newExamData);
         setOpenAdd(false);
