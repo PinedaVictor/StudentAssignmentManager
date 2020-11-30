@@ -6,7 +6,6 @@ import { DEFAULT_TEXT_COLOR,
          SECONDARY_COLOR} from '../../Styles/global';
 import { CustomCardStandard } from '../ReusableParts/CustomCardStandard';
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
-import { ExamDataJson } from '../../Database/PlaceHolderData';
 import { AddForm } from '../ReusableParts/AddForm';
 import { EditForm } from '../ReusableParts/EditForm';
 import { app } from "../../Database/initFirebase";
@@ -105,7 +104,7 @@ export const ExamsTools: React.FC = () => {
                     const examData = document.data();
                     if(examData) {
                         const tempExamData = {
-                            class: examData.Class,
+                            class: examData.class,
                             ClassID: document.id,
                             exams: [...examData.exams]
                         }
@@ -168,6 +167,7 @@ export const ExamsTools: React.FC = () => {
         // TODO set an error saying it no longer exists?
         if(examIndex === -1) return;
 
+        setCurrentExamEdit(examName);
         const oldExam = examData[classIndex].exams[examIndex];
         let i = 0;
         newInputs[i++].value = oldExam.title;
@@ -187,8 +187,9 @@ export const ExamsTools: React.FC = () => {
 
         const classID = examData[tabValue].ClassID;
         const oldExamDateCreation = examData[tabValue].exams[examIndex].DateCreated;
-        
-        await handleDeleteButton(currentExamEdit);
+        const oldExamName = examData[tabValue].exams[examIndex].title;
+
+        await handleDeleteButton(oldExamName);
 
         const examInfo = inputs.map(input => input.value);
         let i = 0;
@@ -202,7 +203,7 @@ export const ExamsTools: React.FC = () => {
             resources: examInfo[i].length === 0 ? [] : examInfo[i++].split(','),
             DateCreated: oldExamDateCreation,
         }
-
+        console.log(newExam);
         await app
             .firestore()
             .collection('users')
@@ -212,6 +213,7 @@ export const ExamsTools: React.FC = () => {
             .update({
                 exams: firebase.firestore.FieldValue.arrayUnion(newExam)
             })
+        setCurrentExamEdit('');
     }
     const handleDeleteButton = async (examName: string) => {
         const classID = examData[tabValue].ClassID;
@@ -228,7 +230,7 @@ export const ExamsTools: React.FC = () => {
             .collection('ExamData')
             .doc(classID)
             .update({
-                exams: firebase.firestore.FieldValue.arrayRemove(deletable);
+                exams: firebase.firestore.FieldValue.arrayRemove(deletable),
             })
     }
     // Information needed
