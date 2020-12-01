@@ -1,13 +1,9 @@
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader, createMuiTheme, Grid, Icon, IconButton, LinearProgress, makeStyles, responsiveFontSizes, ThemeProvider, Typography } from "@material-ui/core";
+import React from "react";
+import { Card, createMuiTheme, Grid, LinearProgress, makeStyles, responsiveFontSizes, ThemeProvider, Typography } from "@material-ui/core";
 import {
   SECONDARY_COLOR,
   BORDER_COLOR,
-  BORDER_COLOR_HOVER,
-  BUTTON_DELETE_BACKGROUND_COLOR,
-  BUTTON_EDIT_BACKGROUND_COLOR,
-  ICON_BORDER,
-  ICON_BORDER_HOVER,
+  BORDER_COLOR_HOVER
 } from "../../Styles/global";
 
 interface Props {
@@ -41,45 +37,44 @@ export const CustomCardProgress: React.FC<Props> = ({title, data}) => {
         <Card className = {classes.cardMain}>
           <Grid container direction = "column" justify = "center" alignItems = "center" spacing = {0}>
 
-            <Grid item xs = {12} className = {classes.header}>
-                    <ThemeProvider theme = {theme}>
-                        <Typography variant = "h4">{title}</Typography>
-                    </ThemeProvider>
-                
-                
+            <Grid key = {title} item xs = {12} className = {classes.header}>
+              <ThemeProvider theme = {theme}>
+                  <Typography variant = "h4">{title}</Typography>
+              </ThemeProvider>
             </Grid>
 
             <Grid container direction = "row" justify = "flex-start" alignItems = "flex-start" className = {classes.contentContainer}>
-                    {Object.entries(data).map(([key, value], index) => (
-                        <Grid container direction = "row" justify = "flex-start" alignItems = "flex-start">
-                            <Grid item xs = {5} className = {classes.contentTitle}>
-                                <ThemeProvider theme = {theme}>
-                                    <Typography display = "inline" variant = "h4" style = {{fontWeight: "bold", textDecoration: "underline"}}>{formatTitle(key) + ":"}</Typography>
-                                </ThemeProvider>
-                            </Grid>
+                {Object.entries(data).map(([key, value], index) => (
+                  <Grid container direction = "row" justify = "flex-start" alignItems = "flex-start">
+                    <Grid key = {title + `-header-${key}`} item xs = {5} className = {classes.contentTitle}>
+                      <ThemeProvider theme = {theme}>
+                        <Typography display = "inline" variant = "h4" style = {{fontWeight: "bold", textDecoration: "underline"}}>{formatTitle(key) + ":"}</Typography>
+                      </ThemeProvider>
+                    </Grid>
 
-                            <Grid item xs = {7} className = {classes.contentBody}>
-                                <Grid container direction = "row" justify = "flex-start" alignItems = "center">
-                                    <Grid item xs = {10}>
-                                        <LinearProgress
-                                        className = {classes.linearBarRoot}
-                                        variant="determinate"
-                                        value={value}
-                                        color="secondary"
-                                        />
-                                    </Grid>
-
-                                    <Grid item xs = {2}>
-                                        <ThemeProvider theme = {theme}>
-                                            <Typography display = "inline" variant = "h6">{value + "%"}</Typography>
-                                        </ThemeProvider>
-                                    </Grid>
-
-                                </Grid>
-                            </Grid>
+                    <Grid key = {title + `-body-${key}`} item xs = {7} className = {classes.contentBody}>
+                      <Grid container direction = "row" justify = "flex-start" alignItems = "center">
+                        <Grid key = {title + `-bodybar-${index}`} item xs = {10}>
+                          <LinearProgress
+                          key = {title + `-muibar-${index}`}
+                          className = {classes.linearBarRoot}
+                          variant="determinate"
+                          value={value}
+                          color="secondary"
+                          />
                         </Grid>
-                    ))
-                }
+
+                        <Grid key = {title + `-bodyval-${index}`} item xs = {2}>
+                          <ThemeProvider theme = {theme}>
+                            <Typography display = "inline" variant = "h6">{value + "%"}</Typography>
+                          </ThemeProvider>
+                        </Grid>
+
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                ))
+              }
                 
             </Grid>
 

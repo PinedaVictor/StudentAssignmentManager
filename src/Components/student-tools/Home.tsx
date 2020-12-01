@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 
-import { BORDER_COLOR, BORDER_COLOR_HOVER, ICON_BORDER, ICON_BORDER_HOVER, PRIMARY_COLOR, SECONDARY_COLOR } from "../../Styles/global";
-import { Container, Grid, IconButton, makeStyles, Slide } from "@material-ui/core";
-import { CustomButton } from "../ReusableParts/CustomButton";
+import { BORDER_COLOR, BORDER_COLOR_HOVER, ICON_BORDER, ICON_BORDER_HOVER, SECONDARY_COLOR } from "../../Styles/global";
+import { Collapse, Container, Grid, IconButton, makeStyles, Slide } from "@material-ui/core";
 import { CustomCardProgress } from "../ReusableParts/CustomCardProgress";
-import { CustomPopup } from "../ReusableParts/CustomPopup";
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { CustomTable } from "../ReusableParts/CustomTable";
+import { CustomCheckbox } from "../ReusableParts/CustomCheckbox";
 
 const classData = [
   {
@@ -235,7 +234,10 @@ export const Home: React.FC = () => {
 
   const [toolbarSelection, setToolbarSelection] = useState(0)
   const [slideStates, setSlideStates] = useState([true, false])
-  const [settingsModal, setSettingsModal] = useState(false);
+  const [settingsState, setSettingsState] = useState(false);
+  const [progressSettings, setProgressSettings] = useState({
+    checkbox1: false
+  })
 
   const handleToolbarNav = (event: React.ChangeEvent<{}>, newValue: number) => {
     let slidersTemp = slideStates
@@ -246,15 +248,12 @@ export const Home: React.FC = () => {
     setToolbarSelection(newValue);
   };
 
-  const handleSettingsModal = () => {
-    setSettingsModal(true)
-  }
-
   const progressSection = (
     <Grid container direction = "row" spacing = {3}>
       {classData.map((item) => (
-        <Grid item xs = {12} sm = {6} md = {6} lg = {4} xl = {4}>
+        <Grid key = {"progGrid-" + `${item.id}`} item xs = {12} sm = {6} md = {6} lg = {4} xl = {4}>
           <CustomCardProgress
+          key = {"progItem-" + `${item.id}`}
           title = {item.Name}
           data = {{
             Total: item.Total,
@@ -270,8 +269,9 @@ export const Home: React.FC = () => {
   )
 
   const taskSection = (
-    <Grid item xs = {12} className = {classes.tableRoot}>
+    <Grid key = "taskContainer" item xs = {12} className = {classes.tableRoot}>
       <CustomTable
+      key = "taskTable"
       data = {assignmentsData}
       headerText = {tableColumns}
       />
@@ -279,35 +279,51 @@ export const Home: React.FC = () => {
   )
 
   const progressModal = (
-    <form  className = {classes.modalWindow}>
-
-    </form>
+    <Grid container direction = "row" spacing = {4} className = {classes.settingsGrid}>
+      <Grid item xs = {3}>
+        <CustomCheckbox
+        label = "checkbox 1"
+        state = {progressSettings.checkbox1}
+        onChange = {() => handleProgressSettingCheck("checkbox1")}
+        />
+      </Grid>
+    </Grid>
   )
 
   const taskModal = (
-    <form  className = {classes.modalWindow}>
-
-    </form>
+    <Grid container direction = "row" spacing = {4}>
+      <Grid item xs = {3}>
+        <CustomCheckbox
+        label = "checkbox 1"
+        state = {progressSettings.checkbox1}
+        onChange = {() => handleProgressSettingCheck("checkbox1")}
+        />
+      </Grid>
+    </Grid>
   )
+
+  const handleProgressSettingCheck = (target: "checkbox1") => {
+    let settings = Object.assign({}, progressSettings)
+
+    settings[target] = !settings[target]
+
+    setProgressSettings(settings)
+  }
 
   return (
     <Container style = {{width: "80%"}}>
       <Grid container direction = "column" justify = "center" alignItems = "center" spacing = {4}>
 
-        <Grid item xs = {12}>
+        <Grid key = "controlsContainer" item xs = {12}>
           <Grid container direction = "row" justify = "center" alignItems = "center">
                       
-            <Grid item xs = {3}>
-              <IconButton>
-                <SettingsIcon
-                className = {classes.settingsRoot}
-                onClick = {handleSettingsModal}
-                />
+            <Grid key = "settingsIcon" item xs = {3}>
+              <IconButton onClick = {() => setSettingsState((prev) => (!prev))}>
+                <SettingsIcon className = {classes.settingsRoot}/>
               </IconButton>
-              
             </Grid>
 
-            <Grid item xs = {9}>
+            <Grid key = "tabBar" item xs = {9}>
               <CustomScrollableTabs
               className={classes.toolbarRoot}
               tabValue={toolbarSelection}
@@ -319,34 +335,35 @@ export const Home: React.FC = () => {
           </Grid>
         </Grid>
 
-        <Grid item xs = {12}>
-          <Slide direction = "left" in = {slideStates[0]} timeout = {{enter: 500, exit: 100}} mountOnEnter unmountOnExit>
+        <Collapse in = {settingsState} timeout = {{enter: 100, exit: 100}} disableStrictModeCompat>
+          {(toolbarSelection === 0) ? progressModal : taskModal}
+        </Collapse>
+        
+        <Grid key = "sliderSection" item xs = {12}>
+          <Slide key = "slider-progress" direction = "left" in = {slideStates[0]} timeout = {{enter: 500, exit: 100}} mountOnEnter unmountOnExit>
             {progressSection}
           </Slide>
 
-          <Slide direction = "right" in = {slideStates[1]} timeout = {{enter: 500, exit: 100}} mountOnEnter unmountOnExit>
+          <Slide key = "slider-tasks" direction = "right" in = {slideStates[1]} timeout = {{enter: 500, exit: 100}} mountOnEnter unmountOnExit>
             {taskSection}
           </Slide>
           
         </Grid>
-        
-
       </Grid>
-      
-      <CustomPopup
-      modalState = {settingsModal}
-      layout = {(toolbarSelection == 0) ? progressModal : taskModal}
-      />
-
     </Container>
   );
 };
 
 const useStyles = makeStyles((theme) => ({
-  modalWindow: {
-    margin: theme.spacing(2),
+  settingsGrid: {
     width: "auto",
-    color: "white"
+    color: "white",
+    border: "solid 1px",
+    borderColor: BORDER_COLOR,
+    borderRadius: 5,
+    backgroundColor: SECONDARY_COLOR,
+    marginBottom: theme.spacing(1),
+    marginTop: theme.spacing(1)
   },
 
   toolbarRoot: {

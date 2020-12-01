@@ -1,6 +1,5 @@
 import React from 'react';
 import { makeStyles, Slider } from '@material-ui/core';
-import { BORDER_COLOR, BORDER_COLOR_HOVER } from '../../Styles/global';
 
 interface Props {
     min: number,

@@ -13,8 +13,7 @@ import { app } from "../../Database/initFirebase"
 import { NumberInput } from "../ReusableParts/NumberInput";
 import { MenuSelectionBox } from "../ReusableParts/MenuSelectionBox";
 import { CustomSlider} from "../ReusableParts/CustomSlider"
-import { Course } from "../../Pages";
-import { BORDER_COLOR, SECONDARY_COLOR } from "../../Styles/global";
+import { BORDER_COLOR } from "../../Styles/global";
 
 const courses = Array<ModalFields>()
 
@@ -503,12 +502,12 @@ export const Courses: React.FC = () => {
         
           {
           CourseInfo.officeHours.map((mainDay, mainIndex) => (
-            <Grid container item xl = {12} direction = "row" className = {classes.modalOfficeDays}>
+            <Grid key = {CourseInfo.id + `mainDay-${mainIndex}`} container item xl = {12} direction = "row" className = {classes.modalOfficeDays}>
               <Grid container direction = "row" justify = "flex-start" alignItems = "center">
 
                 {
                 mainDay.day.map((subDay, subIndex) => (
-                  <Grid item xl = {1} style = {{marginBottom: 24, marginRight: 24}}>
+                  <Grid key = {CourseInfo.id + `subday-${subIndex}`} item xl = {1} style = {{marginBottom: 24, marginRight: 24}}>
                     <MenuSelectionBox
                     label = "Day"
                     onChange = {(e) => setOfficeHoursDay(mainIndex, subIndex, e.target.value)}
@@ -604,10 +603,7 @@ export const Courses: React.FC = () => {
 
             </Grid>
           ))
-          
           }
-        
-        
       </Grid>
 
       <Grid container direction = "row" spacing = {0} alignContent = "center" justify = "center">
@@ -861,7 +857,6 @@ export const Courses: React.FC = () => {
           courses.map((course, index) => (
             <Grid
             item
-            alignContent = "space-between"
             xs={12}
             sm={9}
             md={5}

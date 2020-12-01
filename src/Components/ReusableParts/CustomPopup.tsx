@@ -30,7 +30,7 @@ export const CustomPopup: React.FC<Props> = ({title, layout, modalState}) => {
             {(title !== undefined && title !== null) &&
             <DialogTitle id="responsive-dialog-title">
                 <ThemeProvider theme = {fontTheme}>
-                    <Typography variant = "h2" style = {{textAlign: "center"}} >{title}</Typography>
+                    <Typography style = {{textAlign: "center"}} >{title}</Typography>
                 </ThemeProvider>
             </DialogTitle>}
 

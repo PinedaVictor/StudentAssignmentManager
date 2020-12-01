@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, createMuiTheme, Grid, Icon, IconButton, makeStyles, responsiveFontSizes, ThemeProvider, Typography } from "@material-ui/core";
+import { Card, CardContent, CardHeader, createMuiTheme, Grid, IconButton, makeStyles, responsiveFontSizes, ThemeProvider, Typography } from "@material-ui/core";
 import {
   SECONDARY_COLOR,
   BORDER_COLOR,
@@ -85,6 +85,7 @@ export const CustomCardStandard: React.FC<Props> = ({
                   {
                     Object.entries(value).map(([fieldKey, fieldVal]) => (
                       <Grid
+                      key = {title + `-bodycontainer${fieldKey}`}
                       item
                       xs = {6}
                       style = {{paddingTop: 8}}
@@ -116,7 +117,7 @@ export const CustomCardStandard: React.FC<Props> = ({
           >
             <Grid container direction = "row" alignItems = "center" justify = "center" style = {{padding: 18}}>
               
-              <Grid item xs = {1}>
+              <Grid key = {title + "EditIcon"} item xs = {1}>
                 <IconButton className = {classes.iconButtonRoot} onClick = {editClick}>
                   <EditIcon
                   className = {classes.iconRoot}
@@ -125,7 +126,7 @@ export const CustomCardStandard: React.FC<Props> = ({
                 </IconButton>
               </Grid>
               
-              <Grid item xs = {10}>
+              <Grid key = {title + "header"} item xs = {10}>
                 <CardHeader
                 className = {classes.cardMainHeader}
                 title = {
@@ -136,7 +137,7 @@ export const CustomCardStandard: React.FC<Props> = ({
                 />
               </Grid>
               
-              <Grid item xs = {1}>
+              <Grid key = {title + "DeleteIcon"} item xs = {1}>
                 <IconButton className = {classes.iconButtonRoot} onClick = {deleteClick}>
                   <DeleteIcon
                   className = {classes.iconRoot}
@@ -160,6 +161,7 @@ export const CustomCardStandard: React.FC<Props> = ({
                     {
                       Object.entries(data).map(([key, value], index) => (
                         <Grid
+                        key = {title + `-bodyGrid-${index}`}
                         item
                         xs = {12}
                         className = {classes.cardContentsInner}
@@ -183,6 +185,7 @@ export const CustomCardStandard: React.FC<Props> = ({
                     {
                       Object.entries(expandingData).map(([key, value], index) => (
                         <Grid
+                        key = {title + `-extraGrid-${index}`}
                         item
                         xs = {12}
                         className = {classes.cardContentsInner}
@@ -196,7 +199,7 @@ export const CustomCardStandard: React.FC<Props> = ({
               </CardContent>
             </Grid>
 
-            <Grid item xs = {12}>
+            <Grid key = {title + "expandIconContainer"} item xs = {12}>
             {(expandingData !== undefined) && (
               (expandState === false) ? 
               
