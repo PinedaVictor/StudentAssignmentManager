@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import firebase from 'firebase';
 
-import { SECONDARY_COLOR } from '../../Styles/global';
+import { DEFAULT_TEXT_COLOR, SECONDARY_COLOR } from '../../Styles/global';
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
 import { AddForm } from '../ReusableParts/AddForm';
 import { Project, ProjectData } from '../../Database/utils';
@@ -243,7 +243,7 @@ export const ProjectTool: React.FC = () => {
                 <Box m={6}>
                     <Button
                         disabled={ projectData.length === 0 }
-                        className={classes.addProjectExam}
+                        className={classes.addProject}
                         variant='contained'
                         startIcon={<AddCircleIcon />}
                         onClick={handleFormOpen}
@@ -287,12 +287,12 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         tabs: {
             backgroundColor: SECONDARY_COLOR,
-            color: 'white',
+            color: DEFAULT_TEXT_COLOR,
             borderRadius: 10,
         },
-        addProjectExam: {
+        addProject: {
             backgroundColor: SECONDARY_COLOR,
-            color: 'white'
+            color: DEFAULT_TEXT_COLOR,
         },
     })
 );
