@@ -4,7 +4,7 @@ Look up either React lodash, or React debounce for potential performance improve
 
 import React, { useState } from "react";
 import { CustomCardStandard }  from "../ReusableParts/CustomCardStandard";
-import { Container, Grid, makeStyles, Slider, TextField, Typography} from "@material-ui/core";
+import { Container, createMuiTheme, Grid, makeStyles, responsiveFontSizes, Slider, TextField, ThemeProvider, Typography} from "@material-ui/core";
 import { CustomButton } from "../ReusableParts/CustomButton";
 import { CustomPopup } from "../ReusableParts/CustomPopup";
 import { CustomTextField } from "../ReusableParts/CustomTextField"
@@ -12,69 +12,13 @@ import { CustomTextField } from "../ReusableParts/CustomTextField"
 import { app } from "../../Database/initFirebase"
 import { NumberInput } from "../ReusableParts/NumberInput";
 import { MenuSelectionBox } from "../ReusableParts/MenuSelectionBox";
-import { Course } from "../../Pages";
-import { SECONDARY_COLOR } from "../../Styles/global";
+import { CustomSlider} from "../ReusableParts/CustomSlider"
+import { BORDER_COLOR } from "../../Styles/global";
 
-const courses = [
-  {
-    id: "gf67hx",
-    courseName: "Comp 356",
-    email: "some.guy@gmail.com",
-
-    officeHours: [
-      {
-      day: [ "Monday" , "Wednesday" ],
-      start: {
-        hour: 10,
-        minute: 30,
-        setting: "am"
-        },
-
-      end: {
-        hour: 12,
-        minute: 0,
-        setting: "pm"
-        }
-      },
-      {
-        day: [ "Tuesday" ],
-        start: {
-          hour: 8,
-          minute: 30,
-          setting: "am"
-          },
-  
-        end: {
-          hour: 9,
-          minute: 45,
-          setting: "am"
-          }
-        }
-    ],
-
-    latePolicy: "No late work allowed",
-    curvingPolicy: "Drop the lowest test score and lowest quiz score.  The grading scale is curved based off the highest grade in the class.",
-    priority: 5,
-
-    gradeScale: {
-      AMinus: 85,
-      BMinus: 70,
-      CMinus: 55,
-      DMinus: 40
-    },
-
-    gradeWeights: {
-      homework: 20,
-      project: 30,
-      exam: 40,
-      quiz: 10
-    }
-  },
-
-  
-]
+const courses = Array<ModalFields>()
 
 interface ModalFields {
+  id: string,
   courseName: string,
   email: string,
 
@@ -113,10 +57,14 @@ interface ModalFields {
 export const Courses: React.FC = () => {
   const classes = useStyles()
 
+  let fontTheme = createMuiTheme();
+  fontTheme = responsiveFontSizes(fontTheme);
+
   const [cardModal, setCardModal] = useState(false);
   const [modalStage, setModalStage] = useState(0)
 
   const [CourseInfo, setCourseInfo] = useState<ModalFields>({
+    id: "",
     courseName: "",
     email: "",
     officeHours: [{
@@ -159,6 +107,7 @@ export const Courses: React.FC = () => {
 
   const openEditModal = (data: 
     {
+      id: string,
       courseName: string, 
       email: string, 
       officeHours: Array<{
@@ -187,8 +136,57 @@ export const Courses: React.FC = () => {
     setCardModal(true)
   }
 
-  const submitModal = () => {
-          
+  const openAddModal = () => {
+
+    let emptyCourse = {
+      id: "",
+      courseName: "",
+      email: "",
+
+      officeHours: [{
+        day: [""],
+        start: {
+          hour: 0,
+          minute: 0,
+          setting: ""
+          },
+        end: {
+          hour: 0,
+          minute: 0,
+          setting: ""
+          }
+        }],
+
+      latePolicy: "",
+      curvingPolicy: "",
+      priority: 0,
+
+      gradeScale: {
+        AMinus: 0,
+        BMinus: 0,
+        CMinus: 0,
+        DMinus: 0,
+      },
+  
+      gradeWeights: {
+        homework: 0,
+        project: 0,
+        exam: 0,
+        quiz: 0
+      }
+    }
+
+    setCourseInfo(emptyCourse)
+
+    cycleModalStage(1)
+    setCardModal(true)
+  }
+
+  const submitModal = (action: "edit" | "add") => {
+    
+    if (action === "add")
+      courses.push(CourseInfo)
+
     setModalStage(0)
     setCardModal(false)
     clearModalInputs()
@@ -202,6 +200,7 @@ export const Courses: React.FC = () => {
 
   const clearModalInputs = () => {
     setCourseInfo({
+      id: "",
       courseName: "",
       email: "",
 
@@ -245,24 +244,47 @@ export const Courses: React.FC = () => {
 
   const setGeneralInfo = (field: "courseName" | "email" | "latePolicy" | "curvingPolicy" | "priority", value: string) => {
    
-    let infoCopy = Object.assign(CourseInfo)
-    infoCopy[field] = value
+    let infoCopy = Object.assign({}, CourseInfo)
 
+    if (field !== "priority"){
+      infoCopy[field] = value
+    }
+
+    else {
+      var validation = validateNumInput(value)
+
+      if (validation >= 0 && validation <= 5)
+        infoCopy[field] = validation
+    }
+    
     setCourseInfo(infoCopy)
-   
   }
 
-  const setGradeScale = (field: "AMinus" | "BMinus" | "CMinus" | "DMinus", value: number) => {
+  const setGradeScale = (field: "AMinus" | "BMinus" | "CMinus" | "DMinus", value: number | number[]) => {
 
     let infoCopy = Object.assign({}, CourseInfo)
-    infoCopy["gradeScale"][field] = value
+    var finalVal = 0
+
+    if (Array.isArray(value))
+      finalVal = value[value.length - 1]
+
+    else finalVal = value
+    
+    infoCopy["gradeScale"][field] = finalVal
 
     setCourseInfo(infoCopy)
   }
 
-  const setGradeWeights = (field: "homework" | "project" | "exam" | "quiz", value: number) => {
+  const setGradeWeights = (field: "homework" | "project" | "exam" | "quiz", value: number | number[]) => {
     let infoCopy = Object.assign({}, CourseInfo)
-    infoCopy["gradeWeights"][field] = value
+    var finalVal = 0
+
+    if (Array.isArray(value))
+      finalVal = value[value.length - 1]
+
+    else finalVal = value
+    
+    infoCopy["gradeWeights"][field] = finalVal
 
     setCourseInfo(infoCopy)
   }
@@ -300,7 +322,9 @@ export const Courses: React.FC = () => {
     let mapping = [
       ModalStage0,
       ModalStage1,
-      ModalStage2
+      ModalStage2,
+      ModalStage3,
+      ModalStage4
     ]
 
     return mapping[modalStage]
@@ -334,7 +358,10 @@ export const Courses: React.FC = () => {
   const setOfficeTime = (mainIndex: number, value: number, period: "start" | "end", time: "hour" | "minute") => {
     let infoCopy = Object.assign({}, CourseInfo)
 
-    if(value >= 0 && value <= 12)
+    if((value >= 0 && value <= 12) && time === "hour")
+      infoCopy["officeHours"][mainIndex][period][time] = value
+
+    else if ((value >= 0 && value < 60) && time === "minute")
       infoCopy["officeHours"][mainIndex][period][time] = value
     
     else if (value === undefined || isNaN(value) || value === null)
@@ -351,6 +378,42 @@ export const Courses: React.FC = () => {
     infoCopy["officeHours"][mainIndex][period].setting = value
 
     setCourseInfo(infoCopy)
+  }
+
+  const getOfficeOutput = (officeHours: Array<{
+    day: Array<string>,
+    start: {
+      hour: number,
+      minute: number,
+      setting: string
+      },
+    end: {
+      hour: number,
+      minute: number,
+      setting: string
+      }
+    }>) => {
+    
+    var result = ""
+
+    officeHours.map((mainDay, mainIndex) => {
+      mainDay.day.map((subDay, subIndex) => {
+        result = result.concat(subDay.substring(0, 2))
+
+        if (subIndex < mainDay.day.length - 1)
+          result = result.concat("/")
+
+        
+      })
+
+      result = result.concat(" " + mainDay.start.hour.toString() + ":" + mainDay.start.minute.toString() + mainDay.start.setting + " - " + 
+                                   mainDay.end.hour.toString() + ":" + mainDay.end.minute.toString() + mainDay.end.setting + ".")
+
+      if (mainIndex < officeHours.length)
+        result = result.concat("  ")
+    })
+
+    return result
   }
 
   const ModalStage0 = (<form></form>)
@@ -374,6 +437,7 @@ export const Courses: React.FC = () => {
           onChange = {(event) => setGeneralInfo("courseName", event.target.value)}
           value = {CourseInfo.courseName}
           placeholder = {(CourseInfo.courseName !== "") ? CourseInfo.courseName : "Math 101"}
+          required
           />
         </Grid>
 
@@ -438,12 +502,12 @@ export const Courses: React.FC = () => {
         
           {
           CourseInfo.officeHours.map((mainDay, mainIndex) => (
-            <Grid container item xl = {12} direction = "row" className = {classes.modalOfficeDays}>
+            <Grid key = {CourseInfo.id + `mainDay-${mainIndex}`} container item xl = {12} direction = "row" className = {classes.modalOfficeDays}>
               <Grid container direction = "row" justify = "flex-start" alignItems = "center">
 
                 {
                 mainDay.day.map((subDay, subIndex) => (
-                  <Grid item xl = {1} style = {{marginBottom: 24, marginRight: 24}}>
+                  <Grid key = {CourseInfo.id + `subday-${subIndex}`} item xl = {1} style = {{marginBottom: 24, marginRight: 24}}>
                     <MenuSelectionBox
                     label = "Day"
                     onChange = {(e) => setOfficeHoursDay(mainIndex, subIndex, e.target.value)}
@@ -468,9 +532,9 @@ export const Courses: React.FC = () => {
               <Grid container direction = "row" justify = "flex-start" alignItems = "center">
                 
                 <Grid item xs = {12} style = {{marginBottom: 12}}>
-                  <Typography variant = "h4">
-                    Start Time
-                  </Typography>
+                  <ThemeProvider theme = {fontTheme}>
+                    <Typography variant = "h4">Start Time</Typography>
+                  </ThemeProvider>
                 </Grid>
                 
                 <Grid item style = {{marginRight: 12}}>
@@ -500,12 +564,46 @@ export const Courses: React.FC = () => {
                 </Grid>
 
               </Grid>
+
+              <Grid container direction = "row" justify = "flex-start" alignItems = "center">
+                
+                <Grid item xs = {12} style = {{marginBottom: 12}}>
+                  <ThemeProvider theme = {fontTheme}>
+                    <Typography variant = "h4">End Time</Typography>
+                  </ThemeProvider>
+                </Grid>
+                
+                <Grid item style = {{marginRight: 12}}>
+                  <NumberInput
+                  label = "Hour"
+                  onChange = {(e) => setOfficeTime(mainIndex, parseInt(e.target.value), "end", "hour")}
+                  value = {mainDay.end.hour}
+                  />
+                </Grid>
+
+                <Grid item style = {{marginRight: 12}}>
+                  <NumberInput
+                  label = "Minute"
+                  onChange = {(e) => setOfficeTime(mainIndex, parseInt(e.target.value), "end", "minute")}
+                  value = {mainDay.end.minute}
+                  />
+                </Grid>
+
+                <Grid item >
+                  <MenuSelectionBox
+                  label = ""
+                  value = {mainDay.end.setting}
+                  onChange = {(e) => setOfficeTimeMode(mainIndex, e.target.value, "end")}
+                  options = {["am", "pm"]}
+                  width = "7ch"
+                  />
+                </Grid>
+
+              </Grid>
+
             </Grid>
           ))
-          
           }
-        
-        
       </Grid>
 
       <Grid container direction = "row" spacing = {0} alignContent = "center" justify = "center">
@@ -532,6 +630,200 @@ export const Courses: React.FC = () => {
     </form>
   )
   
+  const ModalStage3 = (
+    <form className = {classes.modalWindow}>
+      <Grid container direction = "column">
+
+        <Grid container direction = "row" justify = "flex-start" alignItems = "center">
+          <Grid item xs = {3} sm = {2} md = {1} lg = {1} xl = {1}>
+            <ThemeProvider theme = {fontTheme}>
+              <Typography variant = "h4"> {"A-:  " + CourseInfo.gradeScale.AMinus + "%"} </Typography>
+            </ThemeProvider>
+          </Grid>
+
+          <Grid item xs = {9} sm = {10} md = {11} lg = {11} xl = {11}>
+            <CustomSlider
+            min = {CourseInfo.gradeScale.BMinus}
+            max = {100}
+            value = {CourseInfo.gradeScale.AMinus}
+            onChange = {(event, value) => setGradeScale("AMinus", value)}
+            />
+          </Grid>
+        </Grid>
+
+        <Grid container direction = "row" justify = "flex-start" alignItems = "center">
+          <Grid item xs = {3} sm = {2} md = {1} lg = {1} xl = {1}>
+            <ThemeProvider theme = {fontTheme}>
+              <Typography variant = "h4"> {"B-:  " + CourseInfo.gradeScale.BMinus + "%"} </Typography>
+            </ThemeProvider>
+          </Grid>
+
+          <Grid item xs = {9} sm = {10} md = {11} lg = {11} xl = {11}>
+            <CustomSlider
+            min = {CourseInfo.gradeScale.CMinus}
+            max = {CourseInfo.gradeScale.AMinus}
+            value = {CourseInfo.gradeScale.BMinus}
+            onChange = {(event, value) => setGradeScale("BMinus", value)}
+            />
+          </Grid>
+        </Grid>
+
+        <Grid container direction = "row" justify = "flex-start" alignItems = "center">
+          <Grid item xs = {3} sm = {2} md = {1} lg = {1} xl = {1}>
+            <ThemeProvider theme = {fontTheme}>
+              <Typography variant = "h4"> {"C-:  " + CourseInfo.gradeScale.CMinus + "%"} </Typography>
+            </ThemeProvider>
+          </Grid>
+
+          <Grid item xs = {9} sm = {10} md = {11} lg = {11} xl = {11}>
+            <CustomSlider
+            min = {CourseInfo.gradeScale.DMinus}
+            max = {CourseInfo.gradeScale.BMinus}
+            value = {CourseInfo.gradeScale.CMinus}
+            onChange = {(event, value) => setGradeScale("CMinus", value)}
+            />
+          </Grid>
+        </Grid>
+
+        <Grid container direction = "row" justify = "flex-start" alignItems = "center">
+          <Grid item xs = {3} sm = {2} md = {1} lg = {1} xl = {1}>
+            <ThemeProvider theme = {fontTheme}>
+              <Typography variant = "h4"> {"D-:  " + CourseInfo.gradeScale.DMinus + "%"} </Typography>
+            </ThemeProvider>
+          </Grid>
+
+          <Grid item xs = {9} sm = {10} md = {11} lg = {11} xl = {11}>
+            <CustomSlider
+            min = {0}
+            max = {CourseInfo.gradeScale.CMinus}
+            value = {CourseInfo.gradeScale.DMinus}
+            onChange = {(event, value) => setGradeScale("DMinus", value)}
+            />
+          </Grid>
+        </Grid>
+
+        <Grid container direction = "row" spacing = {0} alignContent = "center" justify = "center">
+          
+          <Grid item style = {{margin: 24}}>
+            <CustomButton
+            title = "Next"
+            size = "small"
+            theme = "edit"
+            onClick = {() => cycleModalStage(1)}
+            />
+          </Grid>
+          
+          <Grid item style = {{margin: 24}}>
+            <CustomButton
+            title = "Back"
+            size = "small"
+            theme = "delete"
+            onClick = {() => cycleModalStage(-1)}
+            />
+          </Grid>
+          
+        </Grid>
+      </Grid>
+    </form>
+  )
+
+  const ModalStage4 = (
+    <form className = {classes.modalWindow}>
+      <Grid container direction = "column">
+
+        <Grid container direction = "column">
+          <Grid item xs = {12}>
+            <ThemeProvider theme = {fontTheme}>
+              <Typography variant = "h4"> {"Homework:  " + CourseInfo.gradeWeights.homework + "%"} </Typography>
+            </ThemeProvider>
+          </Grid>
+
+          <Grid item xs = {12}>
+            <CustomSlider
+            min = {0}
+            max = {validateScaleValues(CourseInfo.gradeWeights.quiz, CourseInfo.gradeWeights.project, CourseInfo.gradeWeights.exam)}
+            value = {CourseInfo.gradeWeights.homework}
+            onChange = {(event, value) => setGradeWeights("homework", value)}
+            />
+          </Grid>
+        </Grid>
+
+        <Grid container direction = "column">
+          <Grid item xs = {12}>
+            <ThemeProvider theme = {fontTheme}>
+              <Typography variant = "h4"> {"Projects:  " + CourseInfo.gradeWeights.project + "%"} </Typography>
+            </ThemeProvider>
+          </Grid>
+
+          <Grid item xs = {12}>
+            <CustomSlider
+            min = {0}
+            max = {validateScaleValues(CourseInfo.gradeWeights.homework, CourseInfo.gradeWeights.quiz, CourseInfo.gradeWeights.exam)}
+            value = {CourseInfo.gradeWeights.project}
+            onChange = {(event, value) => setGradeWeights("project", value)}
+            />
+          </Grid>
+        </Grid>
+
+        <Grid container direction = "column">
+          <Grid item xs = {12}>
+            <ThemeProvider theme = {fontTheme}>
+              <Typography variant = "h4"> {"Exams:  " + CourseInfo.gradeWeights.exam + "%"} </Typography>
+            </ThemeProvider>
+          </Grid>
+
+          <Grid item xs = {12}>
+            <CustomSlider
+            min = {0}
+            max = {validateScaleValues(CourseInfo.gradeWeights.homework, CourseInfo.gradeWeights.project, CourseInfo.gradeWeights.quiz)}
+            value = {CourseInfo.gradeWeights.exam}
+            onChange = {(event, value) => setGradeWeights("exam", value)}
+            />
+          </Grid>
+        </Grid>
+
+        <Grid container direction = "column">
+          <Grid item xs = {12}>
+            <ThemeProvider theme = {fontTheme}>
+              <Typography variant = "h4"> {"Quizzes:  " + CourseInfo.gradeWeights.quiz + "%"} </Typography>
+            </ThemeProvider>
+          </Grid>
+
+          <Grid item xs = {12}>
+            <CustomSlider
+            min = {0}
+            max = {validateScaleValues(CourseInfo.gradeWeights.homework, CourseInfo.gradeWeights.project, CourseInfo.gradeWeights.exam)}
+            value = {CourseInfo.gradeWeights.quiz}
+            onChange = {(event, value) => setGradeWeights("quiz", value)}
+            />
+          </Grid>
+        </Grid>
+
+        <Grid container direction = "row" spacing = {0} alignContent = "center" justify = "center">
+            
+            <Grid item style = {{margin: 24}}>
+              <CustomButton
+              title = "Submit"
+              size = "small"
+              theme = "edit"
+              onClick = {() => submitModal((CourseInfo.id !== "") ? "edit" : "add")}
+              />
+            </Grid>
+            
+            <Grid item style = {{margin: 24}}>
+              <CustomButton
+              title = "Back"
+              size = "small"
+              theme = "delete"
+              onClick = {() => cycleModalStage(-1)}
+              />
+            </Grid>
+            
+          </Grid>
+      </Grid>
+    </form>
+  )
+
   return (
 
     <Container style = {{width: "80%"}}>
@@ -549,7 +841,7 @@ export const Courses: React.FC = () => {
         >
           <CustomButton
           title = "Add Course"
-          onClick = {() => cycleModalStage(1)}
+          onClick = {() => openAddModal()}
           size = "large"
           />
         </Grid>
@@ -558,14 +850,13 @@ export const Courses: React.FC = () => {
         container
         spacing = {3}
         justify = "center"
-        alignItems = "stretch"
+        alignItems = "flex-start"
         direction = "row"
         >
           {
           courses.map((course, index) => (
             <Grid
             item
-            alignContent = "space-between"
             xs={12}
             sm={9}
             md={5}
@@ -577,10 +868,6 @@ export const Courses: React.FC = () => {
               title = {course.courseName}
               data = {{
                 priority: course.priority,
-                email: course.email,
-                officeHours: course.officeHours,
-                lateWorkPolicy: course.latePolicy,
-                curvingPolicy: course.curvingPolicy,
                 
                 gradingScale: {
                   AMinus: course.gradeScale.AMinus + "%",
@@ -596,6 +883,14 @@ export const Courses: React.FC = () => {
                   quizzes: course.gradeWeights.quiz + "%",
                 },
               }}
+
+              expandingData = {{
+                officeHours: getOfficeOutput(course.officeHours),
+                email: course.email,
+                lateWorkPolicy: course.latePolicy,
+                curvingPolicy: course.curvingPolicy,
+              }}
+
               editClick = {() => openEditModal(course)}
               deleteClick = {() => deleteCourse(course.id)}
               />
@@ -619,213 +914,22 @@ export const Courses: React.FC = () => {
 const useStyles = makeStyles((theme) => ({
   modalWindow: {
     margin: theme.spacing(2),
-    width: "auto"
-    
+    width: "auto",
+    color: "white"
   },
 
   modalOfficeDays: {
     border: "dashed 2px black",
+    borderColor: BORDER_COLOR,
     borderRadius: 5,
     marginBottom: 24
   },
 
   modalOfficeTimes: {
-    border: "dashed 1px black",
+    border: "dashed 1px",
+    borderColor: BORDER_COLOR,
     borderRadius: 5,
     padding: 5
   }
 }))
 
-
-
-/*
-  const CourseModal_Stage2 = (
-    <form  className={classes.root} noValidate autoComplete="off">
-
-    <div style = {styles.modalHeader}> Grading Scale </div>
-    
-    <div style = {styles.weightSection}>
-      <div style = {styles.labelStyle} >A-</div>
-
-      <div style = {styles.weightRow}>
-        <Slider
-        name = "A-"
-        min = {0}
-        max = {validateScaleValues(CourseInfo.gradeScale.BMinus, CourseInfo.gradeScale.CMinus, CourseInfo.gradeScale.DMinus)}
-        value = {CourseInfo.gradeScale.AMinus}
-        onChange = {(event, value) => setGeneralInfo("A-", value.toString())}
-        />
-
-        <text style = {{fontSize: 18}}> {CourseInfo.gradeScale.AMinus}%</text>
-      </div>
-    </div>
-
-    <div style = {styles.weightSection}>
-      <div style = {styles.labelStyle} >B-</div>
-
-      <div style = {styles.weightRow}>
-        <Slider
-        name = "B-"
-        min = {0}
-        max = {validateScaleValues(CourseInfo.gradeScale.AMinus, CourseInfo.gradeScale.CMinus, CourseInfo.gradeScale.DMinus)}
-        value = {CourseInfo.gradeScale.BMinus}
-        onChange = {(event, value) => setGeneralInfo("B-", value.toString())}
-        />
-
-        <text style = {{fontSize: 18}}> {CourseInfo.gradeScale.BMinus}%</text>
-      </div>
-    </div>
-
-    <div style = {styles.weightSection}>
-      <div style = {styles.labelStyle} >C-</div>
-
-      <div style = {styles.weightRow}>
-        <Slider
-        name = "C-"
-        min = {0}
-        max = {validateScaleValues(CourseInfo.gradeScale.AMinus, CourseInfo.gradeScale.BMinus, CourseInfo.gradeScale.DMinus)}
-        value = {CourseInfo.gradeScale.CMinus}
-        onChange = {(event, value) => setGeneralInfo("C-", value.toString())}
-        />
-
-        <text style = {{fontSize: 18}}> {CourseInfo.gradeScale.CMinus}%</text>
-      </div>
-    </div>
-
-    <div style = {styles.weightSection}>
-      <div style = {styles.labelStyle} >D-</div>
-
-      <div style = {styles.weightRow}>
-        <Slider
-        name = "D-"
-        min = {0}
-        max = {validateScaleValues(CourseInfo.gradeScale.AMinus, CourseInfo.gradeScale.BMinus, CourseInfo.gradeScale.CMinus)}
-        value = {CourseInfo.gradeScale.DMinus}
-        onChange = {(event, value) => setGeneralInfo("D-", value.toString())}
-        />
-
-        <text style = {{fontSize: 18}}> {CourseInfo.gradeScale.DMinus}%</text>
-      </div>
-    </div>
-
-    <div style = {{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: "100%",
-          height: 40,
-          paddingTop: 25
-        }}>
-
-        <CustomButton
-        dimensions = {{ width: 70 , height: 40 , margin: 20 }}
-        onClick = {() => cycleModalStage(1)}
-        theme = "edit"
-        title = "Next"
-        />
-
-        <CustomButton
-        dimensions = {{ width: 70 , height: 40 , margin: 20 }}
-        onClick = {() => cycleModalStage(-1)}
-        theme = "delete"
-        title = "Back"
-        />
-      </div>
-  </form>
-  )
-
-  const CourseModal_Stage3 = (
-    <form  className={classes.root} noValidate autoComplete="off">
-
-    <div style = {styles.modalHeader}> Grade Weights </div>
-
-    <div style = {styles.weightSection}>
-      <div style = {styles.labelStyle} >Homework</div>
-
-      <div style = {styles.weightRow}>
-        <Slider
-        name = "homework"
-        min = {0}
-        max = {validateScaleValues(CourseInfo.gradeWeights.project, CourseInfo.gradeWeights.exam, CourseInfo.gradeWeights.quiz)}
-        value = {CourseInfo.gradeWeights.homework}
-        onChange = {(event, value) => setGeneralInfo("hwWeight", value.toString())}
-        />
-
-        <text style = {{fontSize: 18}}> {CourseInfo.gradeWeights.homework}%</text>
-      </div>
-    </div>
-
-    <div style = {styles.weightSection}>
-      <div style = {styles.labelStyle} >Projects</div>
-
-      <div style = {styles.weightRow}>
-        <Slider
-        name = "project"
-        min = {0}
-        max = {validateScaleValues(CourseInfo.gradeWeights.homework, CourseInfo.gradeWeights.exam, CourseInfo.gradeWeights.quiz)}
-        value = {CourseInfo.gradeWeights.project}
-        onChange = {(event, value) => setGeneralInfo("projWeight", value.toString())}
-        />
-
-        <text style = {{fontSize: 18}}> {CourseInfo.gradeWeights.project}%</text>
-      </div>
-    </div>
-
-    <div style = {styles.weightSection}>
-      <div style = {styles.labelStyle} >Exams</div>
-
-      <div style = {styles.weightRow}>
-        <Slider
-        name = "exam"
-        min = {0}
-        max = {validateScaleValues(CourseInfo.gradeWeights.homework, CourseInfo.gradeWeights.project, CourseInfo.gradeWeights.quiz)}
-        value = {CourseInfo.gradeWeights.exam}
-        onChange = {(event, value) => setGeneralInfo("examWeight", value.toString())}
-        />
-
-        <text style = {{fontSize: 18}}> {CourseInfo.gradeWeights.exam}%</text>
-      </div>
-    </div>
-
-    <div style = {styles.weightSection}>
-      <div style = {styles.labelStyle} >Quizzes</div>
-
-      <div style = {styles.weightRow}>
-        <Slider
-        name = "quiz"
-        min = {0}
-        max = {validateScaleValues(CourseInfo.gradeWeights.homework, CourseInfo.gradeWeights.project, CourseInfo.gradeWeights.exam)}
-        value = {CourseInfo.gradeWeights.quiz}
-        onChange = {(event, value) => setGeneralInfo("quizWeight", value.toString())}
-        />
-
-        <text style = {{fontSize: 18}}> {CourseInfo.gradeWeights.quiz}%</text>
-      </div>
-    </div>
-
-    <div style = {{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: "100%",
-          height: 40,
-          paddingTop: 25
-        }}>
-
-        <CustomButton
-        dimensions = {{ width: 70 , height: 40 , margin: 20 }}
-        onClick = {() => submitModal()}
-        theme = "edit"
-        title = "Submit"
-        />
-
-        <CustomButton
-        dimensions = {{ width: 70 , height: 40 , margin: 20 }}
-        onClick = {() => cycleModalStage(-1)}
-        theme = "delete"
-        title = "Back"
-        />
-      </div>
-  </form>
-  )
-*/
