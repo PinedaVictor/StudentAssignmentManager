@@ -1,4 +1,4 @@
-import { AppBar, BottomNavigation, BottomNavigationAction, Box, Button, createStyles, Grid, makeStyles, Theme, useMediaQuery, useTheme } from '@material-ui/core';
+import { AppBar, BottomNavigation, BottomNavigationAction, Box, Button, createStyles, Dialog, DialogActions, DialogTitle, Grid, makeStyles, Theme, useMediaQuery, useTheme } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { Homework, HomeworkData } from '../../Database/utils';
@@ -79,7 +79,7 @@ const TabPanels = (props: TabPanelProps) => {
 
 export const HomeworkTool: React.FC = () => {
     const [homeworkData, setHomeworkData] = useState<HomeworkData[]>([]);
-    
+
     const firebaseUser = app.auth().currentUser;
     let currentUserID = "";
     if(firebaseUser) currentUserID = firebaseUser.uid;
@@ -110,6 +110,7 @@ export const HomeworkTool: React.FC = () => {
     }, []);
     
     // HOOKS
+    const [isInvalidData, setIsInvalidData] = useState(false);
     const [currentHomeworkEdit, setCurrentHomeworkEdit] = useState('');
     const [tabValue, setTabValue] = useState(0);
     const [openAdd, setOpenAdd] = useState(false);
@@ -150,7 +151,10 @@ export const HomeworkTool: React.FC = () => {
         const homeworkIndex = homeworkData[classIndex].homeworks.findIndex(input => input.title === homeworkName);
 
         // TODO set an error saying it no longer exists
-        if(homeworkIndex === -1) return;
+        if(homeworkIndex === -1) {
+            setIsInvalidData(true);
+            setOpenEdit(false);
+        }
 
         setCurrentHomeworkEdit(homeworkName);
         const oldHomework = homeworkData[classIndex].homeworks[homeworkIndex];
@@ -176,7 +180,10 @@ export const HomeworkTool: React.FC = () => {
     const handleFormEditSubmit = async () => {
         const homeworkIndex = homeworkData[tabValue].homeworks.findIndex(input => input.title === currentHomeworkEdit);
 
-        if(homeworkIndex === -1) return;
+        if(homeworkIndex === -1) {
+            setIsInvalidData(true);
+            setOpenEdit(false);
+        }
 
         const classID = homeworkData[tabValue].classID;
         const oldHomeworktDateCreation = homeworkData[tabValue].homeworks[homeworkIndex].DateCreated;
@@ -212,7 +219,9 @@ export const HomeworkTool: React.FC = () => {
         const classID = homeworkData[tabValue].classID;
         const homeworkIndex = homeworkData[tabValue].homeworks.findIndex(homework => homework.title === homeworkName);
 
-        if(homeworkIndex=== -1) return;
+        if(homeworkIndex=== -1) {
+            setIsInvalidData(true);
+        }
 
         const deletable = homeworkData[tabValue].homeworks[homeworkIndex];
 
@@ -226,7 +235,10 @@ export const HomeworkTool: React.FC = () => {
                 homeworks: firebase.firestore.FieldValue.arrayRemove(deletable),
             });
     }
-    
+    const handleInvalidDataClose = () => {
+        setIsInvalidData(false);
+    }
+
     //DATA
     const classes = useStyles();
     const isSmallDevice = useMediaQuery(useTheme().breakpoints.down('xs')) ;
@@ -288,6 +300,24 @@ export const HomeworkTool: React.FC = () => {
                     inputs={inputs}
                     setInputs={setInputs}
                 />
+                <Dialog
+                    open={isInvalidData}
+                    onClose={handleInvalidDataClose}
+                    PaperProps={{
+                        style: {
+                            backgroundColor: SECONDARY_COLOR,
+                            color: DEFAULT_TEXT_COLOR,
+                            alignItems: 'center'
+                        }
+                    }}
+                >
+                    <DialogTitle>
+                        {"Seems like the item homework doesn't exist anymore D:"}
+                    </DialogTitle>
+                </Dialog>
+                <DialogActions>
+                    <Button onClick={handleInvalidDataClose} color='primary'>OK</Button>
+                </DialogActions>
             </Box>
         </>
     )
