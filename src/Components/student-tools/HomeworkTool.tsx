@@ -1,43 +1,40 @@
-import { Button, createStyles, Grid, makeStyles, Theme, useMediaQuery, useTheme } from '@material-ui/core';
-import Box from '@material-ui/core/Box';
+import { AppBar, BottomNavigation, BottomNavigationAction, Box, Button, createStyles, Grid, makeStyles, Theme, useMediaQuery, useTheme } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import firebase from 'firebase';
-
+import { Homework, HomeworkData } from '../../Database/utils';
 import { DEFAULT_TEXT_COLOR, SECONDARY_COLOR } from '../../Styles/global';
+import { CustomCardStandard } from '../ReusableParts/CustomCardStandard';
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
 import { AddForm } from '../ReusableParts/AddForm';
-import { Project, ProjectData } from '../../Database/utils';
-import { CustomCardStandard } from '../ReusableParts/CustomCardStandard';
 import { EditForm } from '../ReusableParts/EditForm';
 import { app } from '../../Database/initFirebase';
+import firebase from 'firebase';
 
-const formatInfo = (info: string[]): Project => {
+const formatInfo = (info: string[]): Homework => {
     let i = 0;
-    let project: Project = {
+    let homework: Homework = {
         title: info[i++], 
         completion: parseInt(info[i++]),
         section_weight: parseInt(info[i++]),
         overall_weight: parseInt(info[i++]),
         requirements: info[i++],
-        related_homework: info[i].length === 0? [] : info[i++].split(','),
         resources: info[i].length === 0? [] : info[i++].split(','),
         DateCreated: Date(),
     }
-    return project;
+    return homework;
 }
 
 interface TabPanelProps {
     children?: React.ReactNode;
     index: any;
     value: any;
-    projectInfo: ProjectData;
+    homeworkInfo: HomeworkData;
     delete: (projectName: string) => void;
     edit: (examName: string) => void;
 }
 
 const TabPanels = (props: TabPanelProps) => {
-    const {children, value, index, projectInfo, ...func} = props;
+    const {children, value, index, homeworkInfo, ...func} = props;
 
     return (
         <div
@@ -51,7 +48,7 @@ const TabPanels = (props: TabPanelProps) => {
                     alignItems='stretch'
                     direction='row'
                 >
-                    {projectInfo.projects.map((element, index) => (
+                    {homeworkInfo.homeworks.map((element, index) => (
                         <Grid item
                             xs={12}
                             sm={9}
@@ -63,11 +60,10 @@ const TabPanels = (props: TabPanelProps) => {
                             <CustomCardStandard
                                 title={element.title}
                                 data={{
+                                    completion: element.completion + '%',
                                     sectionWeight: element.section_weight + '%',
                                     overallWeight: element.overall_weight + '%',
-                                    completion: element.completion + '%',
                                     requirements: element.requirements,
-                                    relatedHomework: element.related_homework,
                                     resources: element.resources,
                                 }}
                                 editClick={() => func.edit(element.title)}
@@ -81,39 +77,40 @@ const TabPanels = (props: TabPanelProps) => {
     )
 }
 
-export const ProjectTool: React.FC = () => {
-    const [projectData, setProjectData] = useState<ProjectData[]>([]);
+export const HomeworkTool: React.FC = () => {
+    const [homeworkData, setHomeworkData] = useState<HomeworkData[]>([]);
     
     const firebaseUser = app.auth().currentUser;
     let currentUserID = "";
     if(firebaseUser) currentUserID = firebaseUser.uid;
 
     useEffect(() => {
-        const projectList = app
+        const homeworkList = app
             .firestore()
             .collection('users')
             .doc(currentUserID)
-            .collection('ProjectData')
+            .collection('HomeworkData')
             .onSnapshot(querySnapshot => {
-                const projectList: ProjectData[] = [];
+                const homeworkList: HomeworkData[] = [];
                 querySnapshot.forEach(document => {
-                    const projectData = document.data();
-                    if(projectData) {
-                        const tempProjectData = {
-                            class: projectData.Class,
+                    const homeworkData = document.data();
+                    if(homeworkData) {
+                        const tempHomeworkData = {
+                            class: homeworkData.class,
                             classID: document.id,
-                            projects: [...projectData.projects]
+                            homeworks: [...homeworkData.homeworks]
                         }
-                        tempProjectData.projects.sort((a, b) => a.DateCreated < b.DateCreated ? 1 : -1)
-                        projectList.push(tempProjectData);
+                        tempHomeworkData.homeworks.sort((a, b) => a.DateCreated < b.DateCreated ? 1 : -1);
+                        homeworkList.push(tempHomeworkData);
                     }
                 });
-                setProjectData(projectList);
+                setHomeworkData(homeworkList);
             });
-        return () => projectList();
+        return () => homeworkList();
     }, []);
+    
     // HOOKS
-    const [currentProjectEdit, setCurrentProjectEdit] = useState('');
+    const [currentHomeworkEdit, setCurrentHomeworkEdit] = useState('');
     const [tabValue, setTabValue] = useState(0);
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
@@ -128,25 +125,44 @@ export const ProjectTool: React.FC = () => {
          isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
         {id: 'reqs', label: 'Requirements', value: '', placeHolder: 'Do...',
          isInvalid: () => false},
-        {id: 'related-hw', label: 'Related Homework', value: '', placeHolder: 'HW #1, HW #2',
-         isInvalid: () => false},
         {id: 'resources', label: 'Resources', value: '', placeHolder: 'www.youtube.com, linkedin.com/learning',
          isInvalid: () => false}
     ]);
     
     // FUNCTIONS
     const handleFormAdd = async () => {
-        const classID = projectData[tabValue].classID;
+        const classID = homeworkData[tabValue].classID;
         await app
             .firestore()
             .collection('users')
             .doc(currentUserID)
-            .collection('ProjectData')
+            .collection('HomeworkData')
             .doc(classID)
             .update({
-                projects: firebase.firestore.FieldValue
+                homeworks: firebase.firestore.FieldValue
                     .arrayUnion(formatInfo(inputs.map(input => input.value))),
             });
+    }
+
+    const handleFormEdit = async (homeworkName: string) => {
+        const newInputs = [...inputs];
+        const classIndex = tabValue;
+        const homeworkIndex = homeworkData[classIndex].homeworks.findIndex(input => input.title === homeworkName);
+
+        // TODO set an error saying it no longer exists
+        if(homeworkIndex === -1) return;
+
+        setCurrentHomeworkEdit(homeworkName);
+        const oldHomework = homeworkData[classIndex].homeworks[homeworkIndex];
+        let i = 0;
+        newInputs[i++].value = oldHomework.title;
+        newInputs[i++].value = oldHomework.completion.toString();
+        newInputs[i++].value = oldHomework.section_weight.toString();
+        newInputs[i++].value = oldHomework.overall_weight.toString();
+        newInputs[i++].value = oldHomework.requirements;
+        newInputs[i++].value = oldHomework.resources.join(', ');
+        setInputs(newInputs);
+        setOpenEdit(true);
     }
 
     const handleNavChange = (event: React.ChangeEvent<{}>, newValue: number) => {
@@ -157,85 +173,64 @@ export const ProjectTool: React.FC = () => {
         setOpenAdd(true);
     }
 
-    const handleFormEdit = async (projectName: string) => {
-        const newInputs = [...inputs];
-        const classIndex = tabValue;
-        const projectIndex = projectData[classIndex].projects.findIndex(input => input.title === projectName);
-
-        // TODO set an error saying it no longer exists
-        if(projectIndex === -1) return;
-
-        setCurrentProjectEdit(projectName);
-        const oldProject = projectData[classIndex].projects[projectIndex];
-        let i = 0;
-        newInputs[i++].value = oldProject.title;
-        newInputs[i++].value = oldProject.completion.toString();
-        newInputs[i++].value = oldProject.section_weight.toString();
-        newInputs[i++].value = oldProject.overall_weight.toString();
-        newInputs[i++].value = oldProject.requirements;
-        newInputs[i++].value = oldProject.related_homework.join(', ');
-        newInputs[i++].value = oldProject.resources.join(', ');
-        setInputs(newInputs);
-        setOpenEdit(true);
-    }
-
     const handleFormEditSubmit = async () => {
-        const projectIndex = projectData[tabValue].projects.findIndex(input => input.title === currentProjectEdit);
+        const homeworkIndex = homeworkData[tabValue].homeworks.findIndex(input => input.title === currentHomeworkEdit);
 
-        if(projectIndex === -1) return;
+        if(homeworkIndex === -1) return;
 
-        const classID = projectData[tabValue].classID;
-        const oldProjectDateCreation = projectData[tabValue].projects[projectIndex].DateCreated;
-        const oldProjectName = projectData[tabValue].projects[projectIndex].title;
+        const classID = homeworkData[tabValue].classID;
+        const oldHomeworktDateCreation = homeworkData[tabValue].homeworks[homeworkIndex].DateCreated;
+        const oldHomeworkName = homeworkData[tabValue].homeworks[homeworkIndex].title;
 
-        await handleDeleteButton(oldProjectName);
+        await handleDeleteButton(oldHomeworkName);
 
-        const projectInfo = inputs.map(input => input.value);
+        const homeworkInfo = inputs.map(input => input.value);
         let i = 0;
-        const newProject: Project = {
-            title: projectInfo[i++],
-            completion: parseInt(projectInfo[i++]),
-            section_weight: parseInt(projectInfo[i++]),
-            overall_weight: parseInt(projectInfo[i++]),
-            requirements: projectInfo[i++],
-            related_homework: projectInfo[i].length === 0 ? [] : projectInfo[i++].split(','),
-            resources: projectInfo[i].length === 0 ? [] : projectInfo[i].split(','),
-            DateCreated: oldProjectDateCreation,
+        const newHomework: Homework = {
+            title: homeworkInfo[i++],
+            completion: parseInt(homeworkInfo[i++]),
+            section_weight: parseInt(homeworkInfo[i++]),
+            overall_weight: parseInt(homeworkInfo[i++]),
+            requirements: homeworkInfo[i++],
+            resources: homeworkInfo[i].length === 0 ? [] : homeworkInfo[i].split(','),
+            DateCreated: oldHomeworktDateCreation,
         }
-        await app
-            .firestore()
-            .collection('users')
-            .doc(currentUserID)
-            .collection('ProjectData')
-            .doc(classID)
-            .update( {
-                projects: firebase.firestore.FieldValue.arrayUnion(newProject),
-            });
-
-        setCurrentProjectEdit('');
-    }
-
-    const handleDeleteButton = async (projectName: string) => {
-        const classID = projectData[tabValue].classID;
-        const projectIndex = projectData[tabValue].projects.findIndex(project => project.title === projectName);
-
-        if(projectIndex === -1) return;
-
-        const deletable = projectData[tabValue].projects[projectIndex];
 
         await app
             .firestore()
             .collection('users')
             .doc(currentUserID)
-            .collection('ProjectData')
+            .collection('HomeworkData')
             .doc(classID)
             .update( {
-                projects: firebase.firestore.FieldValue.arrayRemove(deletable),
+                homeworks: firebase.firestore.FieldValue.arrayUnion(newHomework),
+            });
+        setCurrentHomeworkEdit('');
+    }
+
+    const handleDeleteButton = async (homeworkName: string) => {
+        const classID = homeworkData[tabValue].classID;
+        const homeworkIndex = homeworkData[tabValue].homeworks.findIndex(homework => homework.title === homeworkName);
+
+        if(homeworkIndex=== -1) return;
+
+        const deletable = homeworkData[tabValue].homeworks[homeworkIndex];
+
+        await app
+            .firestore()
+            .collection('users')
+            .doc(currentUserID)
+            .collection('HomeworkData')
+            .doc(classID)
+            .update( {
+                homeworks: firebase.firestore.FieldValue.arrayRemove(deletable),
             });
     }
-    // DATA
-    const isSmallDevice = useMediaQuery(useTheme().breakpoints.down('xs'));
+    
+    //DATA
     const classes = useStyles();
+    const isSmallDevice = useMediaQuery(useTheme().breakpoints.down('xs')) ;
+
     return (
         <>
             <Box textAlign='center' m={isSmallDevice ? 0 : 6}>
@@ -243,25 +238,34 @@ export const ProjectTool: React.FC = () => {
                     className={classes.tabs}
                     tabValue={tabValue}
                     onChange={handleNavChange}
-                    tabNames={projectData.map(element => element.class)}
+                    tabNames={homeworkData.map(element => element.class)}
                 />
-                <Box m={6}>
-                    <Button
-                        disabled={ projectData.length === 0 }
-                        className={classes.addProject}
-                        variant='contained'
-                        startIcon={<AddCircleIcon />}
-                        onClick={handleFormOpen}
-                    >
-                        Add
-                    </Button>
-                </Box>
-                <Box m={6}>
-                    {projectData.map((element, index) => {
+                {isSmallDevice ?
+                    <AppBar position="fixed" style={{top: 'auto', bottom: 0}}>
+                        <BottomNavigation value={0} onChange={(event, newValue) => {}} className={classes.addHomework}>
+                            <BottomNavigationAction
+                                icon={<AddCircleIcon className={classes.addHomeworkIcon}/> }
+                                onClick={handleFormOpen}
+                            />
+                        </BottomNavigation>
+                    </AppBar> :
+                    <Box m={6}>
+                        <Button
+                            variant='contained'
+                            startIcon={<AddCircleIcon />}
+                            className={classes.addHomework}
+                            onClick={handleFormOpen}
+                        >
+                            Add
+                        </Button>
+                    </Box>
+                }
+                <Box m={6} p={isSmallDevice? 2 : 0}>
+                    {homeworkData.map((element, index) => {
                         return <TabPanels
                                     value={tabValue}
                                     index={index}
-                                    projectInfo={element}
+                                    homeworkInfo={element}
                                     key={element.class}
                                     delete={handleDeleteButton}
                                     edit={handleFormEdit}
@@ -269,7 +273,7 @@ export const ProjectTool: React.FC = () => {
                     })}
                 </Box>
                 <AddForm
-                    title='Add Project'
+                    title='Add Homework'
                     openAdd={openAdd}
                     setOpenAdd={setOpenAdd}
                     handleFormAdd={handleFormAdd}
@@ -277,7 +281,7 @@ export const ProjectTool: React.FC = () => {
                     setInputs={setInputs}
                 />
                 <EditForm
-                    title='Edit Project'
+                    title='Edit Homework'
                     openEdit={openEdit}
                     setOpenEdit={setOpenEdit}
                     handleFormEditSubmit={handleFormEditSubmit}
@@ -288,6 +292,7 @@ export const ProjectTool: React.FC = () => {
         </>
     )
 }
+
 const useStyles = makeStyles((theme: Theme) => 
     createStyles({
         tabs: {
@@ -295,9 +300,13 @@ const useStyles = makeStyles((theme: Theme) =>
             color: DEFAULT_TEXT_COLOR,
             borderRadius: 10,
         },
-        addProject: {
+        addHomework: {
             backgroundColor: SECONDARY_COLOR,
             color: DEFAULT_TEXT_COLOR,
         },
+        addHomeworkIcon: {
+            color: DEFAULT_TEXT_COLOR,
+            fontSize: 25,
+        }
     })
 );
