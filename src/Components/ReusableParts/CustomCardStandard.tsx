@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, createMuiTheme, Grid, IconButton, makeStyles, responsiveFontSizes, ThemeProvider, Typography } from "@material-ui/core";
+import { Card, CardContent, CardHeader, Collapse, createMuiTheme, Grid, IconButton, makeStyles, responsiveFontSizes, ThemeProvider, Typography } from "@material-ui/core";
 import {
   SECONDARY_COLOR,
   BORDER_COLOR,
@@ -175,26 +175,30 @@ export const CustomCardStandard: React.FC<Props> = ({
                 }
 
                 {((expandingData !== undefined && expandingData !== null) && expandState === true) &&
-                  <Grid
-                  container
-                  direction = "row"
-                  spacing = {1}
-                  justify = "center"
-                  alignItems = "center"
-                  >
-                    {
-                      Object.entries(expandingData).map(([key, value], index) => (
-                        <Grid
-                        key = {title + `-extraGrid-${index}`}
-                        item
-                        xs = {12}
-                        className = {classes.cardContentsInner}
-                        >
-                          {checkDataType(key, value)}
-                        </Grid>
-                      ))
-                    }
-                  </Grid>
+                  
+                  <Collapse in = {expandState} timeout = {{enter: 100, exit: 100}} disableStrictModeCompat>
+                    <Grid
+                    container
+                    direction = "row"
+                    spacing = {1}
+                    justify = "center"
+                    alignItems = "center"
+                    >
+                      {
+                        Object.entries(expandingData).map(([key, value], index) => (
+                          <Grid
+                          key = {title + `-extraGrid-${index}`}
+                          item
+                          xs = {12}
+                          className = {classes.cardContentsInner}
+                          >
+                            {checkDataType(key, value)}
+                          </Grid>
+                        ))
+                      }
+                    </Grid>
+                  </Collapse>
+                  
                 }
               </CardContent>
             </Grid>

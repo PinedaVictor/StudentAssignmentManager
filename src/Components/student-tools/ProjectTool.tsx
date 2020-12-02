@@ -89,7 +89,6 @@ export const ProjectTool: React.FC = () => {
     if(firebaseUser) currentUserID = firebaseUser.uid;
 
     useEffect(() => {
-        console.log(currentUserID);
         const projectList = app
             .firestore()
             .collection('users')

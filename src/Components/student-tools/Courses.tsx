@@ -2,9 +2,9 @@
 Look up either React lodash, or React debounce for potential performance improvements with materialui update components.
 */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CustomCardStandard }  from "../ReusableParts/CustomCardStandard";
-import { Container, createMuiTheme, Grid, makeStyles, responsiveFontSizes, Slider, TextField, ThemeProvider, Typography} from "@material-ui/core";
+import { Container, createMuiTheme, Grid, makeStyles, responsiveFontSizes, ThemeProvider, Typography} from "@material-ui/core";
 import { CustomButton } from "../ReusableParts/CustomButton";
 import { CustomPopup } from "../ReusableParts/CustomPopup";
 import { CustomTextField } from "../ReusableParts/CustomTextField"
@@ -14,10 +14,7 @@ import { NumberInput } from "../ReusableParts/NumberInput";
 import { MenuSelectionBox } from "../ReusableParts/MenuSelectionBox";
 import { CustomSlider} from "../ReusableParts/CustomSlider"
 import { BORDER_COLOR } from "../../Styles/global";
-
-const courses = Array<ModalFields>()
-
-interface ModalFields {
+interface CourseDataStructure {
   id: string,
   courseName: string,
   email: string,
@@ -56,6 +53,47 @@ interface ModalFields {
 
 export const Courses: React.FC = () => {
   const classes = useStyles()
+  const [courses, setCourses] = useState<CourseDataStructure[]>([])
+
+  const firebase_User = app.auth().currentUser;
+  let currentUserID = "";
+  if (firebase_User) {
+    currentUserID = firebase_User.uid;
+  }
+
+  useEffect(() => {
+    const coursesList = app
+      .firestore()
+      .collection("users")
+      .doc(currentUserID)
+      .collection("Courses")
+      .onSnapshot(querySnapshot => {
+
+        const remoteData: CourseDataStructure[] = [];
+        querySnapshot.forEach(document => {
+          const courseData = document.data();
+          if (courseData) {
+            const tempCourseData = {
+              id: document.id,
+              courseName: courseData.courseName,
+              email: courseData.email,
+            
+              officeHours: courseData.officeHours,
+            
+              latePolicy: courseData.latePolicy,
+              curvingPolicy: courseData.curvingPolicy,
+              priority: courseData.priority,
+              gradeScale: courseData.gradeScale,
+            
+              gradeWeights: courseData.gradeWeights
+            };
+            remoteData.push(tempCourseData);
+          }
+        });
+        setCourses(remoteData);
+      });
+    return () => coursesList();
+  }, [currentUserID]);
 
   let fontTheme = createMuiTheme();
   fontTheme = responsiveFontSizes(fontTheme);
@@ -63,7 +101,7 @@ export const Courses: React.FC = () => {
   const [cardModal, setCardModal] = useState(false);
   const [modalStage, setModalStage] = useState(0)
 
-  const [CourseInfo, setCourseInfo] = useState<ModalFields>({
+  const [CourseInfo, setCourseInfo] = useState<CourseDataStructure>({
     id: "",
     courseName: "",
     email: "",
@@ -182,14 +220,37 @@ export const Courses: React.FC = () => {
     setCardModal(true)
   }
 
-  const submitModal = (action: "edit" | "add") => {
+  const submitModal = async (action: "add" | "edit") => {
     
-    if (action === "add")
-      courses.push(CourseInfo)
+      try {
+        let collection = await app
+          .firestore()
+          .collection("users")
+          .doc(currentUserID)
+          .collection("Courses")
 
-    setModalStage(0)
-    setCardModal(false)
-    clearModalInputs()
+        var doc
+
+        if (action === "add"){
+          doc = collection.doc()
+          doc.set(CourseInfo);
+        }
+
+        else {
+          doc = collection.doc(CourseInfo.id)
+          doc.update(CourseInfo)
+        }
+        
+        setModalStage(0)
+        setCardModal(false)
+        clearModalInputs()
+        
+        console.log("Card was Addded successfuly");
+      } catch (error) {
+        console.log(error);
+      }
+    
+    
   }
 
   const closeModal = () => {
@@ -238,8 +299,22 @@ export const Courses: React.FC = () => {
     })
   }
 
-  const deleteCourse = (id: string) => {
+  const deleteCourse = async (id: string) => {
 
+    try{
+      await app
+      .firestore()
+      .collection('users')
+      .doc(currentUserID)
+      .collection('Courses')
+      .doc(id)
+      .delete()
+
+      console.log("Course has been deleted")
+    }
+    catch {
+      console.log("Error deleting course.")
+    }
   }
 
   const setGeneralInfo = (field: "courseName" | "email" | "latePolicy" | "curvingPolicy" | "priority", value: string) => {
@@ -854,7 +929,7 @@ export const Courses: React.FC = () => {
         direction = "row"
         >
           {
-          courses.map((course, index) => (
+          courses.map((course) => (
             <Grid
             item
             xs={12}

@@ -314,6 +314,7 @@ export const Home: React.FC = () => {
     <Container style = {{width: "80%"}}>
       <Grid container direction = "column" justify = "center" alignItems = "center" spacing = {4}>
 
+        
         <Grid key = "controlsContainer" item xs = {12}>
           <Grid container direction = "row" justify = "center" alignItems = "center">
                       
