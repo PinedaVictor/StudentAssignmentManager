@@ -4,4 +4,3 @@
 export { Assignments } from "./Assignments";
 export { Courses } from "./Courses";
 export { Home } from "./Home";
-export { Homework } from "./Homework";

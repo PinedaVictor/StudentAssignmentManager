@@ -133,6 +133,7 @@ export const ProjectTool: React.FC = () => {
         {id: 'resources', label: 'Resources', value: '', placeHolder: 'www.youtube.com, linkedin.com/learning',
          isInvalid: () => false}
     ]);
+    
     // FUNCTIONS
     const handleFormAdd = async () => {
         const classID = projectData[tabValue].classID;
@@ -147,12 +148,15 @@ export const ProjectTool: React.FC = () => {
                     .arrayUnion(formatInfo(inputs.map(input => input.value))),
             });
     }
+
     const handleNavChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setTabValue(newValue);
     }
+
     const handleFormOpen = () => {
         setOpenAdd(true);
     }
+
     const handleFormEdit = async (projectName: string) => {
         const newInputs = [...inputs];
         const classIndex = tabValue;
@@ -174,6 +178,7 @@ export const ProjectTool: React.FC = () => {
         setInputs(newInputs);
         setOpenEdit(true);
     }
+
     const handleFormEditSubmit = async () => {
         const projectIndex = projectData[tabValue].projects.findIndex(input => input.title === currentProjectEdit);
 
@@ -209,6 +214,7 @@ export const ProjectTool: React.FC = () => {
 
         setCurrentProjectEdit('');
     }
+
     const handleDeleteButton = async (projectName: string) => {
         const classID = projectData[tabValue].classID;
         const projectIndex = projectData[tabValue].projects.findIndex(project => project.title === projectName);
