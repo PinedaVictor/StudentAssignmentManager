@@ -314,10 +314,10 @@ export const HomeworkTool: React.FC = () => {
                     <DialogTitle>
                         {"Seems like the item homework doesn't exist anymore D:"}
                     </DialogTitle>
+                    <DialogActions>
+                        <Button onClick={handleInvalidDataClose} color='primary'>OK</Button>
+                    </DialogActions>
                 </Dialog>
-                <DialogActions>
-                    <Button onClick={handleInvalidDataClose} color='primary'>OK</Button>
-                </DialogActions>
             </Box>
         </>
     )
