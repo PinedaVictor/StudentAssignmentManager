@@ -116,7 +116,7 @@ export const HomeworkTool: React.FC = () => {
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [inputs, setInputs] = useState([
-        {id: 'title', label: 'Title', value: '', placeHolder: 'Project #1',
+        {id: 'title', label: 'Title', value: '', placeHolder: 'Homework #1',
          isInvalid: (value: string) => value === ''},
         {id: 'completion', label: 'Completion', value: '', placeHolder: '10',
          isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
