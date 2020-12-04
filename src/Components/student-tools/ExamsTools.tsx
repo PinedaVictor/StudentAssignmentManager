@@ -16,13 +16,14 @@ const formatInfo = (info: string[]): Exam => {
     let i = 0;
     let exam: Exam = {
         title: info[i++],
+        DateDue: info[i++],
+        grade: parseInt(info[i++]),
         section_weight: parseInt(info[i++]),
         overall_weight: parseInt(info[i++]),
         related_hw: info[i].length === 0? [] : info[i++].split(','),
         related_projs: info[i].length === 0? [] : info[i++].split(','),
         related_exams: info[i].length === 0? [] : info[i++].split(','),
-        resources: info[i].length === 0? [] : info[i].split(','),
-        DateCreated: Date(),
+        resources: info[i].length === 0? [] : info[i++].split(','),
     }
     return exam;
 }
@@ -67,12 +68,16 @@ const TabPanels = (props: TabPanelProps) => {
                             <CustomCardStandard
                                 title={element.title}
                                 data={{
+                                    dueDate: element.DateDue,
+                                    grade: element.grade === -1 ? 'No grade yet' : element.grade + '%' ,
                                     sectionWeight: element.section_weight + '%',
                                     overallWeight: element.overall_weight + '%',
+                                }}
+                                expandingData={{
+                                    resources: element.resources,
                                     relatedHomework: element.related_hw,
                                     relatedProjects: element.related_projs,
                                     relatedExams: element.related_exams,
-                                    resources: element.resources,
                                 }}
                                 editClick={() => func.edit(element.title)}
                                 deleteClick={() => func.delete(element.title)}
@@ -108,7 +113,7 @@ export const ExamsTools: React.FC = () => {
                             ClassID: document.id,
                             exams: [...examData.exams]
                         }
-                        tempExamData.exams.sort((a, b) => a.DateCreated < b.DateCreated? 1 : -1);
+                        tempExamData.exams.sort((a, b) => a.DateDue < b.DateDue? -1 : 1);
                         examList.push(tempExamData);
                     }
                 });
@@ -125,6 +130,10 @@ export const ExamsTools: React.FC = () => {
     const [inputs, setInputs] = useState([
         {id: 'title', label: 'Exam Title', value: '', placeHolder: 'Project #1',
          isInvalid: (value: string) => value === ''},
+        {id: 'duedate', label: 'Due Date', value: '', placeHolder: '4/20/71',
+         isInvalid: (value: string) => isNaN(Date.parse(value))},
+        {id: 'grade', label: 'Grade', value: '', placeHolder: '90',
+         isInvalid: (value: string) => !/^\d{0,3}$/.test(value)},
         {id: 'section-weight', label: 'Section Weight', value: '', placeHolder: '10',
          isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
         {id: 'overall-weight', label: 'Overall Weight', value: '', placeHolder: '10',
@@ -171,6 +180,8 @@ export const ExamsTools: React.FC = () => {
         const oldExam = examData[classIndex].exams[examIndex];
         let i = 0;
         newInputs[i++].value = oldExam.title;
+        newInputs[i++].value = oldExam.DateDue;
+        newInputs[i++].value = oldExam.grade === - 1 ? '' : oldExam.grade.toString();
         newInputs[i++].value = oldExam.section_weight.toString();
         newInputs[i++].value = oldExam.overall_weight.toString();
         newInputs[i++].value = oldExam.related_hw.join(', ');
@@ -186,7 +197,6 @@ export const ExamsTools: React.FC = () => {
         if(examIndex === -1) return;
 
         const classID = examData[tabValue].ClassID;
-        const oldExamDateCreation = examData[tabValue].exams[examIndex].DateCreated;
         const oldExamName = examData[tabValue].exams[examIndex].title;
 
         await handleDeleteButton(oldExamName);
@@ -195,13 +205,14 @@ export const ExamsTools: React.FC = () => {
         let i = 0;
         const newExam: Exam = {
             title: examInfo[i++],
+            DateDue: examInfo[i++],
+            grade: isNaN(parseInt(examInfo[i])) ? -1 : parseInt(examInfo[i++]),
             section_weight: parseInt(examInfo[i++]),
             overall_weight: parseInt(examInfo[i++]),
             related_hw: examInfo[i].length === 0 ? [] : examInfo[i++].split(','),
             related_projs: examInfo[i].length === 0 ? [] : examInfo[i++].split(','),
             related_exams: examInfo[i].length === 0 ? [] : examInfo[i++].split(','),
             resources: examInfo[i].length === 0 ? [] : examInfo[i++].split(','),
-            DateCreated: oldExamDateCreation,
         }
         console.log(newExam);
         await app
