@@ -17,7 +17,7 @@ const formatInfo = (info: string[]): Exam => {
     let exam: Exam = {
         title: info[i++],
         DateDue: info[i++],
-        grade: parseInt(info[i++]),
+        grade: isNaN(parseInt(info[i])) ? -1 : parseInt(info[i++]),
         section_weight: parseInt(info[i++]),
         overall_weight: parseInt(info[i++]),
         related_hw: info[i].length === 0? [] : info[i++].split(','),

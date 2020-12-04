@@ -1,11 +1,12 @@
 export interface Homework {
     title: string;
     completion: number;
+    DateDue: string;
+    grade: number;
     section_weight: number;
     overall_weight: number;
     requirements: string;
     resources: string[];
-    DateCreated: string;
 }
 
 export interface Project {
