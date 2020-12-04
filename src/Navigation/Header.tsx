@@ -18,8 +18,10 @@ import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import SchoolIcon from "@material-ui/icons/School";
+import { AQUA } from "../Styles/global";
 import { NavItems } from "./Config";
 import { Link } from "react-router-dom";
+import { Logout } from "../Components/user-auth";
 
 const drawerWidth = 240;
 
@@ -50,7 +52,7 @@ export const Header: React.FC = () => {
               style={{
                 height: "2.3em",
                 width: "2.3em",
-                color: "#7CDAC0",
+                color: AQUA,
               }}
             />
           </div>
@@ -106,7 +108,11 @@ export const Header: React.FC = () => {
               >
                 <ListItemIcon>
                   <item.icon
-                    style={{ height: "2.0em", width: "2.0em", color: "#7CDAC0" }}
+                    style={{
+                      height: "2.0em",
+                      width: "2.0em",
+                      color: AQUA,
+                    }}
                   />
                 </ListItemIcon>
                 <p
@@ -125,6 +131,16 @@ export const Header: React.FC = () => {
           ))}
         </List>
         <Divider />
+        <div
+          style={{
+            position: "fixed",
+            bottom: "0",
+            right: "0",
+            padding: "15px",
+          }}
+        >
+          <Logout />
+        </div>
       </Drawer>
     </div>
   );
@@ -163,7 +179,7 @@ const useStyles = makeStyles((theme: Theme) =>
     drawerPaper: {
       width: drawerWidth,
       backgroundColor: "#131313",
-      boxShadow: "-6px -6px -6px rgba(255,255,255,1)"
+      boxShadow: "-6px -6px -6px rgba(255,255,255,1)",
     },
     drawerHeader: {
       display: "flex",

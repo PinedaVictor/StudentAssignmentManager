@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Container, Row, Card, Button, ButtonGroup } from "react-bootstrap";
 import { create } from "ts-style";
-import { PRIMARY_COLOR } from "../Styles/global";
-import { LoginForm } from "../Components/user-registration/Login";
-import { SignUpForm } from "../Components/user-registration/SignUp";
+import { PRIMARY_COLOR, AQUA, SECONDARY_COLOR } from "../Styles/global";
+import { LoginForm } from "../Components/user-auth/Login";
+import { SignUpForm } from "../Components/user-auth/SignUp";
 
 export const Landing: React.FC = () => {
   const [form, toggleForms] = useState(true);
@@ -67,12 +67,14 @@ const styles = create({
   buttons: {
     height: "3em",
     width: "8em",
+    backgroundColor: AQUA,
   },
   buttonText: {
     fontSize: "20px",
+    color: PRIMARY_COLOR,
   },
   userLogin: {
-    backgroundColor: "white",
+    backgroundColor: SECONDARY_COLOR,
     border: "2px solid",
     borderColor: PRIMARY_COLOR,
     maxWidth: "25em",
@@ -92,6 +94,6 @@ const styles = create({
   cardTitle: {
     fontSize: "2em",
     textAlign: "center" as "center",
-    color: PRIMARY_COLOR,
+    color: AQUA,
   },
 });

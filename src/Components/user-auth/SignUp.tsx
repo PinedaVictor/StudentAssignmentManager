@@ -1,5 +1,10 @@
 import React, { useContext, useCallback } from "react";
-import { PRIMARY_COLOR } from "../../Styles/global";
+import { create } from "ts-style";
+import {
+  PRIMARY_COLOR,
+  FILL_OUT_FORM_BACKGROUND_FILL_COLOR,
+  AQUA,
+} from "../../Styles/global";
 import { Form, Col, Button } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
 import { app } from "../../Database/initFirebase";
@@ -57,12 +62,22 @@ export const SignUpForm: React.FC = () => {
     >
       <Form.Row>
         <Form.Group as={Col} controlId="formName">
-          <Form.Control name="name" type="name" placeholder="Name" />
+          <Form.Control
+            name="name"
+            type="name"
+            placeholder="Name"
+            style={styles.control}
+          />
         </Form.Group>
       </Form.Row>
       <Form.Row>
         <Form.Group as={Col} controlId="formGridEmail">
-          <Form.Control name="email" type="email" placeholder="Email" />
+          <Form.Control
+            name="email"
+            type="email"
+            placeholder="Email"
+            style={styles.control}
+          />
         </Form.Group>
       </Form.Row>
 
@@ -72,6 +87,7 @@ export const SignUpForm: React.FC = () => {
             name="password"
             type="password"
             placeholder="Password"
+            style={styles.control}
           />
         </Form.Group>
       </Form.Row>
@@ -81,15 +97,34 @@ export const SignUpForm: React.FC = () => {
             name="confirmpassword"
             type="password"
             placeholder="Confirm Password"
+            style={styles.control}
           />
         </Form.Group>
       </Form.Row>
       <Button
         type="submit"
-        style={{ backgroundColor: PRIMARY_COLOR, marginBottom: "10px" }}
+        style={{
+          backgroundColor: AQUA,
+          color: PRIMARY_COLOR,
+          marginBottom: "10px",
+        }}
       >
         Submit
       </Button>
     </Form>
   );
 };
+
+const styles = create({
+  group: {
+    paddingTop: "10px",
+  },
+  control: {
+    height: "3em",
+    display: "block",
+    margin: "auto",
+    color: "white",
+    backgroundColor: FILL_OUT_FORM_BACKGROUND_FILL_COLOR,
+    border: "none",
+  },
+});

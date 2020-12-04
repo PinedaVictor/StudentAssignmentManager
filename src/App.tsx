@@ -1,9 +1,17 @@
 import React from "react";
 import "./Database/initFirebase";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import { AuthProvider, PrivateRoute } from "./Components/user-registration";
+import { AuthProvider, PrivateRoute } from "./Components/user-auth";
 //  Pages:
-import { TodoList, Main, Landing, Course, Homework, Exams, Project } from "./Pages";
+import {
+  TodoList,
+  Main,
+  Landing,
+  Course,
+  Homework,
+  Exams,
+  Project,
+} from "./Pages";
 
 function App() {
   return (
