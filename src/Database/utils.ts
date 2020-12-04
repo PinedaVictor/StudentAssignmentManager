@@ -12,12 +12,13 @@ export interface Homework {
 export interface Project {
     title: string;
     completion: number;
+    DateDue: string;
+    grade: number;
     section_weight: number;
     overall_weight: number;
     requirements: string;
     related_homework: string[];
     resources: string[];
-    DateCreated: string;
 }
 
 export interface Exam {

@@ -15,16 +15,32 @@ import firebase from 'firebase';
 const formatInfo = (info: string[]): Exam => {
     let i = 0;
     let exam: Exam = {
-        title: info[i++],
-        DateDue: info[i++],
-        grade: isNaN(parseInt(info[i])) ? -1 : parseInt(info[i++]),
-        section_weight: parseInt(info[i++]),
-        overall_weight: parseInt(info[i++]),
-        related_hw: info[i].length === 0? [] : info[i++].split(','),
-        related_projs: info[i].length === 0? [] : info[i++].split(','),
-        related_exams: info[i].length === 0? [] : info[i++].split(','),
-        resources: info[i].length === 0? [] : info[i++].split(','),
+        title: '',
+        DateDue: '',
+        grade: 0,
+        section_weight: 0,
+        overall_weight: 0,
+        related_hw: [],
+        related_projs: [],
+        related_exams: [],
+        resources: []
     }
+
+    exam.title = info[i++];
+    exam.DateDue = info[i++];
+    exam.grade = isNaN(parseInt(info[i])) ? -1 : parseInt(info[i]);
+    i++;
+    exam.section_weight = parseInt(info[i++]);
+    exam.overall_weight = parseInt(info[i++]);
+    exam.related_hw = info[i].length === 0? [] : info[i].split(',');
+    i++;
+    exam.related_projs = info[i].length === 0? [] : info[i].split(',');
+    i++;
+    exam.related_exams = info[i].length === 0? [] : info[i].split(',');
+    i++;
+    exam.resources = info[i].length === 0? [] : info[i].split(',');
+    i++;
+
     return exam;
 }
 
@@ -196,6 +212,7 @@ export const ExamsTools: React.FC = () => {
         newInputs[i++].value = oldExam.related_projs.join(', ');
         newInputs[i++].value = oldExam.related_exams.join(', ');
         newInputs[i].value = oldExam.resources.join(', ');
+
         setInputs(newInputs);
         setOpenEdit(true);
     };
@@ -214,18 +231,8 @@ export const ExamsTools: React.FC = () => {
         await handleDeleteButton(oldExamName);
 
         const examInfo = inputs.map(input => input.value);
-        let i = 0;
-        const newExam: Exam = {
-            title: examInfo[i++],
-            DateDue: examInfo[i++],
-            grade: isNaN(parseInt(examInfo[i])) ? -1 : parseInt(examInfo[i++]),
-            section_weight: parseInt(examInfo[i++]),
-            overall_weight: parseInt(examInfo[i++]),
-            related_hw: examInfo[i].length === 0 ? [] : examInfo[i++].split(','),
-            related_projs: examInfo[i].length === 0 ? [] : examInfo[i++].split(','),
-            related_exams: examInfo[i].length === 0 ? [] : examInfo[i++].split(','),
-            resources: examInfo[i].length === 0 ? [] : examInfo[i++].split(','),
-        }
+
+        const newExam = formatInfo(examInfo);
 
         const firebaseUser = app.auth().currentUser;
         let currentUserID = "";
@@ -242,6 +249,7 @@ export const ExamsTools: React.FC = () => {
             })
         setCurrentExamEdit('');
     }
+
     const handleDeleteButton = async (examName: string) => {
         const classID = examData[tabValue].ClassID;
         const examIndex = examData[tabValue].exams.findIndex(exam => exam.title === examName);
@@ -305,7 +313,7 @@ export const ExamsTools: React.FC = () => {
                         </Button>
                     </Box>
                 }
-                <Box p={4} m={isSmallDevice ? 2 : 4}>
+                <Box p={6} m={isSmallDevice ? 2 : 4}>
                     {examData.map((element, index) => {
                         return <TabPanels 
                                     value={tabValue}

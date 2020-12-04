@@ -72,8 +72,8 @@ const TabPanels = (props: TabPanelProps) => {
                                 title={element.title}
                                 data={{
                                     dueDate: element.DateDue,
-                                    grade: element.grade === -1 ? 'No grade yet' : element.grade + '%' ,
                                     completion: element.completion + '%',
+                                    grade: element.grade === -1 ? 'No grade yet' : element.grade + '%' ,
                                     sectionWeight: element.section_weight + '%',
                                     overallWeight: element.overall_weight + '%',
                                 }}
@@ -294,7 +294,7 @@ export const HomeworkTool: React.FC = () => {
                             className={classes.addHomework}
                             onClick={handleFormOpen}
                         >
-                            Add Project
+                            Add Homework
                         </Button>
                     </Box>
                 }
