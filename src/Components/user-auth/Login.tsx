@@ -20,7 +20,7 @@ export const LoginForm: React.FC = () => {
           .then(() => {
             setUser(app.auth().currentUser);
           });
-        history.push("/Home");
+        history.push("/");
       } catch (error) {
         alert(error);
       }
