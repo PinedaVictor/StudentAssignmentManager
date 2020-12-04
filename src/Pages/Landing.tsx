@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Container, Row, Card, Button, ButtonGroup } from "react-bootstrap";
 import { create } from "ts-style";
 import { PRIMARY_COLOR } from "../Styles/global";
-import { LoginForm } from "../Components/user-registration/Login";
-import { SignUpForm } from "../Components/user-registration/SignUp";
+import { LoginForm } from "../Components/user-auth/Login";
+import { SignUpForm } from "../Components/user-auth/SignUp";
 
 export const Landing: React.FC = () => {
   const [form, toggleForms] = useState(true);
