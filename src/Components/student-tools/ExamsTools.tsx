@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createStyles, makeStyles, Theme, Button, Box,
-        useMediaQuery, useTheme, Grid} from "@material-ui/core";
+        useMediaQuery, useTheme, Grid, AppBar, BottomNavigation, BottomNavigationAction, Dialog, DialogActions, DialogTitle} from "@material-ui/core";
 import AddCircleIcon from '@material-ui/icons/AddCircle'
 import { DEFAULT_TEXT_COLOR,
          SECONDARY_COLOR} from '../../Styles/global';
@@ -93,11 +93,11 @@ const TabPanels = (props: TabPanelProps) => {
 export const ExamsTools: React.FC = () => {
     const [examData, setExamData] = useState<ExamData[]>([]);
 
-    const firebaseUser = app.auth().currentUser;
-    let currentUserID = "";
-    if(firebaseUser) currentUserID = firebaseUser.uid
-
     useEffect(() => {
+        const firebaseUser = app.auth().currentUser;
+        let currentUserID = "";
+        if(firebaseUser) currentUserID = firebaseUser.uid
+
         const examList = app
             .firestore()
             .collection('users')
@@ -123,12 +123,13 @@ export const ExamsTools: React.FC = () => {
     }, []);
 
     // HOOKS
+    const [isInvalidData, setIsInvalidData] = useState(false);
     const [currentExamEdit, setCurrentExamEdit] = useState('');
     const [tabValue, setTabValue] = useState(0);
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [inputs, setInputs] = useState([
-        {id: 'title', label: 'Exam Title', value: '', placeHolder: 'Project #1',
+        {id: 'title', label: 'Exam Title', value: '', placeHolder: 'Exam #1',
          isInvalid: (value: string) => value === ''},
         {id: 'duedate', label: 'Due Date', value: '', placeHolder: '4/20/71',
          isInvalid: (value: string) => isNaN(Date.parse(value))},
@@ -150,6 +151,10 @@ export const ExamsTools: React.FC = () => {
 
     // FUNCTIONS
     const handleFormAdd = async () => {
+        const firebaseUser = app.auth().currentUser;
+        let currentUserID = "";
+        if(firebaseUser) currentUserID = firebaseUser.uid
+
         const classID = examData[tabValue].ClassID;
         await app
             .firestore()
@@ -173,15 +178,18 @@ export const ExamsTools: React.FC = () => {
         const classIndex = tabValue;
         const examIndex = examData[classIndex].exams.findIndex(input => input.title === examName);
 
-        // TODO set an error saying it no longer exists?
-        if(examIndex === -1) return;
+        if(examIndex === -1) {
+            setIsInvalidData(true);
+            setOpenEdit(false);
+            return;
+        }
 
         setCurrentExamEdit(examName);
         const oldExam = examData[classIndex].exams[examIndex];
         let i = 0;
         newInputs[i++].value = oldExam.title;
         newInputs[i++].value = oldExam.DateDue;
-        newInputs[i++].value = oldExam.grade === - 1 ? '' : oldExam.grade.toString();
+        newInputs[i++].value = oldExam.grade === -1 ? '' : oldExam.grade.toString();
         newInputs[i++].value = oldExam.section_weight.toString();
         newInputs[i++].value = oldExam.overall_weight.toString();
         newInputs[i++].value = oldExam.related_hw.join(', ');
@@ -194,7 +202,11 @@ export const ExamsTools: React.FC = () => {
     const handleFormEditSubmit = async () => {
         const examIndex = examData[tabValue].exams.findIndex(input => input.title === currentExamEdit);
 
-        if(examIndex === -1) return;
+        if(examIndex === -1){
+            setIsInvalidData(true);
+            setOpenEdit(false);
+            return;
+        }
 
         const classID = examData[tabValue].ClassID;
         const oldExamName = examData[tabValue].exams[examIndex].title;
@@ -214,7 +226,11 @@ export const ExamsTools: React.FC = () => {
             related_exams: examInfo[i].length === 0 ? [] : examInfo[i++].split(','),
             resources: examInfo[i].length === 0 ? [] : examInfo[i++].split(','),
         }
-        console.log(newExam);
+
+        const firebaseUser = app.auth().currentUser;
+        let currentUserID = "";
+        if(firebaseUser) currentUserID = firebaseUser.uid
+
         await app
             .firestore()
             .collection('users')
@@ -230,9 +246,16 @@ export const ExamsTools: React.FC = () => {
         const classID = examData[tabValue].ClassID;
         const examIndex = examData[tabValue].exams.findIndex(exam => exam.title === examName);
 
-        if(examIndex === -1) return;
+        if(examIndex === -1){
+            setIsInvalidData(true);
+            return;
+        }
         
         const deletable = examData[tabValue].exams[examIndex];
+
+        const firebaseUser = app.auth().currentUser;
+        let currentUserID = "";
+        if(firebaseUser) currentUserID = firebaseUser.uid
 
         await app
             .firestore()
@@ -244,6 +267,11 @@ export const ExamsTools: React.FC = () => {
                 exams: firebase.firestore.FieldValue.arrayRemove(deletable),
             })
     }
+
+    const handleInvalidDataClose = () => {
+        setIsInvalidData(false);
+    }
+
     // Information needed
     const classes = useStyles();
     const isSmallDevice = useMediaQuery(useTheme().breakpoints.down('xs'));
@@ -257,16 +285,26 @@ export const ExamsTools: React.FC = () => {
                     onChange={handleNavChange}
                     tabNames={examData.map(element => element.class)}
                 />
-                <Box m={6}>
-                    <Button
-                        className={classes.addExam}
-                        variant="contained"
-                        startIcon={<AddCircleIcon />}
-                        onClick={handleFormOpen}
-                    >
-                        Add Exams
-                    </Button>
-                </Box>
+                { isSmallDevice ? 
+                    <AppBar position="fixed" style={{top: 'auto', bottom: 0}}>
+                        <BottomNavigation value={0} onChange={(event, newValue) => {}} className={classes.addExam}>
+                            <BottomNavigationAction
+                                icon={<AddCircleIcon className={classes.addExamIcon}/> }
+                                onClick={handleFormOpen}
+                            />
+                        </BottomNavigation>
+                    </AppBar> :
+                    <Box m={6}>
+                        <Button
+                            className={classes.addExam}
+                            variant="contained"
+                            startIcon={<AddCircleIcon />}
+                            onClick={handleFormOpen}
+                        >
+                            Add Exam
+                        </Button>
+                    </Box>
+                }
                 <Box p={4} m={isSmallDevice ? 2 : 4}>
                     {examData.map((element, index) => {
                         return <TabPanels 
@@ -294,6 +332,24 @@ export const ExamsTools: React.FC = () => {
                     inputs={inputs}
                     setInputs={setInputs}
                 />
+                <Dialog
+                    open={isInvalidData}
+                    onClose={handleInvalidDataClose}
+                    PaperProps={{
+                        style: {
+                            backgroundColor: SECONDARY_COLOR,
+                            color: DEFAULT_TEXT_COLOR,
+                            alignItems: 'center'
+                        }
+                    }}
+                >
+                    <DialogTitle>
+                        {"Seems like the homework item doesn't exist anymore D:"}
+                    </DialogTitle>
+                    <DialogActions>
+                        <Button onClick={handleInvalidDataClose} color='primary'>OK</Button>
+                    </DialogActions>
+                </Dialog>
             </Box>
         </>
     );
@@ -309,6 +365,10 @@ const useStyles = makeStyles((theme: Theme) =>
         addExam: {
             backgroundColor: SECONDARY_COLOR,
             color: DEFAULT_TEXT_COLOR,
+        },
+        addExamIcon: {
+            color: DEFAULT_TEXT_COLOR,
+            fontSize: 25,
         }
     })
 );

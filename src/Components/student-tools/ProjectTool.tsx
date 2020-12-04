@@ -42,7 +42,7 @@ const TabPanels = (props: TabPanelProps) => {
     return (
         <div
             role="tabpanel"
-            hidden={value != index}
+            hidden={value !== index}
         >
             {value === index && (
                 <Grid container
@@ -84,11 +84,11 @@ const TabPanels = (props: TabPanelProps) => {
 export const ProjectTool: React.FC = () => {
     const [projectData, setProjectData] = useState<ProjectData[]>([]);
     
-    const firebaseUser = app.auth().currentUser;
-    let currentUserID = "";
-    if(firebaseUser) currentUserID = firebaseUser.uid;
-
     useEffect(() => {
+        const firebaseUser = app.auth().currentUser;
+        let currentUserID = "";
+        if(firebaseUser) currentUserID = firebaseUser.uid;
+
         const projectList = app
             .firestore()
             .collection('users')
@@ -136,6 +136,9 @@ export const ProjectTool: React.FC = () => {
     
     // FUNCTIONS
     const handleFormAdd = async () => {
+        const firebaseUser = app.auth().currentUser;
+        let currentUserID = "";
+        if(firebaseUser) currentUserID = firebaseUser.uid;
         const classID = projectData[tabValue].classID;
         await app
             .firestore()
@@ -202,6 +205,11 @@ export const ProjectTool: React.FC = () => {
             resources: projectInfo[i].length === 0 ? [] : projectInfo[i].split(','),
             DateCreated: oldProjectDateCreation,
         }
+
+        const firebaseUser = app.auth().currentUser;
+        let currentUserID = "";
+        if(firebaseUser) currentUserID = firebaseUser.uid;
+
         await app
             .firestore()
             .collection('users')
@@ -222,6 +230,10 @@ export const ProjectTool: React.FC = () => {
         if(projectIndex === -1) return;
 
         const deletable = projectData[tabValue].projects[projectIndex];
+
+        const firebaseUser = app.auth().currentUser;
+        let currentUserID = "";
+        if(firebaseUser) currentUserID = firebaseUser.uid;
 
         await app
             .firestore()

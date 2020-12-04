@@ -39,7 +39,7 @@ const TabPanels = (props: TabPanelProps) => {
     return (
         <div
             role="tabpanel"
-            hidden={value != index}
+            hidden={value !== index}
         >
             {value === index && (
                 <Grid container
@@ -63,6 +63,8 @@ const TabPanels = (props: TabPanelProps) => {
                                     completion: element.completion + '%',
                                     sectionWeight: element.section_weight + '%',
                                     overallWeight: element.overall_weight + '%',
+                                }}
+                                expandingData={{
                                     requirements: element.requirements,
                                     resources: element.resources,
                                 }}
@@ -80,11 +82,11 @@ const TabPanels = (props: TabPanelProps) => {
 export const HomeworkTool: React.FC = () => {
     const [homeworkData, setHomeworkData] = useState<HomeworkData[]>([]);
 
-    const firebaseUser = app.auth().currentUser;
-    let currentUserID = "";
-    if(firebaseUser) currentUserID = firebaseUser.uid;
-
     useEffect(() => {
+        const firebaseUser = app.auth().currentUser;
+        let currentUserID = "";
+        if(firebaseUser) currentUserID = firebaseUser.uid;
+
         const homeworkList = app
             .firestore()
             .collection('users')
@@ -132,6 +134,10 @@ export const HomeworkTool: React.FC = () => {
     
     // FUNCTIONS
     const handleFormAdd = async () => {
+        const firebaseUser = app.auth().currentUser;
+        let currentUserID = "";
+        if(firebaseUser) currentUserID = firebaseUser.uid;
+
         const classID = homeworkData[tabValue].classID;
         await app
             .firestore()
@@ -150,10 +156,10 @@ export const HomeworkTool: React.FC = () => {
         const classIndex = tabValue;
         const homeworkIndex = homeworkData[classIndex].homeworks.findIndex(input => input.title === homeworkName);
 
-        // TODO set an error saying it no longer exists
         if(homeworkIndex === -1) {
             setIsInvalidData(true);
             setOpenEdit(false);
+            return;
         }
 
         setCurrentHomeworkEdit(homeworkName);
@@ -183,6 +189,7 @@ export const HomeworkTool: React.FC = () => {
         if(homeworkIndex === -1) {
             setIsInvalidData(true);
             setOpenEdit(false);
+            return;
         }
 
         const classID = homeworkData[tabValue].classID;
@@ -203,6 +210,10 @@ export const HomeworkTool: React.FC = () => {
             DateCreated: oldHomeworktDateCreation,
         }
 
+        const firebaseUser = app.auth().currentUser;
+        let currentUserID = "";
+        if(firebaseUser) currentUserID = firebaseUser.uid;
+
         await app
             .firestore()
             .collection('users')
@@ -221,9 +232,14 @@ export const HomeworkTool: React.FC = () => {
 
         if(homeworkIndex=== -1) {
             setIsInvalidData(true);
+            return;
         }
 
         const deletable = homeworkData[tabValue].homeworks[homeworkIndex];
+
+        const firebaseUser = app.auth().currentUser;
+        let currentUserID = "";
+        if(firebaseUser) currentUserID = firebaseUser.uid;
 
         await app
             .firestore()
@@ -268,11 +284,11 @@ export const HomeworkTool: React.FC = () => {
                             className={classes.addHomework}
                             onClick={handleFormOpen}
                         >
-                            Add
+                            Add Project
                         </Button>
                     </Box>
                 }
-                <Box m={6} p={isSmallDevice? 2 : 0}>
+                <Box m={6} p={isSmallDevice? 2 : 4}>
                     {homeworkData.map((element, index) => {
                         return <TabPanels
                                     value={tabValue}
@@ -312,7 +328,7 @@ export const HomeworkTool: React.FC = () => {
                     }}
                 >
                     <DialogTitle>
-                        {"Seems like the item homework doesn't exist anymore D:"}
+                        {"Seems like the homework item doesn't exist anymore D:"}
                     </DialogTitle>
                     <DialogActions>
                         <Button onClick={handleInvalidDataClose} color='primary'>OK</Button>
