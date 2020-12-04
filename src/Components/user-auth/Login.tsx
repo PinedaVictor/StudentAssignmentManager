@@ -1,6 +1,10 @@
 import React, { useCallback, useContext } from "react";
 import { create } from "ts-style";
-import { PRIMARY_COLOR } from "../../Styles/global";
+import {
+  PRIMARY_COLOR,
+  FILL_OUT_FORM_BACKGROUND_FILL_COLOR,
+  AQUA,
+} from "../../Styles/global";
 import { Form, Button } from "react-bootstrap";
 import { useHistory } from "react-router";
 import { app } from "../../Database/initFirebase";
@@ -31,7 +35,10 @@ export const LoginForm: React.FC = () => {
 
   return (
     <Form
-      style={{ maxWidth: "320px", paddingLeft: "25px" }}
+      style={{
+        maxWidth: "320px",
+        paddingLeft: "25px",
+      }}
       onSubmit={HandleLogin}
     >
       <Form.Group style={styles.group} controlId="Email">
@@ -51,16 +58,13 @@ export const LoginForm: React.FC = () => {
           placeholder="Password"
         />
       </Form.Group>
-      <Form.Group style={styles.group} controlId="formBasicCheckbox">
-        <Form.Check
-          style={{ display: "block", paddingLeft: "0.5em" }}
-          type="checkbox"
-          label="remember me"
-        />
-      </Form.Group>
       <Button
         type="submit"
-        style={{ backgroundColor: PRIMARY_COLOR, marginBottom: "10px" }}
+        style={{
+          backgroundColor: AQUA,
+          color: PRIMARY_COLOR,
+          marginBottom: "10px",
+        }}
       >
         Login
       </Button>
@@ -76,15 +80,8 @@ const styles = create({
     height: "3em",
     display: "block",
     margin: "auto",
-  },
-  loginButton: {
-    margin: "auto",
-    display: "block",
-    border: "none",
-    width: "15em",
-    height: "3em",
-    marginTop: "10px",
-    backgroundColor: PRIMARY_COLOR,
     color: "white",
+    backgroundColor: FILL_OUT_FORM_BACKGROUND_FILL_COLOR,
+    border: "none",
   },
 });
