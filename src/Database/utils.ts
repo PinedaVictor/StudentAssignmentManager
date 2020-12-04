@@ -1,11 +1,12 @@
-// UTILS used in the various tools
-export const RELATEDTABS = [
-    'Related Homework',
-    'Related Projects',
-    'Related Exams',
-    'Resources',
-]
-
+export interface Homework {
+    title: string;
+    completion: number;
+    section_weight: number;
+    overall_weight: number;
+    requirements: string;
+    resources: string[];
+    DateCreated: string;
+}
 
 export interface Project {
     title: string;
@@ -30,14 +31,20 @@ export interface Exam {
     resources: string[];
 }
 
-export interface ExamData {
+export interface HomeworkData {
     class: string;
-    ClassID: string;
-    exams: Exam[];
+    classID: string;
+    homeworks: Homework[];
 }
 
 export interface ProjectData {
     class: string;
     classID: string;
     projects: Project[];
+}
+
+export interface ExamData {
+    class: string;
+    ClassID: string;
+    exams: Exam[];
 }
