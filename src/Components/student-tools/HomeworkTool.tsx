@@ -13,14 +13,25 @@ import firebase from 'firebase';
 const formatInfo = (info: string[]): Homework => {
     let i = 0;
     let homework: Homework = {
-        title: info[i++], 
-        completion: parseInt(info[i++]),
-        section_weight: parseInt(info[i++]),
-        overall_weight: parseInt(info[i++]),
-        requirements: info[i++],
-        resources: info[i].length === 0? [] : info[i++].split(','),
-        DateCreated: Date(),
+        title: '', 
+        completion: 0,
+        grade: 0,
+        DateDue: '', 
+        section_weight: 0,
+        overall_weight: 0,
+        requirements: '',
+        resources: [],
     }
+    homework.title = info[i++];
+    homework.completion = parseInt(info[i++]);
+    homework.grade = isNaN(parseInt(info[i])) ? -1 : parseInt(info[i]);
+    i++;
+    homework.DateDue = info[i++];
+    homework.section_weight = parseInt(info[i++]);
+    homework.overall_weight = parseInt(info[i++]);
+    homework.requirements = info[i++];
+    homework.resources = info[i].length === 0? [] : info[i].split(',');
+
     return homework;
 }
 
@@ -39,7 +50,7 @@ const TabPanels = (props: TabPanelProps) => {
     return (
         <div
             role="tabpanel"
-            hidden={value != index}
+            hidden={value !== index}
         >
             {value === index && (
                 <Grid container
@@ -60,9 +71,13 @@ const TabPanels = (props: TabPanelProps) => {
                             <CustomCardStandard
                                 title={element.title}
                                 data={{
+                                    dueDate: element.DateDue,
                                     completion: element.completion + '%',
+                                    grade: element.grade === -1 ? 'No grade yet' : element.grade + '%' ,
                                     sectionWeight: element.section_weight + '%',
                                     overallWeight: element.overall_weight + '%',
+                                }}
+                                expandingData={{
                                     requirements: element.requirements,
                                     resources: element.resources,
                                 }}
@@ -80,11 +95,11 @@ const TabPanels = (props: TabPanelProps) => {
 export const HomeworkTool: React.FC = () => {
     const [homeworkData, setHomeworkData] = useState<HomeworkData[]>([]);
 
-    const firebaseUser = app.auth().currentUser;
-    let currentUserID = "";
-    if(firebaseUser) currentUserID = firebaseUser.uid;
-
     useEffect(() => {
+        const firebaseUser = app.auth().currentUser;
+        let currentUserID = "";
+        if(firebaseUser) currentUserID = firebaseUser.uid;
+
         const homeworkList = app
             .firestore()
             .collection('users')
@@ -100,7 +115,7 @@ export const HomeworkTool: React.FC = () => {
                             classID: document.id,
                             homeworks: [...homeworkData.homeworks]
                         }
-                        tempHomeworkData.homeworks.sort((a, b) => a.DateCreated < b.DateCreated ? 1 : -1);
+                        tempHomeworkData.homeworks.sort((a, b) => a.DateDue < b.DateDue? -1 : 1);
                         homeworkList.push(tempHomeworkData);
                     }
                 });
@@ -119,7 +134,11 @@ export const HomeworkTool: React.FC = () => {
         {id: 'title', label: 'Title', value: '', placeHolder: 'Homework #1',
          isInvalid: (value: string) => value === ''},
         {id: 'completion', label: 'Completion', value: '', placeHolder: '10',
-         isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
+         isInvalid: (value: string) => value === '' || !/^\d{1,3}$/.test(value)},
+        {id: 'grade', label: 'Grade', value: '', placeHolder: '90',
+         isInvalid: (value: string) => !/^\d{0,3}$/.test(value)},
+        {id: 'duedate', label: 'Due Date', value: '', placeHolder: '4/20/71',
+         isInvalid: (value: string) => isNaN(Date.parse(value))},
         {id: 'section-weight', label: 'Section Weight', value: '', placeHolder: '10',
          isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
         {id: 'overall-weight', label: 'Overall Weight', value: '', placeHolder: '10',
@@ -132,6 +151,10 @@ export const HomeworkTool: React.FC = () => {
     
     // FUNCTIONS
     const handleFormAdd = async () => {
+        const firebaseUser = app.auth().currentUser;
+        let currentUserID = "";
+        if(firebaseUser) currentUserID = firebaseUser.uid;
+
         const classID = homeworkData[tabValue].classID;
         await app
             .firestore()
@@ -150,10 +173,10 @@ export const HomeworkTool: React.FC = () => {
         const classIndex = tabValue;
         const homeworkIndex = homeworkData[classIndex].homeworks.findIndex(input => input.title === homeworkName);
 
-        // TODO set an error saying it no longer exists
         if(homeworkIndex === -1) {
             setIsInvalidData(true);
             setOpenEdit(false);
+            return;
         }
 
         setCurrentHomeworkEdit(homeworkName);
@@ -161,6 +184,8 @@ export const HomeworkTool: React.FC = () => {
         let i = 0;
         newInputs[i++].value = oldHomework.title;
         newInputs[i++].value = oldHomework.completion.toString();
+        newInputs[i++].value = oldHomework.grade === -1 ? '' : oldHomework.grade.toString();
+        newInputs[i++].value = oldHomework.DateDue;
         newInputs[i++].value = oldHomework.section_weight.toString();
         newInputs[i++].value = oldHomework.overall_weight.toString();
         newInputs[i++].value = oldHomework.requirements;
@@ -183,25 +208,21 @@ export const HomeworkTool: React.FC = () => {
         if(homeworkIndex === -1) {
             setIsInvalidData(true);
             setOpenEdit(false);
+            return;
         }
 
         const classID = homeworkData[tabValue].classID;
-        const oldHomeworktDateCreation = homeworkData[tabValue].homeworks[homeworkIndex].DateCreated;
         const oldHomeworkName = homeworkData[tabValue].homeworks[homeworkIndex].title;
 
         await handleDeleteButton(oldHomeworkName);
 
         const homeworkInfo = inputs.map(input => input.value);
-        let i = 0;
-        const newHomework: Homework = {
-            title: homeworkInfo[i++],
-            completion: parseInt(homeworkInfo[i++]),
-            section_weight: parseInt(homeworkInfo[i++]),
-            overall_weight: parseInt(homeworkInfo[i++]),
-            requirements: homeworkInfo[i++],
-            resources: homeworkInfo[i].length === 0 ? [] : homeworkInfo[i].split(','),
-            DateCreated: oldHomeworktDateCreation,
-        }
+        
+        const newHomework = formatInfo(homeworkInfo);
+        
+        const firebaseUser = app.auth().currentUser;
+        let currentUserID = "";
+        if(firebaseUser) currentUserID = firebaseUser.uid;
 
         await app
             .firestore()
@@ -221,9 +242,14 @@ export const HomeworkTool: React.FC = () => {
 
         if(homeworkIndex=== -1) {
             setIsInvalidData(true);
+            return;
         }
 
         const deletable = homeworkData[tabValue].homeworks[homeworkIndex];
+
+        const firebaseUser = app.auth().currentUser;
+        let currentUserID = "";
+        if(firebaseUser) currentUserID = firebaseUser.uid;
 
         await app
             .firestore()
@@ -268,11 +294,11 @@ export const HomeworkTool: React.FC = () => {
                             className={classes.addHomework}
                             onClick={handleFormOpen}
                         >
-                            Add
+                            Add Homework
                         </Button>
                     </Box>
                 }
-                <Box m={6} p={isSmallDevice? 2 : 0}>
+                <Box m={6} p={isSmallDevice? 2 : 4}>
                     {homeworkData.map((element, index) => {
                         return <TabPanels
                                     value={tabValue}
@@ -312,7 +338,7 @@ export const HomeworkTool: React.FC = () => {
                     }}
                 >
                     <DialogTitle>
-                        {"Seems like the item homework doesn't exist anymore D:"}
+                        {"Seems like the homework item doesn't exist anymore D:"}
                     </DialogTitle>
                     <DialogActions>
                         <Button onClick={handleInvalidDataClose} color='primary'>OK</Button>

@@ -1,4 +1,6 @@
-import { Button, createStyles, Dialog, DialogActions, DialogTitle, makeStyles, TextField, Theme, useMediaQuery, useTheme } from '@material-ui/core';
+import { Button, createStyles,
+         Dialog, DialogActions, DialogTitle, makeStyles, TextField,
+         Theme, useMediaQuery, useTheme } from '@material-ui/core';
 import React, { useState } from 'react';
 import { BUTTON_DELETE_HOVER_BACKGROUND_COLOR, BUTTON_DELETE_BACKGROUND_COLOR,
         BUTTON_EDIT_BACKGROUND_COLOR, BUTTON_EDIT_HOVER_BACKGROUND_COLOR, SECONDARY_COLOR, DEFAULT_TEXT_COLOR, FILL_OUT_FORM_BACKGROUND_FILL_COLOR } from '../../Styles/global';

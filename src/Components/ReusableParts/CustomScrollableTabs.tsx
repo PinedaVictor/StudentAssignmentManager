@@ -1,5 +1,5 @@
 import React from 'react';
-import { createStyles, Tabs, Tab, Box, makeStyles, Theme } from '@material-ui/core';
+import { createStyles, Tabs, Tab, makeStyles, Theme } from '@material-ui/core';
 
 interface TabProps {
     className: string,
@@ -7,6 +7,7 @@ interface TabProps {
     onChange: (event: React.ChangeEvent<{}>, newValue: number) => void,
     tabNames: string[],
 }
+
 export const CustomScrollableTabs = (tabProps: TabProps) => {
     const classes = useStyles();
     const { className, tabValue, onChange, tabNames} = tabProps;
