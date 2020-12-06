@@ -14,6 +14,7 @@ import { NumberInput } from "../ReusableParts/NumberInput";
 import { MenuSelectionBox } from "../ReusableParts/MenuSelectionBox";
 import { CustomSlider} from "../ReusableParts/CustomSlider"
 import { BORDER_COLOR } from "../../Styles/global";
+
 interface CourseDataStructure {
   id: string,
   courseName: string,
@@ -219,6 +220,39 @@ export const Courses: React.FC = () => {
     cycleModalStage(1)
     setCardModal(true)
   }
+  const handleAddCourseData = async (courseName: string) => {
+    let userDoc = app
+      .firestore()
+      .collection("users")
+      .doc(currentUserID);
+
+      // Add Exam Data for course
+      const hwData = { class: courseName, homeworks: []}
+      var hwRef = userDoc
+        .collection("HomeworkData")
+        .doc();
+
+      await hwRef
+        .set(hwData);
+
+      // Add Project Data for course
+      const projectData = { class: courseName, projects: [] }
+
+      var projectRef = userDoc
+        .collection("ProjectData")
+        .doc();
+
+      await projectRef.set(projectData);
+      
+      // Add Exam Data for course
+      const examData = { class: courseName, exams: [] }
+      var examRef = userDoc
+        .collection("ExamData")
+        .doc();
+
+      await examRef
+        .set(examData);
+  }
 
   const submitModal = async (action: "add" | "edit") => {
     
@@ -234,6 +268,10 @@ export const Courses: React.FC = () => {
         if (action === "add"){
           doc = collection.doc()
           doc.set(CourseInfo);
+          
+          // Add a new course material for the user
+          // (e.g. Exams, HWs, Projects)
+          await handleAddCourseData(CourseInfo.courseName);
         }
 
         else {

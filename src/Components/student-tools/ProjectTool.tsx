@@ -121,7 +121,7 @@ export const ProjectTool: React.FC = () => {
                     const projectData = document.data();
                     if(projectData) {
                         const tempProjectData = {
-                            class: projectData.Class,
+                            class: projectData.class,
                             classID: document.id,
                             projects: [...projectData.projects]
                         }
