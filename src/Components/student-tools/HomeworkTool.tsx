@@ -1,7 +1,7 @@
 import { AppBar, BottomNavigation, BottomNavigationAction, Box, Button, createStyles, Dialog, DialogActions, DialogTitle, Grid, makeStyles, Theme, useMediaQuery, useTheme } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import { Homework, HomeworkData } from '../../Database/utils';
+import { DatabaseDocNames, Homework, HomeworkData } from '../../Database/utils';
 import { DEFAULT_TEXT_COLOR, SECONDARY_COLOR } from '../../Styles/global';
 import { CustomCardStandard } from '../ReusableParts/CustomCardStandard';
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
@@ -102,9 +102,9 @@ export const HomeworkTool: React.FC = () => {
 
         const homeworkList = app
             .firestore()
-            .collection('users')
+            .collection(DatabaseDocNames.users)
             .doc(currentUserID)
-            .collection('HomeworkData')
+            .collection(DatabaseDocNames.hwData)
             .onSnapshot(querySnapshot => {
                 const homeworkList: HomeworkData[] = [];
                 querySnapshot.forEach(document => {
@@ -158,9 +158,9 @@ export const HomeworkTool: React.FC = () => {
         const classID = homeworkData[tabValue].classID;
         await app
             .firestore()
-            .collection('users')
+            .collection(DatabaseDocNames.users)
             .doc(currentUserID)
-            .collection('HomeworkData')
+            .collection(DatabaseDocNames.hwData)
             .doc(classID)
             .update({
                 homeworks: firebase.firestore.FieldValue
@@ -226,9 +226,9 @@ export const HomeworkTool: React.FC = () => {
 
         await app
             .firestore()
-            .collection('users')
+            .collection(DatabaseDocNames.users)
             .doc(currentUserID)
-            .collection('HomeworkData')
+            .collection(DatabaseDocNames.hwData)
             .doc(classID)
             .update( {
                 homeworks: firebase.firestore.FieldValue.arrayUnion(newHomework),
@@ -253,9 +253,9 @@ export const HomeworkTool: React.FC = () => {
 
         await app
             .firestore()
-            .collection('users')
+            .collection(DatabaseDocNames.users)
             .doc(currentUserID)
-            .collection('HomeworkData')
+            .collection(DatabaseDocNames.hwData)
             .doc(classID)
             .update( {
                 homeworks: firebase.firestore.FieldValue.arrayRemove(deletable),

@@ -9,7 +9,7 @@ import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
 import { AddForm } from '../ReusableParts/AddForm';
 import { EditForm } from '../ReusableParts/EditForm';
 import { app } from "../../Database/initFirebase";
-import { Exam, ExamData } from '../../Database/utils';
+import { DatabaseDocNames, Exam, ExamData } from '../../Database/utils';
 import firebase from 'firebase';
 
 const formatInfo = (info: string[]): Exam => {
@@ -116,9 +116,9 @@ export const ExamsTools: React.FC = () => {
 
         const examList = app
             .firestore()
-            .collection('users')
+            .collection(DatabaseDocNames.users)
             .doc(currentUserID)
-            .collection('ExamData')
+            .collection(DatabaseDocNames.examData)
             .onSnapshot(querySnapshot => {
                 const examList: ExamData[] = [];
                 querySnapshot.forEach(document => {
@@ -174,9 +174,9 @@ export const ExamsTools: React.FC = () => {
         const classID = examData[tabValue].ClassID;
         await app
             .firestore()
-            .collection('users')
+            .collection(DatabaseDocNames.users)
             .doc(currentUserID)
-            .collection('ExamData')
+            .collection(DatabaseDocNames.examData)
             .doc(classID)
             .update({
                 exams: firebase.firestore.FieldValue
@@ -240,9 +240,9 @@ export const ExamsTools: React.FC = () => {
 
         await app
             .firestore()
-            .collection('users')
+            .collection(DatabaseDocNames.users)
             .doc(currentUserID)
-            .collection('ExamData')
+            .collection(DatabaseDocNames.examData)
             .doc(classID)
             .update({
                 exams: firebase.firestore.FieldValue.arrayUnion(newExam)
@@ -267,9 +267,9 @@ export const ExamsTools: React.FC = () => {
 
         await app
             .firestore()
-            .collection('users')
+            .collection(DatabaseDocNames.users)
             .doc(currentUserID)
-            .collection('ExamData')
+            .collection(DatabaseDocNames.examData)
             .doc(classID)
             .update({
                 exams: firebase.firestore.FieldValue.arrayRemove(deletable),

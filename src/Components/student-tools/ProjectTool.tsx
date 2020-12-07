@@ -9,7 +9,7 @@ import firebase from 'firebase';
 import { DEFAULT_TEXT_COLOR, SECONDARY_COLOR } from '../../Styles/global';
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
 import { AddForm } from '../ReusableParts/AddForm';
-import { Project, ProjectData } from '../../Database/utils';
+import { DatabaseDocNames, Project, ProjectData } from '../../Database/utils';
 import { CustomCardStandard } from '../ReusableParts/CustomCardStandard';
 import { EditForm } from '../ReusableParts/EditForm';
 import { app } from '../../Database/initFirebase';
@@ -112,9 +112,9 @@ export const ProjectTool: React.FC = () => {
 
         const projectList = app
             .firestore()
-            .collection('users')
+            .collection(DatabaseDocNames.users)
             .doc(currentUserID)
-            .collection('ProjectData')
+            .collection(DatabaseDocNames.projectData)
             .onSnapshot(querySnapshot => {
                 const projectList: ProjectData[] = [];
                 querySnapshot.forEach(document => {
@@ -168,9 +168,9 @@ export const ProjectTool: React.FC = () => {
         const classID = projectData[tabValue].classID;
         await app
             .firestore()
-            .collection('users')
+            .collection(DatabaseDocNames.users)
             .doc(currentUserID)
-            .collection('ProjectData')
+            .collection(DatabaseDocNames.projectData)
             .doc(classID)
             .update({
                 projects: firebase.firestore.FieldValue
@@ -238,9 +238,9 @@ export const ProjectTool: React.FC = () => {
 
         await app
             .firestore()
-            .collection('users')
+            .collection(DatabaseDocNames.users)
             .doc(currentUserID)
-            .collection('ProjectData')
+            .collection(DatabaseDocNames.projectData)
             .doc(classID)
             .update( {
                 projects: firebase.firestore.FieldValue.arrayUnion(newProject),
@@ -266,9 +266,9 @@ export const ProjectTool: React.FC = () => {
 
         await app
             .firestore()
-            .collection('users')
+            .collection(DatabaseDocNames.users)
             .doc(currentUserID)
-            .collection('ProjectData')
+            .collection(DatabaseDocNames.projectData)
             .doc(classID)
             .update( {
                 projects: firebase.firestore.FieldValue.arrayRemove(deletable),
