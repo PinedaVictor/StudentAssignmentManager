@@ -15,7 +15,6 @@ import { NumberInput } from "../ReusableParts/NumberInput";
 import { MenuSelectionBox } from "../ReusableParts/MenuSelectionBox";
 import { CustomSlider} from "../ReusableParts/CustomSlider"
 import { BORDER_COLOR } from "../../Styles/global";
-import { firestore } from "firebase";
 
 interface CourseDataStructure {
   id: string,
@@ -57,6 +56,7 @@ interface CourseDataStructure {
 export const Courses: React.FC = () => {
   const classes = useStyles()
   const [courses, setCourses] = useState<CourseDataStructure[]>([])
+  const [prevCourseName, setPrevCourseName] = useState("");
 
   const firebase_User = app.auth().currentUser;
   let currentUserID = "";
@@ -170,9 +170,9 @@ export const Courses: React.FC = () => {
       gradeScale: {AMinus: number, BMinus: number, CMinus: number, DMinus: number}
       gradeWeights: {homework: number, project: number, exam: number, quiz: number}
     } ) => {
-
+  
     setCourseInfo(data)
-
+    setPrevCourseName(data.courseName);
     cycleModalStage(1)
     setCardModal(true)
   }
@@ -256,7 +256,7 @@ export const Courses: React.FC = () => {
         .set(examData);
   };
 
-  const editCourseDataTitle = async (courseName: string) => {
+  const editCourseDataTitle = async (newCourseName: string, oldCourseName: string) => {
     let userDoc = app
       .firestore()
       .collection(DatabaseDocNames.users)
@@ -265,14 +265,14 @@ export const Courses: React.FC = () => {
     // Update the HW class
     const hwQuery = userDoc
       .collection(DatabaseDocNames.hwData)
-      .where('class', '==', courseName);
+      .where('class', '==', oldCourseName);
 
-    await hwQuery
+    hwQuery
       .get()
       .then(querySnapshot => {
         querySnapshot.forEach(doc => {
           doc.ref.update({
-            class: courseName
+            class: newCourseName
           });
         });
       });
@@ -280,14 +280,14 @@ export const Courses: React.FC = () => {
     // Update the project class
     const projQuery = userDoc
       .collection(DatabaseDocNames.projData)
-      .where('class', '==', courseName);
+      .where('class', '==', oldCourseName);
 
-    await projQuery
+    projQuery
       .get()
       .then(querySnapshot => {
         querySnapshot.forEach(doc => {
           doc.ref.update({
-            class: courseName
+            class: newCourseName
           });
         });
       });
@@ -295,14 +295,14 @@ export const Courses: React.FC = () => {
     // Update the exam class
     const examQuery = userDoc
       .collection(DatabaseDocNames.examData)
-      .where('class', '==', courseName);
+      .where('class', '==', oldCourseName);
     
-    await examQuery
+    examQuery
       .get()
       .then(querySnapshot => {
         querySnapshot.forEach(doc => {
           doc.ref.update({
-            class: courseName
+            class: newCourseName
           });
         });
       });
@@ -331,11 +331,13 @@ export const Courses: React.FC = () => {
         else {
           doc = collection.doc(CourseInfo.id)
           doc.update(CourseInfo)
-
-          await editCourseDataTitle(CourseInfo.courseName);
+          
+          if(CourseInfo.courseName !== prevCourseName)
+            await editCourseDataTitle(CourseInfo.courseName, prevCourseName);
         }
         
         setModalStage(0)
+        setPrevCourseName('');
         setCardModal(false)
         clearModalInputs()
         

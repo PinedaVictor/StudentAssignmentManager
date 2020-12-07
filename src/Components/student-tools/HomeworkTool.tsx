@@ -284,6 +284,7 @@ export const HomeworkTool: React.FC = () => {
                             <BottomNavigationAction
                                 icon={<AddCircleIcon className={classes.addHomeworkIcon}/> }
                                 onClick={handleFormOpen}
+                                disabled={homeworkData.length === 0}
                             />
                         </BottomNavigation>
                     </AppBar> :
@@ -293,6 +294,7 @@ export const HomeworkTool: React.FC = () => {
                             startIcon={<AddCircleIcon />}
                             className={classes.addHomework}
                             onClick={handleFormOpen}
+                            disabled={homeworkData.length === 0}
                         >
                             Add Homework
                         </Button>

@@ -299,6 +299,7 @@ export const ExamsTools: React.FC = () => {
                             <BottomNavigationAction
                                 icon={<AddCircleIcon className={classes.addExamIcon}/> }
                                 onClick={handleFormOpen}
+                                disabled={examData.length === 0}
                             />
                         </BottomNavigation>
                     </AppBar> :
@@ -308,6 +309,7 @@ export const ExamsTools: React.FC = () => {
                             variant="contained"
                             startIcon={<AddCircleIcon />}
                             onClick={handleFormOpen}
+                            disabled={examData.length === 0}
                         >
                             Add Exam
                         </Button>

@@ -295,6 +295,7 @@ export const ProjectTool: React.FC = () => {
                             <BottomNavigationAction
                                 icon={<AddCircleIcon className={classes.addProjectIcon}/> }
                                 onClick={handleFormOpen}
+                                disabled={projectData.length === 0}
                             />
                         </BottomNavigation>
                     </AppBar> :
@@ -304,6 +305,7 @@ export const ProjectTool: React.FC = () => {
                             variant="contained"
                             startIcon={<AddCircleIcon />}
                             onClick={handleFormOpen}
+                            disabled={projectData.length === 0}
                         >
                             Add Project
                         </Button>
