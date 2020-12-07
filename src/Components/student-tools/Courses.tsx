@@ -337,7 +337,57 @@ export const Courses: React.FC = () => {
     })
   }
 
-  const deleteCourse = async (id: string) => {
+  const deleteCourseData = async (courseName: string) => {
+    // Homework delete
+    const hwQuery = app
+      .firestore()
+      .collection('users')
+      .doc(currentUserID)
+      .collection('HomeworkData')
+      .where('class', '==', courseName);
+
+    await hwQuery
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          doc.ref.delete();
+        });
+      });
+    
+    // Project delete
+    const projectQuery = app
+      .firestore()
+      .collection('users')
+      .doc(currentUserID)
+      .collection('ProjectData')
+      .where('class', '==', courseName);
+
+    await projectQuery
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          doc.ref.delete();
+        });
+      });
+
+    // Exam delete
+    const examQuery = app
+      .firestore()
+      .collection('users')
+      .doc(currentUserID)
+      .collection('ExamData')
+      .where('class', '==', courseName);
+
+    await examQuery
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          doc.ref.delete();
+        });
+      });
+  }
+
+  const deleteCourse = async (id: string, courseName: string) => {
 
     try{
       await app
@@ -347,6 +397,8 @@ export const Courses: React.FC = () => {
       .collection('Courses')
       .doc(id)
       .delete()
+      
+      await deleteCourseData(courseName);
 
       console.log("Course has been deleted")
     }
@@ -1005,7 +1057,7 @@ export const Courses: React.FC = () => {
               }}
 
               editClick = {() => openEditModal(course)}
-              deleteClick = {() => deleteCourse(course.id)}
+              deleteClick = {() => deleteCourse(course.id, course.courseName)}
               />
             </Grid>
           ))
