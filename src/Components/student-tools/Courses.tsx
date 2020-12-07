@@ -8,12 +8,14 @@ import { Container, createMuiTheme, Grid, makeStyles, responsiveFontSizes, Theme
 import { CustomButton } from "../ReusableParts/CustomButton";
 import { CustomPopup } from "../ReusableParts/CustomPopup";
 import { CustomTextField } from "../ReusableParts/CustomTextField"
+import { DatabaseDocNames } from "../../Database/utils";
 
 import { app } from "../../Database/initFirebase"
 import { NumberInput } from "../ReusableParts/NumberInput";
 import { MenuSelectionBox } from "../ReusableParts/MenuSelectionBox";
 import { CustomSlider} from "../ReusableParts/CustomSlider"
 import { BORDER_COLOR } from "../../Styles/global";
+import { firestore } from "firebase";
 
 interface CourseDataStructure {
   id: string,
@@ -220,16 +222,16 @@ export const Courses: React.FC = () => {
     cycleModalStage(1)
     setCardModal(true)
   }
-  const handleAddCourseData = async (courseName: string) => {
+  const addCourseData = async (courseName: string) => {
     let userDoc = app
       .firestore()
-      .collection("users")
+      .collection(DatabaseDocNames.users)
       .doc(currentUserID);
 
       // Add Exam Data for course
       const hwData = { class: courseName, homeworks: []}
       var hwRef = userDoc
-        .collection("HomeworkData")
+        .collection(DatabaseDocNames.hwData)
         .doc();
 
       await hwRef
@@ -239,7 +241,7 @@ export const Courses: React.FC = () => {
       const projectData = { class: courseName, projects: [] }
 
       var projectRef = userDoc
-        .collection("ProjectData")
+        .collection(DatabaseDocNames.projData)
         .doc();
 
       await projectRef.set(projectData);
@@ -247,12 +249,64 @@ export const Courses: React.FC = () => {
       // Add Exam Data for course
       const examData = { class: courseName, exams: [] }
       var examRef = userDoc
-        .collection("ExamData")
+        .collection(DatabaseDocNames.examData)
         .doc();
 
       await examRef
         .set(examData);
-  }
+  };
+
+  const editCourseDataTitle = async (courseName: string) => {
+    let userDoc = app
+      .firestore()
+      .collection(DatabaseDocNames.users)
+      .doc(currentUserID);
+    
+    // Update the HW class
+    const hwQuery = userDoc
+      .collection(DatabaseDocNames.hwData)
+      .where('class', '==', courseName);
+
+    await hwQuery
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          doc.ref.update({
+            class: courseName
+          });
+        });
+      });
+    
+    // Update the project class
+    const projQuery = userDoc
+      .collection(DatabaseDocNames.projData)
+      .where('class', '==', courseName);
+
+    await projQuery
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          doc.ref.update({
+            class: courseName
+          });
+        });
+      });
+    
+    // Update the exam class
+    const examQuery = userDoc
+      .collection(DatabaseDocNames.examData)
+      .where('class', '==', courseName);
+    
+    await examQuery
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          doc.ref.update({
+            class: courseName
+          });
+        });
+      });
+  };
 
   const submitModal = async (action: "add" | "edit") => {
     
@@ -271,12 +325,14 @@ export const Courses: React.FC = () => {
           
           // Add a new course material for the user
           // (e.g. Exams, HWs, Projects)
-          await handleAddCourseData(CourseInfo.courseName);
+          await addCourseData(CourseInfo.courseName);
         }
 
         else {
           doc = collection.doc(CourseInfo.id)
           doc.update(CourseInfo)
+
+          await editCourseDataTitle(CourseInfo.courseName);
         }
         
         setModalStage(0)
@@ -338,12 +394,14 @@ export const Courses: React.FC = () => {
   }
 
   const deleteCourseData = async (courseName: string) => {
-    // Homework delete
-    const hwQuery = app
+    const userDoc = app
       .firestore()
-      .collection('users')
-      .doc(currentUserID)
-      .collection('HomeworkData')
+      .collection(DatabaseDocNames.users)
+      .doc(currentUserID);
+
+    // Homework delete  
+    const hwQuery = userDoc
+      .collection(DatabaseDocNames.hwData)
       .where('class', '==', courseName);
 
     await hwQuery
@@ -355,11 +413,8 @@ export const Courses: React.FC = () => {
       });
     
     // Project delete
-    const projectQuery = app
-      .firestore()
-      .collection('users')
-      .doc(currentUserID)
-      .collection('ProjectData')
+    const projectQuery = userDoc
+      .collection(DatabaseDocNames.projData)
       .where('class', '==', courseName);
 
     await projectQuery
@@ -371,11 +426,8 @@ export const Courses: React.FC = () => {
       });
 
     // Exam delete
-    const examQuery = app
-      .firestore()
-      .collection('users')
-      .doc(currentUserID)
-      .collection('ExamData')
+    const examQuery = userDoc
+      .collection(DatabaseDocNames.examData)
       .where('class', '==', courseName);
 
     await examQuery

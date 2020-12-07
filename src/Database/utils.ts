@@ -1,3 +1,11 @@
+export enum DatabaseDocNames {
+    users = "users",
+    courses = "Courses",
+    hwData = "HomeworkData",
+    projData = "ProjectData",
+    examData = "ExamData",
+}
+
 export interface Homework {
     title: string;
     completion: number;
