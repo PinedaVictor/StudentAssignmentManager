@@ -9,7 +9,7 @@ import firebase from 'firebase';
 import { DEFAULT_TEXT_COLOR, SECONDARY_COLOR } from '../../Styles/global';
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
 import { AddForm } from '../ReusableParts/AddForm';
-import { Project, ProjectData } from '../../Database/utils';
+import { DatabaseDocNames, Project, ProjectData } from '../../Database/utils';
 import { CustomCardStandard } from '../ReusableParts/CustomCardStandard';
 import { EditForm } from '../ReusableParts/EditForm';
 import { app } from '../../Database/initFirebase';
@@ -23,7 +23,6 @@ const formatInfo = (info: string[]): Project => {
         grade: 0,
         DateDue: '',
         section_weight: 0,
-        overall_weight: 0,
         requirements: '',
         related_homework: [],
         resources: [],
@@ -35,7 +34,6 @@ const formatInfo = (info: string[]): Project => {
     project.grade = isNaN(parseInt(info[i])) ? -1 : parseInt(info[i]);
     i++
     project.section_weight = parseInt(info[i++]);
-    project.overall_weight = parseInt(info[i++]);
     project.requirements = info[i++];
     project.related_homework = info[i].length === 0? [] : info[i].split(',');
     i++;
@@ -84,7 +82,6 @@ const TabPanels = (props: TabPanelProps) => {
                                     completion: element.completion + '%',
                                     grade: element.grade === -1 ? 'No grade yet' : element.grade + '%' ,
                                     sectionWeight: element.section_weight + '%',
-                                    overallWeight: element.overall_weight + '%',
                                 }}
                                 expandingData={{
                                     requirements: element.requirements,
@@ -112,16 +109,16 @@ export const ProjectTool: React.FC = () => {
 
         const projectList = app
             .firestore()
-            .collection('users')
+            .collection(DatabaseDocNames.users)
             .doc(currentUserID)
-            .collection('ProjectData')
+            .collection(DatabaseDocNames.projData)
             .onSnapshot(querySnapshot => {
                 const projectList: ProjectData[] = [];
                 querySnapshot.forEach(document => {
                     const projectData = document.data();
                     if(projectData) {
                         const tempProjectData = {
-                            class: projectData.Class,
+                            class: projectData.class,
                             classID: document.id,
                             projects: [...projectData.projects]
                         }
@@ -136,6 +133,7 @@ export const ProjectTool: React.FC = () => {
     // HOOKS
     const [currentProjectEdit, setCurrentProjectEdit] = useState('');
     const [tabValue, setTabValue] = useState(0);
+    const [isInvalidSW, setIsInvalidSW] = useState(false);
     const [isInvalidData, setIsInvalidData] = useState(false);
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
@@ -150,8 +148,6 @@ export const ProjectTool: React.FC = () => {
          isInvalid: (value: string) => !/^\d{0,3}$/.test(value)},
         {id: 'section-weight', label: 'Section Weight', value: '', placeHolder: '10',
          isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
-        {id: 'overall-weight', label: 'Overall Weight', value: '', placeHolder: '10',
-         isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
         {id: 'reqs', label: 'Requirements', value: '', placeHolder: 'Do...',
          isInvalid: () => false},
         {id: 'related-hw', label: 'Related Homework', value: '', placeHolder: 'HW #1, HW #2',
@@ -161,20 +157,41 @@ export const ProjectTool: React.FC = () => {
     ]);
     
     // FUNCTIONS
+    const handleIsInvalidSW = () => {
+        setIsInvalidSW(false);
+    }
+
+    const sectionWeightExceeds = (prevSW: number, newSW: number): boolean => {
+        let currentSectionWeights = 0;
+        projectData[tabValue].projects.forEach(project => currentSectionWeights += project.section_weight);
+        currentSectionWeights -= prevSW;
+        currentSectionWeights += newSW;
+
+        return currentSectionWeights >= 100;
+    }
+
     const handleFormAdd = async () => {
+        const classID = projectData[tabValue].classID;
+        const newProject = formatInfo(inputs.map(input => input.value));
+
+        if(sectionWeightExceeds(0, newProject.section_weight)) {
+            setIsInvalidSW(true);
+            return;
+        }
+        
         const firebaseUser = app.auth().currentUser;
         let currentUserID = "";
         if(firebaseUser) currentUserID = firebaseUser.uid;
-        const classID = projectData[tabValue].classID;
+
         await app
             .firestore()
-            .collection('users')
+            .collection(DatabaseDocNames.users)
             .doc(currentUserID)
-            .collection('ProjectData')
+            .collection(DatabaseDocNames.projData)
             .doc(classID)
             .update({
                 projects: firebase.firestore.FieldValue
-                    .arrayUnion(formatInfo(inputs.map(input => input.value))),
+                    .arrayUnion(newProject),
             });
     }
 
@@ -206,7 +223,6 @@ export const ProjectTool: React.FC = () => {
         newInputs[i++].value = oldProject.DateDue;
         newInputs[i++].value = oldProject.grade.toString();
         newInputs[i++].value = oldProject.section_weight.toString();
-        newInputs[i++].value = oldProject.overall_weight.toString();
         newInputs[i++].value = oldProject.requirements;
         newInputs[i++].value = oldProject.related_homework.join(', ');
         newInputs[i++].value = oldProject.resources.join(', ');
@@ -215,7 +231,6 @@ export const ProjectTool: React.FC = () => {
     }
 
     const handleFormEditSubmit = async () => {
-        const classID = projectData[tabValue].classID;
         const projectIndex = projectData[tabValue].projects.findIndex(input => input.title === currentProjectEdit);
 
         if(projectIndex === -1) {
@@ -224,13 +239,18 @@ export const ProjectTool: React.FC = () => {
             return;
         }
 
+        const classID = projectData[tabValue].classID;
         const oldProjectName = projectData[tabValue].projects[projectIndex].title;
+        
+        const projectInfo = inputs.map(input => input.value);
+        const newProject = formatInfo(projectInfo);
+        
+        if(sectionWeightExceeds(projectData[tabValue].projects[projectIndex].section_weight, newProject.section_weight)){
+            setIsInvalidSW(true);
+            return;
+        }
 
         await handleDeleteButton(oldProjectName);
-
-        const projectInfo = inputs.map(input => input.value);
-
-        const newProject = formatInfo(projectInfo);
 
         const firebaseUser = app.auth().currentUser;
         let currentUserID = "";
@@ -238,9 +258,9 @@ export const ProjectTool: React.FC = () => {
 
         await app
             .firestore()
-            .collection('users')
+            .collection(DatabaseDocNames.users)
             .doc(currentUserID)
-            .collection('ProjectData')
+            .collection(DatabaseDocNames.projData)
             .doc(classID)
             .update( {
                 projects: firebase.firestore.FieldValue.arrayUnion(newProject),
@@ -266,9 +286,9 @@ export const ProjectTool: React.FC = () => {
 
         await app
             .firestore()
-            .collection('users')
+            .collection(DatabaseDocNames.users)
             .doc(currentUserID)
-            .collection('ProjectData')
+            .collection(DatabaseDocNames.projData)
             .doc(classID)
             .update( {
                 projects: firebase.firestore.FieldValue.arrayRemove(deletable),
@@ -295,6 +315,7 @@ export const ProjectTool: React.FC = () => {
                             <BottomNavigationAction
                                 icon={<AddCircleIcon className={classes.addProjectIcon}/> }
                                 onClick={handleFormOpen}
+                                disabled={projectData.length === 0}
                             />
                         </BottomNavigation>
                     </AppBar> :
@@ -304,6 +325,7 @@ export const ProjectTool: React.FC = () => {
                             variant="contained"
                             startIcon={<AddCircleIcon />}
                             onClick={handleFormOpen}
+                            disabled={projectData.length === 0}
                         >
                             Add Project
                         </Button>
@@ -354,6 +376,24 @@ export const ProjectTool: React.FC = () => {
                     <DialogActions>
                         <Button onClick={handleInvalidDataClose} color='primary'>OK</Button>
                     </DialogActions>
+                </Dialog>
+                <Dialog
+                    open={isInvalidSW}
+                    onClose={handleInvalidDataClose}
+                    PaperProps={{
+                        style: {
+                            backgroundColor: SECONDARY_COLOR,
+                            color: DEFAULT_TEXT_COLOR,
+                            alignItems: 'center'
+                        }
+                    }}
+                >
+                    <DialogTitle>
+                        {"Seems like the total section weights exceeds 100 D:"}
+                        <DialogActions>
+                            <Button onClick={handleIsInvalidSW} color='primary'>OK</Button>
+                        </DialogActions>
+                    </DialogTitle>
                 </Dialog>
             </Box>
         </>

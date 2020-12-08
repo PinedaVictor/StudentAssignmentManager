@@ -4,12 +4,14 @@ import { Container, createMuiTheme, Grid, makeStyles, responsiveFontSizes, Theme
 import { CustomButton } from "../ReusableParts/CustomButton";
 import { CustomPopup } from "../ReusableParts/CustomPopup";
 import { CustomTextField } from "../ReusableParts/CustomTextField"
+import { DatabaseDocNames } from "../../Database/utils";
 
 import { app } from "../../Database/initFirebase"
 import { NumberInput } from "../ReusableParts/NumberInput";
 import { MenuSelectionBox } from "../ReusableParts/MenuSelectionBox";
 import { CustomSlider} from "../ReusableParts/CustomSlider"
 import { BORDER_COLOR } from "../../Styles/global";
+
 interface CourseDataStructure {
   id: string,
   courseName: string,
@@ -50,6 +52,7 @@ interface CourseDataStructure {
 export const Courses: React.FC = () => {
   const classes = useStyles()
   const [courses, setCourses] = useState<CourseDataStructure[]>([])
+  const [prevCourseName, setPrevCourseName] = useState("");
 
   const firebase_User = app.auth().currentUser;
   let currentUserID = "";
@@ -163,9 +166,9 @@ export const Courses: React.FC = () => {
       gradeScale: {AMinus: number, BMinus: number, CMinus: number, DMinus: number}
       gradeWeights: {homework: number, project: number, exam: number, quiz: number}
     } ) => {
-
+  
     setCourseInfo(data)
-
+    setPrevCourseName(data.courseName);
     cycleModalStage(1)
     setCardModal(true)
   }
@@ -215,6 +218,91 @@ export const Courses: React.FC = () => {
     cycleModalStage(1)
     setCardModal(true)
   }
+  const addCourseData = async (courseName: string) => {
+    let userDoc = app
+      .firestore()
+      .collection(DatabaseDocNames.users)
+      .doc(currentUserID);
+
+      // Add Exam Data for course
+      const hwData = { class: courseName, homeworks: []}
+      var hwRef = userDoc
+        .collection(DatabaseDocNames.hwData)
+        .doc();
+
+      await hwRef
+        .set(hwData);
+
+      // Add Project Data for course
+      const projectData = { class: courseName, projects: [] }
+
+      var projectRef = userDoc
+        .collection(DatabaseDocNames.projData)
+        .doc();
+
+      await projectRef.set(projectData);
+      
+      // Add Exam Data for course
+      const examData = { class: courseName, exams: [] }
+      var examRef = userDoc
+        .collection(DatabaseDocNames.examData)
+        .doc();
+
+      await examRef
+        .set(examData);
+  };
+
+  const editCourseDataTitle = async (newCourseName: string, oldCourseName: string) => {
+    let userDoc = app
+      .firestore()
+      .collection(DatabaseDocNames.users)
+      .doc(currentUserID);
+    
+    // Update the HW class
+    const hwQuery = userDoc
+      .collection(DatabaseDocNames.hwData)
+      .where('class', '==', oldCourseName);
+
+    hwQuery
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          doc.ref.update({
+            class: newCourseName
+          });
+        });
+      });
+    
+    // Update the project class
+    const projQuery = userDoc
+      .collection(DatabaseDocNames.projData)
+      .where('class', '==', oldCourseName);
+
+    projQuery
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          doc.ref.update({
+            class: newCourseName
+          });
+        });
+      });
+    
+    // Update the exam class
+    const examQuery = userDoc
+      .collection(DatabaseDocNames.examData)
+      .where('class', '==', oldCourseName);
+    
+    examQuery
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          doc.ref.update({
+            class: newCourseName
+          });
+        });
+      });
+  };
 
   const submitModal = async (action: "add" | "edit") => {
     
@@ -230,14 +318,22 @@ export const Courses: React.FC = () => {
         if (action === "add"){
           doc = collection.doc()
           doc.set(CourseInfo);
+          
+          // Add a new course material for the user
+          // (e.g. Exams, HWs, Projects)
+          await addCourseData(CourseInfo.courseName);
         }
 
         else {
           doc = collection.doc(CourseInfo.id)
           doc.update(CourseInfo)
+          
+          if(CourseInfo.courseName !== prevCourseName)
+            await editCourseDataTitle(CourseInfo.courseName, prevCourseName);
         }
         
         setModalStage(0)
+        setPrevCourseName('');
         setCardModal(false)
         clearModalInputs()
         
@@ -295,7 +391,53 @@ export const Courses: React.FC = () => {
     })
   }
 
-  const deleteCourse = async (id: string) => {
+  const deleteCourseData = async (courseName: string) => {
+    const userDoc = app
+      .firestore()
+      .collection(DatabaseDocNames.users)
+      .doc(currentUserID);
+
+    // Homework delete  
+    const hwQuery = userDoc
+      .collection(DatabaseDocNames.hwData)
+      .where('class', '==', courseName);
+
+    await hwQuery
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          doc.ref.delete();
+        });
+      });
+    
+    // Project delete
+    const projectQuery = userDoc
+      .collection(DatabaseDocNames.projData)
+      .where('class', '==', courseName);
+
+    await projectQuery
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          doc.ref.delete();
+        });
+      });
+
+    // Exam delete
+    const examQuery = userDoc
+      .collection(DatabaseDocNames.examData)
+      .where('class', '==', courseName);
+
+    await examQuery
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          doc.ref.delete();
+        });
+      });
+  }
+
+  const deleteCourse = async (id: string, courseName: string) => {
 
     try{
       await app
@@ -305,6 +447,8 @@ export const Courses: React.FC = () => {
       .collection('Courses')
       .doc(id)
       .delete()
+      
+      await deleteCourseData(courseName);
 
       console.log("Course has been deleted")
     }
@@ -963,7 +1107,7 @@ export const Courses: React.FC = () => {
               }}
 
               editClick = {() => openEditModal(course)}
-              deleteClick = {() => deleteCourse(course.id)}
+              deleteClick = {() => deleteCourse(course.id, course.courseName)}
               />
             </Grid>
           ))
