@@ -1,7 +1,3 @@
-/*
-Look up either React lodash, or React debounce for potential performance improvements with materialui update components.
-*/
-
 import React, { useEffect, useState } from "react";
 import { CustomCardStandard }  from "../ReusableParts/CustomCardStandard";
 import { Container, createMuiTheme, Grid, makeStyles, responsiveFontSizes, ThemeProvider, Typography} from "@material-ui/core";

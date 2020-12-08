@@ -14,7 +14,6 @@ interface Props {
 }
 
 interface DataType {
-  id: number;
   [key: string]: any;
 }
 
