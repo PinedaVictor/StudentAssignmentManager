@@ -19,7 +19,6 @@ const formatInfo = (info: string[]): Exam => {
         DateDue: '',
         grade: 0,
         section_weight: 0,
-        overall_weight: 0,
         related_hw: [],
         related_projs: [],
         related_exams: [],
@@ -31,7 +30,6 @@ const formatInfo = (info: string[]): Exam => {
     exam.grade = isNaN(parseInt(info[i])) ? -1 : parseInt(info[i]);
     i++;
     exam.section_weight = parseInt(info[i++]);
-    exam.overall_weight = parseInt(info[i++]);
     exam.related_hw = info[i].length === 0? [] : info[i].split(',');
     i++;
     exam.related_projs = info[i].length === 0? [] : info[i].split(',');
@@ -87,7 +85,6 @@ const TabPanels = (props: TabPanelProps) => {
                                     dueDate: element.DateDue,
                                     grade: element.grade === -1 ? 'No grade yet' : element.grade + '%' ,
                                     sectionWeight: element.section_weight + '%',
-                                    overallWeight: element.overall_weight + '%',
                                 }}
                                 expandingData={{
                                     resources: element.resources,
@@ -140,6 +137,7 @@ export const ExamsTools: React.FC = () => {
 
     // HOOKS
     const [isInvalidData, setIsInvalidData] = useState(false);
+    const [isInvalidSW, setIsInvalidSW] = useState(false);
     const [currentExamEdit, setCurrentExamEdit] = useState('');
     const [tabValue, setTabValue] = useState(0);
     const [openAdd, setOpenAdd] = useState(false);
@@ -153,8 +151,6 @@ export const ExamsTools: React.FC = () => {
          isInvalid: (value: string) => !/^\d{0,3}$/.test(value)},
         {id: 'section-weight', label: 'Section Weight', value: '', placeHolder: '10',
          isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
-        {id: 'overall-weight', label: 'Overall Weight', value: '', placeHolder: '10',
-         isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
         {id: 'related-hw', label: 'Related Homework', value: '', placeHolder: 'HW #1, HW #2',
          isInvalid: () => false},
         {id: 'related-projs', label: 'Related Projects', value: '', placeHolder: 'Project #1, Project #2',
@@ -165,13 +161,34 @@ export const ExamsTools: React.FC = () => {
          isInvalid: () => false}
     ]);
 
+    const handleIsInvalidSW = () => {
+        setIsInvalidSW(false);
+    };
+    
     // FUNCTIONS
+    const sectionWeightExceeds = (prevSW: number, newSW: number): boolean => {
+        let currentSectionWeights = 0;
+        examData[tabValue].exams.forEach(exam => currentSectionWeights += exam.section_weight );
+        currentSectionWeights -= prevSW;
+        currentSectionWeights += newSW;
+        
+        return currentSectionWeights >= 100;
+    };
+
     const handleFormAdd = async () => {
+        const classID = examData[tabValue].ClassID;
+        const newExam = formatInfo(inputs.map(input => input.value));
+
+        // Check if the section weights exceed 100%
+        if(sectionWeightExceeds(0, newExam.section_weight)) {
+            setIsInvalidSW(true);
+            return;
+        }
+
         const firebaseUser = app.auth().currentUser;
         let currentUserID = "";
-        if(firebaseUser) currentUserID = firebaseUser.uid
+        if(firebaseUser) currentUserID = firebaseUser.uid;
 
-        const classID = examData[tabValue].ClassID;
         await app
             .firestore()
             .collection(DatabaseDocNames.users)
@@ -180,7 +197,7 @@ export const ExamsTools: React.FC = () => {
             .doc(classID)
             .update({
                 exams: firebase.firestore.FieldValue
-                    .arrayUnion(formatInfo(inputs.map(input => input.value))),
+                    .arrayUnion(newExam),
             });
     }
     const handleNavChange = (event: React.ChangeEvent<{}>, newValue: number) => {
@@ -207,7 +224,6 @@ export const ExamsTools: React.FC = () => {
         newInputs[i++].value = oldExam.DateDue;
         newInputs[i++].value = oldExam.grade === -1 ? '' : oldExam.grade.toString();
         newInputs[i++].value = oldExam.section_weight.toString();
-        newInputs[i++].value = oldExam.overall_weight.toString();
         newInputs[i++].value = oldExam.related_hw.join(', ');
         newInputs[i++].value = oldExam.related_projs.join(', ');
         newInputs[i++].value = oldExam.related_exams.join(', ');
@@ -221,18 +237,22 @@ export const ExamsTools: React.FC = () => {
 
         if(examIndex === -1){
             setIsInvalidData(true);
-            setOpenEdit(false);
             return;
         }
 
         const classID = examData[tabValue].ClassID;
         const oldExamName = examData[tabValue].exams[examIndex].title;
 
+        const examInfo = inputs.map(input => input.value);
+        const newExam = formatInfo(examInfo);
+
+        if(sectionWeightExceeds(examData[tabValue].exams[examIndex].section_weight, newExam.section_weight)){
+            setIsInvalidSW(true);
+            return;
+        }
+
         await handleDeleteButton(oldExamName);
 
-        const examInfo = inputs.map(input => input.value);
-
-        const newExam = formatInfo(examInfo);
 
         const firebaseUser = app.auth().currentUser;
         let currentUserID = "";
@@ -342,6 +362,7 @@ export const ExamsTools: React.FC = () => {
                     inputs={inputs}
                     setInputs={setInputs}
                 />
+
                 <Dialog
                     open={isInvalidData}
                     onClose={handleInvalidDataClose}
@@ -359,6 +380,25 @@ export const ExamsTools: React.FC = () => {
                     <DialogActions>
                         <Button onClick={handleInvalidDataClose} color='primary'>OK</Button>
                     </DialogActions>
+                </Dialog>
+
+                <Dialog
+                    open={isInvalidSW}
+                    onClose={handleInvalidDataClose}
+                    PaperProps={{
+                        style: {
+                            backgroundColor: SECONDARY_COLOR,
+                            color: DEFAULT_TEXT_COLOR,
+                            alignItems: 'center'
+                        }
+                    }}
+                >
+                    <DialogTitle>
+                        {"Seems like the total section weights exceeds 100 D:"}
+                        <DialogActions>
+                            <Button onClick={handleIsInvalidSW} color='primary'>OK</Button>
+                        </DialogActions>
+                    </DialogTitle>
                 </Dialog>
             </Box>
         </>

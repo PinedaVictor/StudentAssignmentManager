@@ -18,7 +18,6 @@ const formatInfo = (info: string[]): Homework => {
         grade: 0,
         DateDue: '', 
         section_weight: 0,
-        overall_weight: 0,
         requirements: '',
         resources: [],
     }
@@ -28,7 +27,6 @@ const formatInfo = (info: string[]): Homework => {
     i++;
     homework.DateDue = info[i++];
     homework.section_weight = parseInt(info[i++]);
-    homework.overall_weight = parseInt(info[i++]);
     homework.requirements = info[i++];
     homework.resources = info[i].length === 0? [] : info[i].split(',');
 
@@ -75,7 +73,6 @@ const TabPanels = (props: TabPanelProps) => {
                                     completion: element.completion + '%',
                                     grade: element.grade === -1 ? 'No grade yet' : element.grade + '%' ,
                                     sectionWeight: element.section_weight + '%',
-                                    overallWeight: element.overall_weight + '%',
                                 }}
                                 expandingData={{
                                     requirements: element.requirements,
@@ -126,6 +123,7 @@ export const HomeworkTool: React.FC = () => {
     
     // HOOKS
     const [isInvalidData, setIsInvalidData] = useState(false);
+    const [isInvalidSW, setIsInvalidSW] = useState(false);
     const [currentHomeworkEdit, setCurrentHomeworkEdit] = useState('');
     const [tabValue, setTabValue] = useState(0);
     const [openAdd, setOpenAdd] = useState(false);
@@ -140,9 +138,7 @@ export const HomeworkTool: React.FC = () => {
         {id: 'duedate', label: 'Due Date', value: '', placeHolder: '4/20/71',
          isInvalid: (value: string) => isNaN(Date.parse(value))},
         {id: 'section-weight', label: 'Section Weight', value: '', placeHolder: '10',
-         isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
-        {id: 'overall-weight', label: 'Overall Weight', value: '', placeHolder: '10',
-         isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
+         isInvalid: (value: string) => value === '' || !/^\d{1,3}$/.test(value)},
         {id: 'reqs', label: 'Requirements', value: '', placeHolder: 'Do...',
          isInvalid: () => false},
         {id: 'resources', label: 'Resources', value: '', placeHolder: 'www.youtube.com, linkedin.com/learning',
@@ -150,12 +146,32 @@ export const HomeworkTool: React.FC = () => {
     ]);
     
     // FUNCTIONS
+    const handleIsInvalidSW = () => {
+        setIsInvalidSW(false);
+    }
+
+    const sectionWeightExceeds = (prevSW: number, newSW: number): boolean => {
+        let currentSectionWeights = 0;
+        homeworkData[tabValue].homeworks.forEach(homework => currentSectionWeights += homework.section_weight );
+        currentSectionWeights -= prevSW;
+        currentSectionWeights += newSW;
+
+        return currentSectionWeights >= 100;
+    }
+
     const handleFormAdd = async () => {
+        const classID = homeworkData[tabValue].classID;
+        const newHomework = formatInfo(inputs.map(input => input.value));
+
+        if(sectionWeightExceeds(0, newHomework.section_weight)){
+            setIsInvalidSW(true);
+            return;
+        }
+
         const firebaseUser = app.auth().currentUser;
         let currentUserID = "";
         if(firebaseUser) currentUserID = firebaseUser.uid;
 
-        const classID = homeworkData[tabValue].classID;
         await app
             .firestore()
             .collection(DatabaseDocNames.users)
@@ -164,7 +180,7 @@ export const HomeworkTool: React.FC = () => {
             .doc(classID)
             .update({
                 homeworks: firebase.firestore.FieldValue
-                    .arrayUnion(formatInfo(inputs.map(input => input.value))),
+                    .arrayUnion(newHomework),
             });
     }
 
@@ -187,7 +203,6 @@ export const HomeworkTool: React.FC = () => {
         newInputs[i++].value = oldHomework.grade === -1 ? '' : oldHomework.grade.toString();
         newInputs[i++].value = oldHomework.DateDue;
         newInputs[i++].value = oldHomework.section_weight.toString();
-        newInputs[i++].value = oldHomework.overall_weight.toString();
         newInputs[i++].value = oldHomework.requirements;
         newInputs[i++].value = oldHomework.resources.join(', ');
         setInputs(newInputs);
@@ -214,11 +229,16 @@ export const HomeworkTool: React.FC = () => {
         const classID = homeworkData[tabValue].classID;
         const oldHomeworkName = homeworkData[tabValue].homeworks[homeworkIndex].title;
 
+        const homeworkInfo = inputs.map(input => input.value);
+        const newHomework = formatInfo(homeworkInfo);
+
+        if(sectionWeightExceeds(homeworkData[tabValue].homeworks[homeworkIndex].section_weight, newHomework.section_weight)) {
+            setIsInvalidSW(true);
+            return;
+        }
+
         await handleDeleteButton(oldHomeworkName);
 
-        const homeworkInfo = inputs.map(input => input.value);
-        
-        const newHomework = formatInfo(homeworkInfo);
         
         const firebaseUser = app.auth().currentUser;
         let currentUserID = "";
@@ -345,6 +365,25 @@ export const HomeworkTool: React.FC = () => {
                     <DialogActions>
                         <Button onClick={handleInvalidDataClose} color='primary'>OK</Button>
                     </DialogActions>
+                </Dialog>
+
+                <Dialog
+                    open={isInvalidSW}
+                    onClose={handleInvalidDataClose}
+                    PaperProps={{
+                        style: {
+                            backgroundColor: SECONDARY_COLOR,
+                            color: DEFAULT_TEXT_COLOR,
+                            alignItems: 'center'
+                        }
+                    }}
+                >
+                    <DialogTitle>
+                        {"Seems like the total section weights exceeds 100 D:"}
+                        <DialogActions>
+                            <Button onClick={handleIsInvalidSW} color='primary'>OK</Button>
+                        </DialogActions>
+                    </DialogTitle>
                 </Dialog>
             </Box>
         </>
