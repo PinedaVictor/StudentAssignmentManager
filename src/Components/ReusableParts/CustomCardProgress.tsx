@@ -33,9 +33,38 @@ export const CustomCardProgress: React.FC<Props> = ({title, data}) => {
       }
     };
 
+    const renderBodyContent = () => (
+      Object.entries(data).map(([key, value], index) => (
+          <Grid container direction = "row" justify = "flex-start" alignItems = "center">
+              <Grid item xs = {4}>
+                <ThemeProvider theme = {theme}>
+                  <Typography display = "inline" variant = "h5" style = {{fontWeight: "bold", textDecoration: "underline"}}>{formatTitle(key) + ":"}</Typography>
+                </ThemeProvider>
+              </Grid>
+
+              <Grid item xs = {6}>
+                <LinearProgress
+                key = {title + `-muibar-${index}`}
+                className = {classes.linearBarRoot}
+                variant="determinate"
+                value={value}
+                color="secondary"
+                />
+              </Grid>
+
+              <Grid item xs = {1}>
+                <ThemeProvider theme = {theme}>
+                  <Typography display = "inline" variant = "h6">{value + "%"}</Typography>
+                </ThemeProvider>
+              </Grid>
+
+            </Grid>
+        ))
+    )
+
     return (
         <Card className = {classes.cardMain}>
-          <Grid container direction = "column" justify = "center" alignItems = "center" spacing = {0}>
+          <Grid container direction = "column" justify = "flex-start" alignItems = "flex-start" style = {{padding: 12}}>
 
             <Grid key = {title} item xs = {12} className = {classes.header}>
               <ThemeProvider theme = {theme}>
@@ -43,40 +72,7 @@ export const CustomCardProgress: React.FC<Props> = ({title, data}) => {
               </ThemeProvider>
             </Grid>
 
-            <Grid container direction = "row" justify = "flex-start" alignItems = "flex-start" className = {classes.contentContainer}>
-                {Object.entries(data).map(([key, value], index) => (
-                  <Grid container direction = "row" justify = "flex-start" alignItems = "flex-start">
-                    <Grid key = {title + `-header-${key}`} item xs = {5} className = {classes.contentTitle}>
-                      <ThemeProvider theme = {theme}>
-                        <Typography display = "inline" variant = "h4" style = {{fontWeight: "bold", textDecoration: "underline"}}>{formatTitle(key) + ":"}</Typography>
-                      </ThemeProvider>
-                    </Grid>
-
-                    <Grid key = {title + `-body-${key}`} item xs = {7} className = {classes.contentBody}>
-                      <Grid container direction = "row" justify = "flex-start" alignItems = "center">
-                        <Grid key = {title + `-bodybar-${index}`} item xs = {10}>
-                          <LinearProgress
-                          key = {title + `-muibar-${index}`}
-                          className = {classes.linearBarRoot}
-                          variant="determinate"
-                          value={value}
-                          color="secondary"
-                          />
-                        </Grid>
-
-                        <Grid key = {title + `-bodyval-${index}`} item xs = {2}>
-                          <ThemeProvider theme = {theme}>
-                            <Typography display = "inline" variant = "h6">{value + "%"}</Typography>
-                          </ThemeProvider>
-                        </Grid>
-
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                ))
-              }
-                
-            </Grid>
+            {renderBodyContent()}
 
           </Grid>
         </Card>
@@ -88,8 +84,6 @@ export const CustomCardProgress: React.FC<Props> = ({title, data}) => {
       backgroundColor: SECONDARY_COLOR,
       border: "solid 1px",
       borderColor: BORDER_COLOR,
-      height: "100%",
-      width: "100%",
       color: "white",
 
       "&:hover": {
@@ -102,30 +96,13 @@ export const CustomCardProgress: React.FC<Props> = ({title, data}) => {
     header: {
         display: "flex",
         width: "100%",
-        padding: 12,
+        paddingBottom: 12,
         justifyContent: "center"
     },
 
-    contentContainer: {
-        padding: 12
-    },
-
-    contentTitle: {
-        paddingRight: 12,
-        height: 25
-    },
-
-    contentBody: {
-        display: "flex",
-        alignContent: "center",
-        width: "100%",
-        padding: 0,
-        height: 25
-    },
-
     linearBarRoot: {
-        height: 12,
+        height: 8,
         borderRadius: 5,
-        marginRight: 10     
+        marginRight: 10
       }
   }))

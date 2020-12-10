@@ -2,13 +2,11 @@ import React, { useEffect, useState } from "react";
 import { app } from "../../Database/initFirebase"
 import nextId from "react-id-generator";
 
-import { BORDER_COLOR, BORDER_COLOR_HOVER, ICON_BORDER, ICON_BORDER_HOVER, SECONDARY_COLOR } from "../../Styles/global";
-import { Collapse, Container, Grid, IconButton, makeStyles, Slide } from "@material-ui/core";
+import { BORDER_COLOR, BORDER_COLOR_HOVER, SECONDARY_COLOR } from "../../Styles/global";
+import { Container, Grid, makeStyles, Slide } from "@material-ui/core";
 import { CustomCardProgress } from "../ReusableParts/CustomCardProgress";
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
-import SettingsIcon from '@material-ui/icons/Settings';
 import { CustomTable } from "../ReusableParts/CustomTable";
-import { CustomCheckbox } from "../ReusableParts/CustomCheckbox";
 
 const tableColumns = [
   "Class",
@@ -41,23 +39,6 @@ interface CourseData {
     projectWeight: number,
     examWeight: number
   }
-}
-
-interface ProgressData {
-  title: string,
-  total: number,
-  homework: number,
-  project: number,
-  exam: number
-}
-
-interface TaskData {
-  course: string,
-  title: string,
-  dueBy: string,
-  priority: number,
-  sectionWeight: number,
-  overallWeight: number
 }
 
 function emptyData(): DataStructure {
@@ -95,18 +76,11 @@ export const Home: React.FC = () => {
 
   const [toolbarSelection, setToolbarSelection] = useState(0)
   const [slideStates, setSlideStates] = useState([true, false])
-  const [settingsState, setSettingsState] = useState(false);
-  const [progressSettings, setProgressSettings] = useState({
-    checkbox1: false
-  })
 
   const [coursesData, setCoursesData] = useState<CourseData[]>([])
   const [homeworks, setHomeworks] = useState<DataStructure[]>([])
   const [projects, setProjects] = useState<DataStructure[]>([])
   const [exams, setExams] = useState<DataStructure[]>([])
-
-  const [progressData, setProgressData] = useState<ProgressData[]>([])
-  const [taskData, setTaskData] = useState<TaskData[]>([])
 
   const firebase_User = app.auth().currentUser;
   let currentUserID = "";
@@ -286,200 +260,133 @@ export const Home: React.FC = () => {
       var maxIndex = Math.max(homeworks.length, projects.length, exams.length)
       var grade
 
-      homeworks.forEach(hw => {
-        console.log(hw.class)
-        console.log(course.title)
-        if (hw.class === course.title){
+      for (index; index < maxIndex; index++){
+        if (index < homeworks.length && homeworks[index].class === course.title){
           homework += homeworks[index].grade * (homeworks[index].section_weight / 100)
         }
-      })
 
-      // for (index; index < maxIndex; index++){
-      //   if (index < homeworks.length && homeworks[index].class === course.title){
-      //     homework += homeworks[index].grade * (homeworks[index].section_weight / 100)
-      //   }
+        if (index < projects.length && projects[index].class === course.title){
+          project += projects[index].grade * (projects[index].section_weight / 100)
+        }
 
-      //   if (index < projects.length && projects[index].class === course.title){
-      //     project += projects[index].grade * (projects[index].section_weight / 100)
-      //   }
+        if (index < exams.length && exams[index].class === course.title){
+          exam += exams[index].grade * (exams[index].section_weight / 100)
+        }
+      }
 
-      //   if (index < exams.length && exams[index].class === course.title){
-      //     exam += exams[index].grade * (exams[index].section_weight / 100)
-      //   }
-      // }
+      const total = ((course.gradeWeights.homeworkWeight / 100) * homework) + 
+                  ((course.gradeWeights.projectWeight / 100) * project) + 
+                  ((course.gradeWeights.examWeight / 100) * exam)
 
       grade = {
-        total:  (course.gradeWeights.homeworkWeight * homework) + 
-                (course.gradeWeights.projectWeight * project) + 
-                (course.gradeWeights.examWeight * exam),
-        homework: homework,
-        project: project,
-        exam: exam
+        total:  Math.round((total + Number.EPSILON) * 100) / 100,
+        homework: Math.round((homework + Number.EPSILON) * 100) / 100,
+        project: Math.round((project + Number.EPSILON) * 100) / 100,
+        exam: Math.round((exam + Number.EPSILON) * 100) / 100
       }
+
+
 
       return grade
   }
 
   const getTaskData = () => {
 
+    var index = 0, maxIndex = Math.max(homeworks.length, projects.length, exams.length)
     let tasks  = Array()
 
-    homeworks.forEach(hw => {
-      let courseMatch = emptyCourseData()
-      let findTerm
+    coursesData.map((course) => {
+      for (index; index < maxIndex; index++){
+        if (index < homeworks.length && homeworks[index].class === course.title){
+          tasks.push({
+            class: homeworks[index].class,
+            title: homeworks[index].title,
+            dueBy: homeworks[index].DateDue,
+            priority: course.priority,
+            sectionWeight: homeworks[index].section_weight + "%",
+            overallWeight: ((course.gradeWeights.homeworkWeight / 100) * homeworks[index].section_weight) + "%"
+          })
+        }
 
-      if((findTerm = coursesData.find(course => course.title === hw.class)) !== undefined)
-        courseMatch = findTerm
+        if (index < projects.length && projects[index].class === course.title){
+          tasks.push({
+            class: projects[index].class,
+            title: projects[index].title,
+            dueBy: projects[index].DateDue,
+            priority: course.priority,
+            sectionWeight: projects[index].section_weight + "%",
+            overallWeight: ((course.gradeWeights.homeworkWeight / 100) * projects[index].section_weight) + "%"
+          })
+        }
 
-      const tempHw = {
-        course: hw.class,
-        title: hw.title,
-        dueBy: hw.DateDue,
-        priority: courseMatch?.priority,
-        sectionWeight: hw.section_weight,
-        overallWeight: courseMatch?.gradeWeights.homeworkWeight * hw.section_weight
+        if (index < exams.length && exams[index].class === course.title){
+          tasks.push({
+            class: exams[index].class,
+            title: exams[index].title,
+            dueBy: exams[index].DateDue,
+            priority: course.priority,
+            sectionWeight: exams[index].section_weight + "%",
+            overallWeight: ((course.gradeWeights.homeworkWeight / 100) * exams[index].section_weight) + "%"
+          })
+        }
       }
-
-      tasks.push(tempHw)
     })
 
-    projects.forEach(proj => {
-      let courseMatch = emptyCourseData()
-      let findTerm
+    tasks.sort((a, b) => (new Date(a.dueBy) >= new Date(b.dueBy)) ? 1 : -1)
 
-      if((findTerm = coursesData.find(course => course.title === proj.class)) !== undefined)
-        courseMatch = findTerm
-
-      const tempProj = {
-        course: proj.class,
-        title: proj.title,
-        dueBy: proj.DateDue,
-        priority: courseMatch?.priority,
-        sectionWeight: proj.section_weight,
-        overallWeight: courseMatch?.gradeWeights.homeworkWeight * proj.section_weight
-      }
-
-      tasks.push(tempProj)
-    })
-
-    exams.forEach(exam => {
-      let courseMatch = emptyCourseData()
-      let findTerm
-
-      if((findTerm = coursesData.find(course => course.title === exam.class)) !== undefined)
-        courseMatch = findTerm
-
-      const tempExam = {
-        course: exam.class,
-        title: exam.title,
-        dueBy: exam.DateDue,
-        priority: courseMatch?.priority,
-        sectionWeight: exam.section_weight,
-        overallWeight: courseMatch?.gradeWeights.homeworkWeight * exam.section_weight
-      }
-
-      tasks.push(tempExam)
-    })
     return tasks
   }
 
   const progressSection = (
-    <Grid container direction = "row" spacing = {3}>
-      {(loaded[0] && loaded[1] && loaded[2]) &&
-      coursesData.map((item) => (
-        <Grid key = {"progGrid-" + `${nextId()}`} item xs = {12} sm = {6} md = {6} lg = {4} xl = {4}>
-          <CustomCardProgress
-          key = {"progItem-" + `${nextId()}`}
-          title = {item.title}
-          data = {getClassProgress(item)}
-          />
-        </Grid>
-      ))}
-    </Grid>
+    
+      <Grid container direction = "row" spacing = {3} justify = "center" alignItems = "flex-start">
+        
+        {(loaded[0] && loaded[1] && loaded[2]) &&
+        coursesData.map((item) => (
+          <Grid key = {"progGrid-" + `${nextId()}`} item xs = {12} sm = {8} md = {5} lg = {4} xl = {3}>
+            <CustomCardProgress
+            key = {"progItem-" + `${nextId()}`}
+            title = {item.title}
+            data = {getClassProgress(item)}
+            />
+          </Grid>
+        ))}
+      </Grid>
   )
   
 
   const taskSection = (
-    <Grid key = "taskContainer" item xs = {12} className = {classes.tableRoot}>
+    <Grid key = "taskContainer" item xs = {12}>
+      {(loaded[0] && loaded[1] && loaded[2]) &&
       <CustomTable
       key = "taskTable"
-      data = {taskData}
+      data = {getTaskData()}
       headerText = {tableColumns}
-      />
+      />}
     </Grid>
   )
-
-  const progressModal = (
-    <Grid container direction = "row" spacing = {4} className = {classes.settingsGrid}>
-      <Grid item xs = {3}>
-        <CustomCheckbox
-        label = "checkbox 1"
-        state = {progressSettings.checkbox1}
-        onChange = {() => handleProgressSettingCheck("checkbox1")}
-        />
-      </Grid>
-    </Grid>
-  )
-
-  const taskModal = (
-    <Grid container direction = "row" spacing = {4}>
-      <Grid item xs = {3}>
-        <CustomCheckbox
-        label = "checkbox 1"
-        state = {progressSettings.checkbox1}
-        onChange = {() => handleProgressSettingCheck("checkbox1")}
-        />
-      </Grid>
-    </Grid>
-  )
-
-  const handleProgressSettingCheck = (target: "checkbox1") => {
-    let settings = Object.assign({}, progressSettings)
-
-    settings[target] = !settings[target]
-
-    setProgressSettings(settings)
-  }
-
-
 
   return (
     <Container style = {{width: "80%"}}>
-      <Grid container direction = "column" justify = "center" alignItems = "center" spacing = {4}>
+      <Grid container direction = "column" justify = "center" alignItems = "center" spacing = {6}>
 
-        
-        <Grid key = "controlsContainer" item xs = {12}>
-          <Grid container direction = "row" justify = "center" alignItems = "center">
-                      
-            <Grid key = "settingsIcon" item xs = {3}>
-              <IconButton onClick = {() => setSettingsState((prev) => (!prev))}>
-                <SettingsIcon className = {classes.settingsRoot}/>
-              </IconButton>
-            </Grid>
-
-            <Grid key = "tabBar" item xs = {9}>
-              <CustomScrollableTabs
-              className={classes.toolbarRoot}
-              tabValue={toolbarSelection}
-              onChange={handleToolbarNav}
-              tabNames={["Course Progress", "Task List"]}
-              />
-            </Grid>
-            
-          </Grid>
+        <Grid key = "tabBar" item xs = {9}>
+          <CustomScrollableTabs
+          className={classes.toolbarRoot}
+          tabValue={toolbarSelection}
+          onChange={handleToolbarNav}
+          tabNames={["Course Progress", "Task List"]}
+          />
         </Grid>
 
-        <Collapse in = {settingsState} timeout = {{enter: 100, exit: 100}} disableStrictModeCompat>
-          {(toolbarSelection === 0) ? progressModal : taskModal}
-        </Collapse>
         
-        <Grid key = "sliderSection" item xs = {12}>
+        <Grid container>
           <Slide key = "slider-progress" direction = "left" in = {slideStates[0]} timeout = {{enter: 500, exit: 100}} mountOnEnter unmountOnExit>
             {progressSection}
           </Slide>
 
           <Slide key = "slider-tasks" direction = "right" in = {slideStates[1]} timeout = {{enter: 500, exit: 100}} mountOnEnter unmountOnExit>
-            {(taskData.length !== 0) ? taskSection : <div></div>}
+            {taskSection}
           </Slide>
           
         </Grid>
@@ -489,17 +396,6 @@ export const Home: React.FC = () => {
 };
 
 const useStyles = makeStyles((theme) => ({
-  settingsGrid: {
-    width: "auto",
-    color: "white",
-    border: "solid 1px",
-    borderColor: BORDER_COLOR,
-    borderRadius: 5,
-    backgroundColor: SECONDARY_COLOR,
-    marginBottom: theme.spacing(1),
-    marginTop: theme.spacing(1)
-  },
-
   toolbarRoot: {
     background: SECONDARY_COLOR,
     color: 'white',
@@ -511,28 +407,6 @@ const useStyles = makeStyles((theme) => ({
       transition: "all .35s ease",
       border: "solid 1px",
       borderColor: BORDER_COLOR_HOVER,
-    }
-  },
-
-  linearBarRoot: {
-    width: "100%",
-    height: "100%"
-  },
-
-  settingsRoot: {
-    width: "2.75em", 
-    height: "2.75em",
-    stroke: ICON_BORDER,
-    strokeWidth: "0.75",
-    opacity: 0.75,
-    fill: SECONDARY_COLOR,
-
-    '&:hover': {
-      opacity: 1,
-      width: "3em",
-      height: "3em",
-      stroke: ICON_BORDER_HOVER,
-      strokeWidth: "0.75",
     }
   },
 
