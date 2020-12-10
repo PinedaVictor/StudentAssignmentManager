@@ -141,13 +141,13 @@ export const ProjectTool: React.FC = () => {
         {id: 'title', label: 'Title', value: '', placeHolder: 'Project #1',
          isInvalid: (value: string) => value === ''},
         {id: 'completion', label: 'Completion', value: '', placeHolder: '10',
-         isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
+         isInvalid: (value: string) => value === '' || (!/^\d{1,3}$/.test(value) || parseInt(value) > 100)},
         {id: 'duedate', label: 'Due Date', value: '', placeHolder: '4/20/71',
          isInvalid: (value: string) => isNaN(Date.parse(value))},
         {id: 'grade', label: 'Grade', value: '', placeHolder: '90',
          isInvalid: (value: string) => !/^\d{0,3}$/.test(value)},
         {id: 'section-weight', label: 'Section Weight', value: '', placeHolder: '10',
-         isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
+         isInvalid: (value: string) => value === '' || !/^\d{1,3}$/.test(value)},
         {id: 'reqs', label: 'Requirements', value: '', placeHolder: 'Do...',
          isInvalid: () => false},
         {id: 'related-hw', label: 'Related Homework', value: '', placeHolder: 'HW #1, HW #2',
@@ -167,7 +167,7 @@ export const ProjectTool: React.FC = () => {
         currentSectionWeights -= prevSW;
         currentSectionWeights += newSW;
 
-        return currentSectionWeights >= 100;
+        return currentSectionWeights > 100;
     }
 
     const handleFormAdd = async () => {

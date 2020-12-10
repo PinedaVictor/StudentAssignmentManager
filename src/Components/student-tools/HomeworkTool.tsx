@@ -132,7 +132,7 @@ export const HomeworkTool: React.FC = () => {
         {id: 'title', label: 'Title', value: '', placeHolder: 'Homework #1',
          isInvalid: (value: string) => value === ''},
         {id: 'completion', label: 'Completion', value: '', placeHolder: '10',
-         isInvalid: (value: string) => value === '' || !/^\d{1,3}$/.test(value)},
+         isInvalid: (value: string) => value === '' || (!/^\d{1,3}$/.test(value) && parseInt(value) > 100)},
         {id: 'grade', label: 'Grade', value: '', placeHolder: '90',
          isInvalid: (value: string) => !/^\d{0,3}$/.test(value)},
         {id: 'duedate', label: 'Due Date', value: '', placeHolder: '4/20/71',
@@ -156,7 +156,7 @@ export const HomeworkTool: React.FC = () => {
         currentSectionWeights -= prevSW;
         currentSectionWeights += newSW;
 
-        return currentSectionWeights >= 100;
+        return currentSectionWeights > 100;
     }
 
     const handleFormAdd = async () => {
