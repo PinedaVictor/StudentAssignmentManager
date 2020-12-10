@@ -150,7 +150,7 @@ export const ExamsTools: React.FC = () => {
         {id: 'grade', label: 'Grade', value: '', placeHolder: '90',
          isInvalid: (value: string) => !/^\d{0,3}$/.test(value)},
         {id: 'section-weight', label: 'Section Weight', value: '', placeHolder: '10',
-         isInvalid: (value: string) => value === '' || !/^\d{1,2}$/.test(value)},
+         isInvalid: (value: string) => value === '' || !/^\d{1,3}$/.test(value)},
         {id: 'related-hw', label: 'Related Homework', value: '', placeHolder: 'HW #1, HW #2',
          isInvalid: () => false},
         {id: 'related-projs', label: 'Related Projects', value: '', placeHolder: 'Project #1, Project #2',
