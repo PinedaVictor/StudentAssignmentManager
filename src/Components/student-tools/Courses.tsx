@@ -1,7 +1,3 @@
-/*
-Look up either React lodash, or React debounce for potential performance improvements with materialui update components.
-*/
-
 import React, { useEffect, useState } from "react";
 import { CustomCardStandard }  from "../ReusableParts/CustomCardStandard";
 import { Container, createMuiTheme, Grid, makeStyles, responsiveFontSizes, ThemeProvider, Typography} from "@material-ui/core";
@@ -48,8 +44,7 @@ interface CourseDataStructure {
   gradeWeights: {
     homework : number,
     project : number,
-    exam : number,
-    quiz : number
+    exam : number
   }
 }
 
@@ -135,8 +130,7 @@ export const Courses: React.FC = () => {
     gradeWeights: {
       homework: 0,
       project: 0,
-      exam: 0,
-      quiz: 0
+      exam: 0
     }
   })
 
@@ -168,7 +162,7 @@ export const Courses: React.FC = () => {
       curvingPolicy: string, 
       priority: number,
       gradeScale: {AMinus: number, BMinus: number, CMinus: number, DMinus: number}
-      gradeWeights: {homework: number, project: number, exam: number, quiz: number}
+      gradeWeights: {homework: number, project: number, exam: number}
     } ) => {
   
     setCourseInfo(data)
@@ -212,8 +206,7 @@ export const Courses: React.FC = () => {
       gradeWeights: {
         homework: 0,
         project: 0,
-        exam: 0,
-        quiz: 0
+        exam: 0
       }
     }
 
@@ -389,8 +382,7 @@ export const Courses: React.FC = () => {
       gradeWeights: {
         homework: 0,
         project: 0,
-        exam: 0,
-        quiz: 0
+        exam: 0
       }
     })
   }
@@ -494,7 +486,7 @@ export const Courses: React.FC = () => {
     setCourseInfo(infoCopy)
   }
 
-  const setGradeWeights = (field: "homework" | "project" | "exam" | "quiz", value: number | number[]) => {
+  const setGradeWeights = (field: "homework" | "project" | "exam", value: number | number[]) => {
     let infoCopy = Object.assign({}, CourseInfo)
     var finalVal = 0
 
@@ -527,8 +519,8 @@ export const Courses: React.FC = () => {
     else return temp 
   }
 
-  const validateScaleValues = (field1: number, field2: number, field3: number) => {
-    var difference = 100 - field1 - field2 - field3;
+  const validateScaleValues = (field1: number, field2: number) => {
+    var difference = 100 - field1 - field2;
     
     if (difference >= 0)
       return difference;
@@ -960,7 +952,7 @@ export const Courses: React.FC = () => {
           <Grid item xs = {12}>
             <CustomSlider
             min = {0}
-            max = {validateScaleValues(CourseInfo.gradeWeights.quiz, CourseInfo.gradeWeights.project, CourseInfo.gradeWeights.exam)}
+            max = {validateScaleValues(CourseInfo.gradeWeights.project, CourseInfo.gradeWeights.exam)}
             value = {CourseInfo.gradeWeights.homework}
             onChange = {(event, value) => setGradeWeights("homework", value)}
             />
@@ -977,7 +969,7 @@ export const Courses: React.FC = () => {
           <Grid item xs = {12}>
             <CustomSlider
             min = {0}
-            max = {validateScaleValues(CourseInfo.gradeWeights.homework, CourseInfo.gradeWeights.quiz, CourseInfo.gradeWeights.exam)}
+            max = {validateScaleValues(CourseInfo.gradeWeights.homework, CourseInfo.gradeWeights.exam)}
             value = {CourseInfo.gradeWeights.project}
             onChange = {(event, value) => setGradeWeights("project", value)}
             />
@@ -994,26 +986,9 @@ export const Courses: React.FC = () => {
           <Grid item xs = {12}>
             <CustomSlider
             min = {0}
-            max = {validateScaleValues(CourseInfo.gradeWeights.homework, CourseInfo.gradeWeights.project, CourseInfo.gradeWeights.quiz)}
+            max = {validateScaleValues(CourseInfo.gradeWeights.homework, CourseInfo.gradeWeights.project)}
             value = {CourseInfo.gradeWeights.exam}
             onChange = {(event, value) => setGradeWeights("exam", value)}
-            />
-          </Grid>
-        </Grid>
-
-        <Grid container direction = "column">
-          <Grid item xs = {12}>
-            <ThemeProvider theme = {fontTheme}>
-              <Typography variant = "h4"> {"Quizzes:  " + CourseInfo.gradeWeights.quiz + "%"} </Typography>
-            </ThemeProvider>
-          </Grid>
-
-          <Grid item xs = {12}>
-            <CustomSlider
-            min = {0}
-            max = {validateScaleValues(CourseInfo.gradeWeights.homework, CourseInfo.gradeWeights.project, CourseInfo.gradeWeights.exam)}
-            value = {CourseInfo.gradeWeights.quiz}
-            onChange = {(event, value) => setGradeWeights("quiz", value)}
             />
           </Grid>
         </Grid>
@@ -1098,8 +1073,7 @@ export const Courses: React.FC = () => {
                 gradingWeights: {
                   homework: course.gradeWeights.homework + "%",
                   projects: course.gradeWeights.project + "%",
-                  exams: course.gradeWeights.exam + "%",
-                  quizzes: course.gradeWeights.quiz + "%",
+                  exams: course.gradeWeights.exam + "%"
                 },
               }}
 

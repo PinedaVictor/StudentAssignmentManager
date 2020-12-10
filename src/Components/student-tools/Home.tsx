@@ -1,243 +1,249 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { app } from "../../Database/initFirebase"
+import nextId from "react-id-generator";
 
-import { BORDER_COLOR, BORDER_COLOR_HOVER, ICON_BORDER, ICON_BORDER_HOVER, SECONDARY_COLOR } from "../../Styles/global";
-import { Collapse, Container, Grid, IconButton, makeStyles, Slide } from "@material-ui/core";
+import { BORDER_COLOR, BORDER_COLOR_HOVER, SECONDARY_COLOR } from "../../Styles/global";
+import { Container, Grid, makeStyles, Slide } from "@material-ui/core";
 import { CustomCardProgress } from "../ReusableParts/CustomCardProgress";
 import { CustomScrollableTabs } from '../ReusableParts/CustomScrollableTabs';
-import SettingsIcon from '@material-ui/icons/Settings';
 import { CustomTable } from "../ReusableParts/CustomTable";
-import { CustomCheckbox } from "../ReusableParts/CustomCheckbox";
-
-const classData = [
-  {
-    id: 1,
-    Name: "Phil 101",
-    Total: 70,
-    Homework: 30,
-    Exams: 65,
-    Projects: 100,
-    Quizzes: 45
-  },
-  {
-    id: 2,
-    Name: "Phil 101",
-    Total: 70,
-    Homework: 30,
-    Exams: 65,
-    Projects: 100,
-    Quizzes: 45
-  },
-  {
-    id: 3,
-    Name: "Phil 101",
-    Total: 70,
-    Homework: 30,
-    Exams: 65,
-    Projects: 100,
-    Quizzes: 45
-  },
-  {
-    id: 4,
-    Name: "Phil 101",
-    Total: 70,
-    Homework: 30,
-    Exams: 65,
-    Projects: 100,
-    Quizzes: 45
-  },
-  {
-    id: 5,
-    Name: "Phil 101",
-    Total: 70,
-    Homework: 30,
-    Exams: 65,
-    Projects: 100,
-    Quizzes: 45
-  },
-];
-
-const assignmentsData = [
-  {
-    id: 1,
-    class: "Phil 101",
-    name: "homework 1",
-    dueBy: "12/05",
-    duration: "2 hours",
-    priority: 3,
-    sectionWeight: "20%",
-    overallWeight: "5%",
-  },
-  {
-    id: 1,
-    class: "Phil 101",
-    name: "homework 1",
-    dueBy: "12/05",
-    duration: "2 hours",
-    priority: 3,
-    sectionWeight: "20%",
-    overallWeight: "5%",
-  },
-  {
-    id: 1,
-    class: "Phil 101",
-    name: "homework 1",
-    dueBy: "12/05",
-    duration: "2 hours",
-    priority: 3,
-    sectionWeight: "20%",
-    overallWeight: "5%",
-  },
-  {
-    id: 1,
-    class: "Phil 101",
-    name: "homework 1",
-    dueBy: "12/05",
-    duration: "2 hours",
-    priority: 3,
-    sectionWeight: "20%",
-    overallWeight: "5%",
-  },
-  {
-    id: 1,
-    class: "Phil 101",
-    name: "homework 1",
-    dueBy: "12/05",
-    duration: "2 hours",
-    priority: 3,
-    sectionWeight: "20%",
-    overallWeight: "5%",
-  },
-  {
-    id: 1,
-    class: "Phil 101",
-    name: "homework 1",
-    dueBy: "12/05",
-    duration: "2 hours",
-    priority: 3,
-    sectionWeight: "20%",
-    overallWeight: "5%",
-  },
-  {
-    id: 1,
-    class: "Phil 101",
-    name: "homework 1",
-    dueBy: "12/05",
-    duration: "2 hours",
-    priority: 3,
-    sectionWeight: "20%",
-    overallWeight: "5%",
-  },
-  {
-    id: 1,
-    class: "Phil 101",
-    name: "homework 1",
-    dueBy: "12/05",
-    duration: "2 hours",
-    priority: 3,
-    sectionWeight: "20%",
-    overallWeight: "5%",
-  },
-  {
-    id: 1,
-    class: "Phil 101",
-    name: "homework 1",
-    dueBy: "12/05",
-    duration: "2 hours",
-    priority: 3,
-    sectionWeight: "20%",
-    overallWeight: "5%",
-  },
-  {
-    id: 1,
-    class: "Phil 101",
-    name: "homework 1",
-    dueBy: "12/05",
-    duration: "2 hours",
-    priority: 3,
-    sectionWeight: "20%",
-    overallWeight: "5%",
-  },
-  {
-    id: 1,
-    class: "Phil 101",
-    name: "homework 1",
-    dueBy: "12/05",
-    duration: "2 hours",
-    priority: 3,
-    sectionWeight: "20%",
-    overallWeight: "5%",
-  },
-  {
-    id: 1,
-    class: "Phil 101",
-    name: "homework 1",
-    dueBy: "12/05",
-    duration: "2 hours",
-    priority: 3,
-    sectionWeight: "20%",
-    overallWeight: "5%",
-  },
-  {
-    id: 1,
-    class: "Phil 101",
-    name: "homework 1",
-    dueBy: "12/05",
-    duration: "2 hours",
-    priority: 3,
-    sectionWeight: "20%",
-    overallWeight: "5%",
-  },
-  {
-    id: 1,
-    class: "Phil 101",
-    name: "homework 1",
-    dueBy: "12/05",
-    duration: "2 hours",
-    priority: 3,
-    sectionWeight: "20%",
-    overallWeight: "5%",
-  },
-  {
-    id: 1,
-    class: "Phil 101",
-    name: "homework 1",
-    dueBy: "12/05",
-    duration: "2 hours",
-    priority: 3,
-    sectionWeight: "20%",
-    overallWeight: "5%",
-  },
-  {
-    id: 1,
-    class: "Phil 101",
-    name: "homework 1",
-    dueBy: "12/05",
-    duration: "2 hours",
-    priority: 3,
-    sectionWeight: "20%",
-    overallWeight: "5%",
-  },
-];
 
 const tableColumns = [
   "Class",
   "Assignment",
   "Due By",
-  "Duration",
   "Priority",
   "Section Weight",
   "Overall Weight",
 ];
 
+interface DataStructure {
+  title: string,
+  class: string,
+  DateDue: string,
+  grade: number,
+  section_weight: number
+}
+
+interface CourseData {
+  title: string,
+  priority: number,
+  gradeScale: {
+    A: number,
+    B: number,
+    C: number,
+    D: number
+  },
+  gradeWeights: {
+    homeworkWeight: number,
+    projectWeight: number,
+    examWeight: number
+  }
+}
+
+function emptyData(): DataStructure {
+  return {
+    title: "",
+    class: "",
+    DateDue: "",
+    grade: -1,
+    section_weight: 0
+  }
+}
+
+function emptyCourseData(): CourseData {
+  return {
+    title: "",
+    priority: 0,
+    gradeScale: {
+      A: 0,
+      B: 0,
+      C: 0,
+      D: 0
+    },
+    gradeWeights: {
+      homeworkWeight: 0,
+      projectWeight: 0,
+      examWeight: 0
+    }
+  }
+}
+
 export const Home: React.FC = () => {
   const classes = useStyles()
 
+  const [loaded, setLoaded] = useState([false, false, false])
+
   const [toolbarSelection, setToolbarSelection] = useState(0)
   const [slideStates, setSlideStates] = useState([true, false])
-  const [settingsState, setSettingsState] = useState(false);
-  const [progressSettings, setProgressSettings] = useState({
-    checkbox1: false
-  })
+
+  const [coursesData, setCoursesData] = useState<CourseData[]>([])
+  const [homeworks, setHomeworks] = useState<DataStructure[]>([])
+  const [projects, setProjects] = useState<DataStructure[]>([])
+  const [exams, setExams] = useState<DataStructure[]>([])
+
+  const firebase_User = app.auth().currentUser;
+  let currentUserID = "";
+  if (firebase_User) {
+    currentUserID = firebase_User.uid;
+  }
+
+  const userCollection = app
+      .firestore()
+      .collection('users')
+      .doc(currentUserID)
+
+  let courseCollection = userCollection
+      .collection('Courses')
+
+  let hwCollection = userCollection
+      .collection('HomeworkData')
+
+  let examCollection = userCollection
+      .collection('ExamData')
+
+  let projCollection = userCollection
+      .collection('ProjectData')
+
+  useEffect(() => {
+
+    const courseList = courseCollection
+        .onSnapshot(querySnapshot => {
+            const dataList: CourseData[] = [];
+
+            querySnapshot.forEach(course => {
+                const courseData = course.data();
+                let tempItem = emptyCourseData()
+
+                tempItem = {
+                  title: courseData.courseName,
+                  priority: courseData.priority,
+                  gradeScale: {
+                    A: courseData.gradeScale.AMinus,
+                    B: courseData.gradeScale.BMinus,
+                    C: courseData.gradeScale.CMinus,
+                    D: courseData.gradeScale.DMinus
+                  },
+                  gradeWeights: {
+                    homeworkWeight: courseData.gradeWeights.homework,
+                    projectWeight: courseData.gradeWeights.project,
+                    examWeight: courseData.gradeWeights.exam
+                  }
+                }
+                
+                dataList.push(tempItem)
+            });
+
+            setCoursesData(dataList)
+        });
+        let tempLoad = loaded
+        loaded[0] = true
+        setLoaded(tempLoad)
+    return () => courseList();
+  }, [])
+
+  useEffect(() => {
+
+    const homeworkList = hwCollection
+        .onSnapshot(querySnapshot => {
+            const dataList: DataStructure[] = [];
+
+            querySnapshot.forEach(course => {
+                const courseData = course.data();
+                let tempItem = emptyData()
+
+                if(courseData) {
+                  courseData.homeworks.forEach((homework: DataStructure) => {
+
+                    if (homework){
+                      tempItem = {
+                        title: homework.title,
+                        class: courseData.class,
+                        DateDue: homework.DateDue,
+                        grade: homework.grade,
+                        section_weight: homework.section_weight,
+                      }
+
+                      dataList.push(tempItem);
+                    }
+                  })
+                }
+            });
+            setHomeworks(dataList)
+            let tempLoad = loaded
+            loaded[1] = true
+            setLoaded(tempLoad)
+        });
+    return () => homeworkList();
+  }, []);
+
+  useEffect(() => {
+
+    const projectList = projCollection
+        .onSnapshot(querySnapshot => {
+            const dataList: DataStructure[] = [];
+
+            querySnapshot.forEach(course => {
+                const courseData = course.data();
+                let tempItem = emptyData()
+
+                if(courseData) {
+                  courseData.projects.forEach((project: DataStructure) => {
+
+                    if (project){
+                      tempItem = {
+                        title: project.title,
+                        class: courseData.class,
+                        DateDue: project.DateDue,
+                        grade: project.grade,
+                        section_weight: project.section_weight,
+                      }
+
+                      dataList.push(tempItem);
+                    }
+                  })
+                }
+            });
+            setProjects(dataList)
+            let tempLoad = loaded
+            loaded[2] = true
+            setLoaded(tempLoad)
+        });
+    return () => projectList();
+  }, []);
+
+  useEffect(() => {
+
+    const examList = examCollection
+        .onSnapshot(querySnapshot => {
+            const dataList: DataStructure[] = [];
+
+            querySnapshot.forEach(course => {
+                const courseData = course.data();
+                let tempItem = emptyData()
+
+                if(courseData) {
+                  courseData.exams.forEach((exam: DataStructure) => {
+
+                    if (exam){
+                      tempItem = {
+                        title: exam.title,
+                        class: courseData.class,
+                        DateDue: exam.DateDue,
+                        grade: exam.grade,
+                        section_weight: exam.section_weight,
+                      }
+
+                      dataList.push(tempItem);
+                    }
+                  })
+                }
+            });
+            setExams(dataList)
+        });
+    return () => examList();
+  }, []);
+
 
   const handleToolbarNav = (event: React.ChangeEvent<{}>, newValue: number) => {
     let slidersTemp = slideStates
@@ -248,99 +254,133 @@ export const Home: React.FC = () => {
     setToolbarSelection(newValue);
   };
 
+  const getClassProgress = (course: CourseData) => {
+
+      var homework = 0, project = 0, exam = 0, index = 0
+      var maxIndex = Math.max(homeworks.length, projects.length, exams.length)
+      var grade
+
+      for (index; index < maxIndex; index++){
+        if (index < homeworks.length && homeworks[index].class === course.title){
+          homework += homeworks[index].grade * (homeworks[index].section_weight / 100)
+        }
+
+        if (index < projects.length && projects[index].class === course.title){
+          project += projects[index].grade * (projects[index].section_weight / 100)
+        }
+
+        if (index < exams.length && exams[index].class === course.title){
+          exam += exams[index].grade * (exams[index].section_weight / 100)
+        }
+      }
+
+      const total = ((course.gradeWeights.homeworkWeight / 100) * homework) + 
+                  ((course.gradeWeights.projectWeight / 100) * project) + 
+                  ((course.gradeWeights.examWeight / 100) * exam)
+
+      grade = {
+        total:  Math.round((total + Number.EPSILON) * 100) / 100,
+        homework: Math.round((homework + Number.EPSILON) * 100) / 100,
+        project: Math.round((project + Number.EPSILON) * 100) / 100,
+        exam: Math.round((exam + Number.EPSILON) * 100) / 100
+      }
+
+
+
+      return grade
+  }
+
+  const getTaskData = () => {
+
+    var index = 0, maxIndex = Math.max(homeworks.length, projects.length, exams.length)
+    let tasks  = Array()
+
+    coursesData.map((course) => {
+      for (index; index < maxIndex; index++){
+        if (index < homeworks.length && homeworks[index].class === course.title){
+          tasks.push({
+            class: homeworks[index].class,
+            title: homeworks[index].title,
+            dueBy: homeworks[index].DateDue,
+            priority: course.priority,
+            sectionWeight: homeworks[index].section_weight + "%",
+            overallWeight: ((course.gradeWeights.homeworkWeight / 100) * homeworks[index].section_weight) + "%"
+          })
+        }
+
+        if (index < projects.length && projects[index].class === course.title){
+          tasks.push({
+            class: projects[index].class,
+            title: projects[index].title,
+            dueBy: projects[index].DateDue,
+            priority: course.priority,
+            sectionWeight: projects[index].section_weight + "%",
+            overallWeight: ((course.gradeWeights.homeworkWeight / 100) * projects[index].section_weight) + "%"
+          })
+        }
+
+        if (index < exams.length && exams[index].class === course.title){
+          tasks.push({
+            class: exams[index].class,
+            title: exams[index].title,
+            dueBy: exams[index].DateDue,
+            priority: course.priority,
+            sectionWeight: exams[index].section_weight + "%",
+            overallWeight: ((course.gradeWeights.homeworkWeight / 100) * exams[index].section_weight) + "%"
+          })
+        }
+      }
+    })
+
+    tasks.sort((a, b) => (new Date(a.dueBy) >= new Date(b.dueBy)) ? 1 : -1)
+
+    return tasks
+  }
+
   const progressSection = (
-    <Grid container direction = "row" spacing = {3}>
-      {classData.map((item) => (
-        <Grid key = {"progGrid-" + `${item.id}`} item xs = {12} sm = {6} md = {6} lg = {4} xl = {4}>
-          <CustomCardProgress
-          key = {"progItem-" + `${item.id}`}
-          title = {item.Name}
-          data = {{
-            Total: item.Total,
-            Homework: item.Homework,
-            Projects: item.Projects,
-            Exams: item.Exams,
-            Quizzes: item.Quizzes
-          }}
-          />
-        </Grid>
-      ))}
-    </Grid>
+    
+      <Grid container direction = "row" spacing = {3} justify = "center" alignItems = "flex-start">
+        
+        {(loaded[0] && loaded[1] && loaded[2]) &&
+        coursesData.map((item) => (
+          <Grid key = {"progGrid-" + `${nextId()}`} item xs = {12} sm = {8} md = {5} lg = {4} xl = {3}>
+            <CustomCardProgress
+            key = {"progItem-" + `${nextId()}`}
+            title = {item.title}
+            data = {getClassProgress(item)}
+            />
+          </Grid>
+        ))}
+      </Grid>
   )
+  
 
   const taskSection = (
-    <Grid key = "taskContainer" item xs = {12} className = {classes.tableRoot}>
+    <Grid key = "taskContainer" item xs = {12}>
+      {(loaded[0] && loaded[1] && loaded[2]) &&
       <CustomTable
       key = "taskTable"
-      data = {assignmentsData}
+      data = {getTaskData()}
       headerText = {tableColumns}
-      />
+      />}
     </Grid>
   )
-
-  const progressModal = (
-    <Grid container direction = "row" spacing = {4} className = {classes.settingsGrid}>
-      <Grid item xs = {3}>
-        <CustomCheckbox
-        label = "checkbox 1"
-        state = {progressSettings.checkbox1}
-        onChange = {() => handleProgressSettingCheck("checkbox1")}
-        />
-      </Grid>
-    </Grid>
-  )
-
-  const taskModal = (
-    <Grid container direction = "row" spacing = {4}>
-      <Grid item xs = {3}>
-        <CustomCheckbox
-        label = "checkbox 1"
-        state = {progressSettings.checkbox1}
-        onChange = {() => handleProgressSettingCheck("checkbox1")}
-        />
-      </Grid>
-    </Grid>
-  )
-
-  const handleProgressSettingCheck = (target: "checkbox1") => {
-    let settings = Object.assign({}, progressSettings)
-
-    settings[target] = !settings[target]
-
-    setProgressSettings(settings)
-  }
 
   return (
     <Container style = {{width: "80%"}}>
-      <Grid container direction = "column" justify = "center" alignItems = "center" spacing = {4}>
+      <Grid container direction = "column" justify = "center" alignItems = "center" spacing = {6}>
 
-        
-        <Grid key = "controlsContainer" item xs = {12}>
-          <Grid container direction = "row" justify = "center" alignItems = "center">
-                      
-            <Grid key = "settingsIcon" item xs = {3}>
-              <IconButton onClick = {() => setSettingsState((prev) => (!prev))}>
-                <SettingsIcon className = {classes.settingsRoot}/>
-              </IconButton>
-            </Grid>
-
-            <Grid key = "tabBar" item xs = {9}>
-              <CustomScrollableTabs
-              className={classes.toolbarRoot}
-              tabValue={toolbarSelection}
-              onChange={handleToolbarNav}
-              tabNames={["Course Progress", "Task List"]}
-              />
-            </Grid>
-            
-          </Grid>
+        <Grid key = "tabBar" item xs = {9}>
+          <CustomScrollableTabs
+          className={classes.toolbarRoot}
+          tabValue={toolbarSelection}
+          onChange={handleToolbarNav}
+          tabNames={["Course Progress", "Task List"]}
+          />
         </Grid>
 
-        <Collapse in = {settingsState} timeout = {{enter: 100, exit: 100}} disableStrictModeCompat>
-          {(toolbarSelection === 0) ? progressModal : taskModal}
-        </Collapse>
         
-        <Grid key = "sliderSection" item xs = {12}>
+        <Grid container>
           <Slide key = "slider-progress" direction = "left" in = {slideStates[0]} timeout = {{enter: 500, exit: 100}} mountOnEnter unmountOnExit>
             {progressSection}
           </Slide>
@@ -356,17 +396,6 @@ export const Home: React.FC = () => {
 };
 
 const useStyles = makeStyles((theme) => ({
-  settingsGrid: {
-    width: "auto",
-    color: "white",
-    border: "solid 1px",
-    borderColor: BORDER_COLOR,
-    borderRadius: 5,
-    backgroundColor: SECONDARY_COLOR,
-    marginBottom: theme.spacing(1),
-    marginTop: theme.spacing(1)
-  },
-
   toolbarRoot: {
     background: SECONDARY_COLOR,
     color: 'white',
@@ -378,28 +407,6 @@ const useStyles = makeStyles((theme) => ({
       transition: "all .35s ease",
       border: "solid 1px",
       borderColor: BORDER_COLOR_HOVER,
-    }
-  },
-
-  linearBarRoot: {
-    width: "100%",
-    height: "100%"
-  },
-
-  settingsRoot: {
-    width: "2.75em", 
-    height: "2.75em",
-    stroke: ICON_BORDER,
-    strokeWidth: "0.75",
-    opacity: 0.75,
-    fill: SECONDARY_COLOR,
-
-    '&:hover': {
-      opacity: 1,
-      width: "3em",
-      height: "3em",
-      stroke: ICON_BORDER_HOVER,
-      strokeWidth: "0.75",
     }
   },
 

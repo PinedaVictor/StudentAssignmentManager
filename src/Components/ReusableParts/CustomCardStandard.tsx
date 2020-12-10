@@ -174,9 +174,9 @@ export const CustomCardStandard: React.FC<Props> = ({
                   
                 }
 
-                {((expandingData !== undefined && expandingData !== null) && expandState === true) &&
+                {(expandingData !== undefined && expandingData !== null) &&
                   
-                  <Collapse in = {expandState} timeout = {{enter: 100, exit: 100}} disableStrictModeCompat>
+                  <Collapse in = {expandState} timeout = {{enter: 250, exit: 250}} disableStrictModeCompat>
                     <Grid
                     container
                     direction = "row"
