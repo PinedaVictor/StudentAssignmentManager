@@ -167,7 +167,7 @@ export const ProjectTool: React.FC = () => {
         currentSectionWeights -= prevSW;
         currentSectionWeights += newSW;
 
-        return currentSectionWeights >= 100;
+        return currentSectionWeights > 100;
     }
 
     const handleFormAdd = async () => {
