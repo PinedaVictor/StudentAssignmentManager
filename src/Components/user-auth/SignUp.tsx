@@ -43,7 +43,7 @@ export const SignUpForm: React.FC = () => {
           })
           .then(() => {
             console.log("Pushing history");
-            history.push("/Home");
+            history.push("/");
           })
           .catch((error) => {
             console.log("Could not register user:::::", error);
