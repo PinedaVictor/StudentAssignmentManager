@@ -112,22 +112,22 @@ export const Home: React.FC = () => {
             const dataList: CourseData[] = [];
 
             querySnapshot.forEach(course => {
-                const courseData = course.data();
+                const courseDataRemote = course.data();
                 let tempItem = emptyCourseData()
 
                 tempItem = {
-                  title: courseData.courseName,
-                  priority: courseData.priority,
+                  title: courseDataRemote.courseName,
+                  priority: courseDataRemote.priority,
                   gradeScale: {
-                    A: courseData.gradeScale.AMinus,
-                    B: courseData.gradeScale.BMinus,
-                    C: courseData.gradeScale.CMinus,
-                    D: courseData.gradeScale.DMinus
+                    A: courseDataRemote.gradeScale.AMinus,
+                    B: courseDataRemote.gradeScale.BMinus,
+                    C: courseDataRemote.gradeScale.CMinus,
+                    D: courseDataRemote.gradeScale.DMinus
                   },
                   gradeWeights: {
-                    homeworkWeight: courseData.gradeWeights.homework,
-                    projectWeight: courseData.gradeWeights.project,
-                    examWeight: courseData.gradeWeights.exam
+                    homeworkWeight: courseDataRemote.gradeWeights.homework,
+                    projectWeight: courseDataRemote.gradeWeights.project,
+                    examWeight: courseDataRemote.gradeWeights.exam
                   }
                 }
                 
@@ -292,44 +292,75 @@ export const Home: React.FC = () => {
 
   const getTaskData = () => {
 
-    var index = 0, maxIndex = Math.max(homeworks.length, projects.length, exams.length)
+    var index = 0 
+    const maxIndex = Math.max(homeworks.length, projects.length, exams.length)
     let tasks  = Array()
 
-    coursesData.map((course) => {
-      for (index; index < maxIndex; index++){
-        if (index < homeworks.length && homeworks[index].class === course.title){
-          tasks.push({
-            class: homeworks[index].class,
-            title: homeworks[index].title,
-            dueBy: homeworks[index].DateDue,
-            priority: course.priority,
-            sectionWeight: homeworks[index].section_weight + "%",
-            overallWeight: ((course.gradeWeights.homeworkWeight / 100) * homeworks[index].section_weight) + "%"
-          })
-        }
+    homeworks.forEach((hw) => {
 
-        if (index < projects.length && projects[index].class === course.title){
-          tasks.push({
-            class: projects[index].class,
-            title: projects[index].title,
-            dueBy: projects[index].DateDue,
-            priority: course.priority,
-            sectionWeight: projects[index].section_weight + "%",
-            overallWeight: ((course.gradeWeights.homeworkWeight / 100) * projects[index].section_weight) + "%"
-          })
-        }
+      let matchingClass = coursesData.find((course) => (course.title === hw.class))
+      let priority = 0
+      let hwWeight = 0
+      console.log(matchingClass)
 
-        if (index < exams.length && exams[index].class === course.title){
-          tasks.push({
-            class: exams[index].class,
-            title: exams[index].title,
-            dueBy: exams[index].DateDue,
-            priority: course.priority,
-            sectionWeight: exams[index].section_weight + "%",
-            overallWeight: ((course.gradeWeights.homeworkWeight / 100) * exams[index].section_weight) + "%"
-          })
-        }
+      if(matchingClass !== undefined && matchingClass !== null){
+        priority = matchingClass.priority
+        hwWeight = matchingClass.gradeWeights.homeworkWeight
       }
+
+      tasks.push({
+        class: hw.class,
+        title: hw.title,
+        dueBy: hw.DateDue,
+        priority: priority,
+        sectionWeight: hw.section_weight + "%",
+        overallWeight: ((hwWeight / 100) * hw.section_weight) + "%"
+      })
+
+    })
+
+    projects.forEach((prj) => {
+
+      let matchingClass = coursesData.find((course) => (course.title === prj.class))
+      let priority = 0
+      let prjWeight = 0
+
+      if(matchingClass !== undefined && matchingClass !== null){
+        priority = matchingClass.priority
+        prjWeight = matchingClass.gradeWeights.projectWeight
+      }
+
+      tasks.push({
+        class: prj.class,
+        title: prj.title,
+        dueBy: prj.DateDue,
+        priority: priority,
+        sectionWeight: prj.section_weight + "%",
+        overallWeight: ((prjWeight / 100) * prj.section_weight) + "%"
+      })
+
+    })
+
+    exams.forEach((exam) => {
+
+      let matchingClass = coursesData.find((course) => (course.title === exam.class))
+      let priority = 0
+      let examWeight = 0
+
+      if(matchingClass !== undefined && matchingClass !== null){
+        priority = matchingClass.priority
+        examWeight = matchingClass.gradeWeights.examWeight
+      }
+
+      tasks.push({
+        class: exam.class,
+        title: exam.title,
+        dueBy: exam.DateDue,
+        priority: priority,
+        sectionWeight: exam.section_weight + "%",
+        overallWeight: ((examWeight / 100) * exam.section_weight) + "%"
+      })
+
     })
 
     tasks.sort((a, b) => (new Date(a.dueBy) >= new Date(b.dueBy)) ? 1 : -1)
